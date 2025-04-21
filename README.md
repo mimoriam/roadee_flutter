@@ -40,3 +40,8 @@ Enable admin to accept or manage these orders.
 ## Milestone 9: User Notifications
 
 Provide functionality for admin to send custom push notifications to users directly from the Admin App.
+
+# Milestone 10:
+
+Provide a consistent UI across the app and ensure a seamless experience. Thrash any bugs that 
+may come along the way! :)
