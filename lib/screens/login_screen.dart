@@ -1,6 +1,18 @@
 import 'package:flutter/material.dart';
+
+import 'package:flutter_form_builder/flutter_form_builder.dart';
+import 'package:form_builder_validators/form_builder_validators.dart';
+
 import 'package:roadee_flutter/screens/signup_screen.dart';
 import 'package:roadee_flutter/screens/submit_order_screen.dart';
+
+import 'package:firebase_auth/firebase_auth.dart';
+
+extension StringExtension on String {
+  String toCapitalize() {
+    return "${this[0].toUpperCase()}${substring(1).toLowerCase()}";
+  }
+}
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -10,106 +22,179 @@ class LoginScreen extends StatefulWidget {
 }
 
 class _LoginScreenState extends State<LoginScreen> {
-  final _formKey = GlobalKey<FormState>();
+  final _formKey = GlobalKey<FormBuilderState>();
+  String error = '';
 
-  // Controllers for form fields
-  final _emailController = TextEditingController();
-  final _passwordController = TextEditingController();
+  Future<UserCredential?> authenticate() async {
+    setState(() {
+      error = '';
+    });
 
-  @override
-  void dispose() {
-    _emailController.dispose();
-    _passwordController.dispose();
-    super.dispose();
+    try {
+      final user = await FirebaseAuth.instance.signInWithEmailAndPassword(
+        // email: _emailController.text.trim(),
+        // password: _passwordController.text.trim(),
+        email: _formKey.currentState?.fields['email']?.value,
+        password: _formKey.currentState?.fields['password']?.value,
+      );
+
+      return user;
+    } on FirebaseAuthException catch (e) {
+      // if (e.code == 'weak-password') {
+      //   setState(() => error = e.message ?? 'Auth error');
+      // } else if (e.code == 'email-already-in-use') {
+      //   setState(() => error = e.message ?? 'Auth error');
+      // } else if (e.code == 'user-not-found') {
+      //   setState(() => error = e.message ?? 'Auth error');
+      // } else if (e.code == 'wrong-password') {
+      //   setState(() => error = e.message ?? 'Auth error');
+      // } else if (e.code == 'INVALID_LOGIN_CREDENTIALS') {
+      //   setState(() => error = e.message ?? 'Auth error');
+      // }
+      setState(() {
+        // error = e.message ?? 'Authentication error';
+        error = "Authentication error";
+      });
+    } catch (e) {
+      setState(() {
+        error = 'Unexpected error occurred';
+      });
+    }
+    return null;
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: const Color(0xFF128f8b),
-      // Blue background color matching the image
+      // resizeToAvoidBottomInset: false,
       body: SafeArea(
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 22.0),
-          child: Form(
-            key: _formKey,
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                const SizedBox(height: 200),
-                const Text(
-                  'Log In',
-                  style: TextStyle(
-                    fontSize: 48,
-                    fontWeight: FontWeight.bold,
-                    color: Colors.white,
-                  ),
-                ),
-                const SizedBox(height: 22),
-                _buildTextField(
-                  controller: _emailController,
-                  hintText: 'Email',
-                  keyboardType: TextInputType.emailAddress,
-                ),
-                const SizedBox(height: 16),
-                _buildTextField(
-                  controller: _passwordController,
-                  hintText: 'Password',
-                  obscureText: true,
-                ),
-                Align(
-                  alignment: Alignment.centerRight,
-                  child: TextButton(
-                    onPressed: () {
-                      // Handle forgot password
-                    },
-                    child: const Text(
-                      'Forgot password?',
-                      style: TextStyle(color: Colors.white, fontSize: 16),
+        child: Stack(
+          children: [
+            GestureDetector(
+              onTap: () => FocusScope.of(context).unfocus(),
+              child: LayoutBuilder(
+                builder: (context, constraints) {
+                  return SingleChildScrollView(
+                    reverse: true,
+                    padding: EdgeInsets.only(
+                      left: 24.0,
+                      right: 24.0,
+                      // top: height * 0.1,
+                      // bottom: MediaQuery.of(context).viewInsets.bottom + 24.0,
                     ),
-                  ),
-                ),
-                const SizedBox(height: 8),
-                _buildButtonRow(),
-                const Spacer(flex: 2),
-                // Bottom home indicator
-                Center(
-                  child: Container(
-                    margin: const EdgeInsets.only(bottom: 8.0),
-                    width: 135,
-                    height: 5,
-                    decoration: BoxDecoration(
-                      color: Colors.white.withValues(alpha: 0.5),
-                      borderRadius: BorderRadius.circular(2.5),
+                    child: ConstrainedBox(
+                      constraints: BoxConstraints(
+                        minWidth: constraints.maxWidth,
+                        minHeight: constraints.maxHeight,
+                      ),
+                      child: IntrinsicHeight(
+                        child: FormBuilder(
+                          key: _formKey,
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.stretch,
+                            mainAxisSize: MainAxisSize.max,
+                            children: [
+                              const SizedBox(height: 200),
+                              const Text(
+                                'Log In',
+                                style: TextStyle(
+                                  fontSize: 48,
+                                  fontWeight: FontWeight.bold,
+                                  color: Colors.white,
+                                ),
+                              ),
+                              if (error.isNotEmpty)
+                                Text(
+                                  error,
+                                  style: const TextStyle(color: Colors.red),
+                                ),
+                              const SizedBox(height: 22),
+                              _buildTextField(
+                                name: 'email',
+                                autovalidateMode: AutovalidateMode.onUnfocus,
+                                validator: FormBuilderValidators.compose([
+                                  FormBuilderValidators.required(),
+                                  FormBuilderValidators.email(),
+                                ]),
+                              ),
+                              const SizedBox(height: 16),
+                              _buildTextField(
+                                name: 'password',
+                                obscureText: true,
+                                autovalidateMode: AutovalidateMode.onUnfocus,
+                                validator: FormBuilderValidators.compose([
+                                  FormBuilderValidators.required(),
+                                  FormBuilderValidators.min(6)
+                                ]),
+                              ),
+                              Align(
+                                alignment: Alignment.centerRight,
+                                child: TextButton(
+                                  onPressed: () {
+                                    // Handle forgot password
+                                  },
+                                  child: const Text(
+                                    'Forgot password?',
+                                    style: TextStyle(
+                                      color: Colors.white,
+                                      fontSize: 16,
+                                    ),
+                                  ),
+                                ),
+                              ),
+                              const SizedBox(height: 8),
+                              _buildButtonRow(),
+                              // const Spacer(flex: 2),
+                              SizedBox(height: 80),
+                            ],
+                          ),
+                        ),
+                      ),
                     ),
-                  ),
-                ),
-                const SizedBox(height: 8),
-              ],
+                  );
+                },
+              ),
             ),
-          ),
+            Align(
+              alignment: Alignment.bottomCenter,
+              child: Padding(
+                padding: const EdgeInsets.only(bottom: 16.0),
+                child: Container(
+                  // margin: const EdgeInsets.only(bottom: 8.0),
+                  width: 135,
+                  height: 5,
+                  decoration: BoxDecoration(
+                    color: Colors.white.withValues(alpha: 0.5),
+                    borderRadius: BorderRadius.circular(2.5),
+                  ),
+                ),
+              ),
+            ),
+          ],
         ),
       ),
     );
   }
 
   Widget _buildTextField({
-    required TextEditingController controller,
-    required String hintText,
+    required String name,
+    required AutovalidateMode autovalidateMode,
+    required validator,
     bool obscureText = false,
-    TextInputType keyboardType = TextInputType.text,
   }) {
     return Container(
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(16),
       ),
-      child: TextFormField(
-        controller: controller,
+      child: FormBuilderTextField(
+        name: name,
+        autovalidateMode: autovalidateMode,
+        validator: validator,
         obscureText: obscureText,
-        keyboardType: keyboardType,
         decoration: InputDecoration(
-          hintText: hintText,
+          hintText: name.toCapitalize(),
           hintStyle: TextStyle(color: Color(0xFF799ac2), fontSize: 18),
           contentPadding: const EdgeInsets.symmetric(
             horizontal: 20,
@@ -140,13 +225,18 @@ class _LoginScreenState extends State<LoginScreen> {
         Expanded(
           child: _buildButton(
             text: 'Log In',
-            onPressed: () {
+            onPressed: () async {
               if (_formKey.currentState!.validate()) {
                 // Process login logic
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (context) => SubmitOrderScreen()),
-                );
+                final user = await authenticate();
+                if (user != null) {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => SubmitOrderScreen(),
+                    ),
+                  );
+                }
               }
             },
           ),
