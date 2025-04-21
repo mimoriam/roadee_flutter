@@ -156,7 +156,7 @@ class _LoginScreenState extends State<LoginScreen> {
                 },
               ),
             ),
-            Align(
+            MediaQuery.of(context).viewInsets.bottom == 0.0 ? Align(
               alignment: Alignment.bottomCenter,
               child: Padding(
                 padding: const EdgeInsets.only(bottom: 16.0),
@@ -170,7 +170,7 @@ class _LoginScreenState extends State<LoginScreen> {
                   ),
                 ),
               ),
-            ),
+            ): Container(),
           ],
         ),
       ),
