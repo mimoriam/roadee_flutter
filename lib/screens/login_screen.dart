@@ -125,7 +125,7 @@ class _LoginScreenState extends State<LoginScreen> {
                                 autovalidateMode: AutovalidateMode.onUnfocus,
                                 validator: FormBuilderValidators.compose([
                                   FormBuilderValidators.required(),
-                                  FormBuilderValidators.min(6)
+                                  FormBuilderValidators.minLength(6)
                                 ]),
                               ),
                               Align(
