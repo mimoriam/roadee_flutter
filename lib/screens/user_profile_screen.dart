@@ -146,7 +146,10 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
                     ],
                   ),
                   const SizedBox(width: 8),
-                  const CircleAvatar(radius: 18),
+                  const CircleAvatar(
+                    radius: 18,
+                    backgroundImage: AssetImage("images/default_pfp.jpg"),
+                  ),
                 ],
               ),
             ),
@@ -173,7 +176,7 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
                                 crossAxisAlignment: CrossAxisAlignment.stretch,
                                 mainAxisSize: MainAxisSize.max,
                                 children: [
-                                  const SizedBox(height: 200),
+                                  const SizedBox(height: 50),
                                   const Text(
                                     'Log In',
                                     style: TextStyle(
@@ -234,10 +237,11 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
                                           initialValue: "${user['phone']}",
                                           autovalidateMode:
                                               AutovalidateMode.onUnfocus,
-                                          validator: FormBuilderValidators.compose([
-                                            FormBuilderValidators.required(),
-                                            FormBuilderValidators.email(),
-                                          ]),
+                                          validator:
+                                              FormBuilderValidators.compose([
+                                                FormBuilderValidators.required(),
+                                                FormBuilderValidators.email(),
+                                              ]),
                                         ),
                                       ),
 

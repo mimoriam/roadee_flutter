@@ -37,7 +37,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
             "email": user.user!.email,
             "phone": _formKey.currentState?.fields['phone']?.value,
             "address": "",
-            "profileImage": "",
+            "profileImage": "default_pfp.jpg",
             "createdAt": FieldValue.serverTimestamp(),
           });
 

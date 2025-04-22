@@ -12,13 +12,12 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
-
   Future<Map<String, dynamic>?> getUserProfile() async {
     final uid = FirebaseAuth.instance.currentUser?.uid;
     if (uid == null) return null;
 
     final doc =
-    await FirebaseFirestore.instance.collection("users").doc(uid).get();
+        await FirebaseFirestore.instance.collection("users").doc(uid).get();
     return doc.exists ? doc.data() : null;
   }
 
@@ -26,10 +25,12 @@ class _HomeScreenState extends State<HomeScreen> {
   Widget build(BuildContext context) {
     setState(() {});
     return FutureBuilder<Map<String, dynamic>?>(
-        future: getUserProfile(),
-        builder: (context, snapshot) {
-          if (!snapshot.hasData) return Center(child: CircularProgressIndicator());
-          final user = snapshot.data!;
+      future: getUserProfile(),
+      builder: (context, snapshot) {
+        if (!snapshot.hasData) {
+          return Center(child: CircularProgressIndicator());
+        }
+        final user = snapshot.data!;
         return Scaffold(
           // backgroundColor: const Color(0xFF128f8b),
           backgroundColor: Colors.white,
@@ -43,7 +44,9 @@ class _HomeScreenState extends State<HomeScreen> {
                 onPressed: () {
                   Navigator.push(
                     context,
-                    MaterialPageRoute(builder: (context) => SubmitOrderScreen()),
+                    MaterialPageRoute(
+                      builder: (context) => SubmitOrderScreen(),
+                    ),
                   );
                 },
               ),
@@ -77,11 +80,14 @@ class _HomeScreenState extends State<HomeScreen> {
                     onTap: () {
                       Navigator.push(
                         context,
-                        MaterialPageRoute(builder: (context) => UserProfileScreen()),
+                        MaterialPageRoute(
+                          builder: (context) => UserProfileScreen(),
+                        ),
                       );
                     },
-                    child: const CircleAvatar(
+                    child: CircleAvatar(
                       radius: 18,
+                      backgroundImage: AssetImage("images/default_pfp.jpg"),
                     ),
                   ),
                 ],
@@ -183,7 +189,7 @@ class _HomeScreenState extends State<HomeScreen> {
             ),
           ),
         );
-      }
+      },
     );
   }
 }
