@@ -4,9 +4,6 @@ import 'package:flutter_form_builder/flutter_form_builder.dart';
 import 'package:form_builder_validators/form_builder_validators.dart';
 import 'package:roadee_flutter/screens/login_screen.dart';
 
-import 'package:roadee_flutter/screens/signup_screen.dart';
-import 'package:roadee_flutter/screens/submit_order_screen.dart';
-
 import 'package:firebase_auth/firebase_auth.dart';
 
 class SignUpScreen extends StatefulWidget {
