@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:roadee_flutter/screens/submit_order_screen.dart';
+import 'package:roadee_flutter/screens/user_profile_screen.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({Key? key}) : super(key: key);
@@ -54,8 +55,16 @@ class _HomeScreenState extends State<HomeScreen> {
                 ],
               ),
               const SizedBox(width: 8),
-              const CircleAvatar(
-                radius: 18,
+              GestureDetector(
+                onTap: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (context) => UserProfileScreen()),
+                  );
+                },
+                child: const CircleAvatar(
+                  radius: 18,
+                ),
               ),
             ],
           ),
