@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:roadee_flutter/screens/home_screen.dart';
 import 'package:roadee_flutter/screens/login_screen.dart';
 
 import 'package:roadee_flutter/screens/submit_order_screen.dart';
@@ -45,7 +46,7 @@ class AuthGate extends StatelessWidget {
           );
         }
         if (snapshot.hasData) {
-          return const SubmitOrderScreen(); // User is signed in
+          return const HomeScreen(); // User is signed in
         } else {
           return const LoginScreen(); // Not signed in
         }
