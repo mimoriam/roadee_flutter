@@ -23,7 +23,7 @@ class MyApp extends StatelessWidget {
       debugShowCheckedModeBanner: false,
       title: 'Roadie',
       theme: ThemeData(
-        primarySwatch: Colors.blue,
+        // primarySwatch: Colors.green,
         fontFamily: 'SF Pro Display',
       ),
       home: const AuthGate(),
