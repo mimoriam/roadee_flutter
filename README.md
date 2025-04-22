@@ -1,6 +1,6 @@
 # Roadee
 
-## Milestone 1: User Authentication
+## Milestone 1: User Authentication ✅
 
 Implement Registration & Login functionality using email and password via Firebase Authentication.
 Also add ability to manage passwords, email confirmation and other misc. functionalities.
