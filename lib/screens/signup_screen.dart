@@ -1,3 +1,4 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 
 import 'package:flutter_form_builder/flutter_form_builder.dart';
@@ -27,6 +28,16 @@ class _SignUpScreenState extends State<SignUpScreen> {
         email: _formKey.currentState?.fields['email']?.value,
         password: _formKey.currentState?.fields['password']?.value,
       );
+
+      await FirebaseFirestore.instance.collection("users").doc(user.user!.uid)
+          .set({
+        "username": _formKey.currentState?.fields['username']?.value,
+        "email": user.user!.email,
+        "phone": _formKey.currentState?.fields['phone']?.value,
+        "address": "",
+        "profileImage": "",
+        "createdAt": FieldValue.serverTimestamp(),
+      });
 
       return user;
     } on FirebaseAuthException {
@@ -82,6 +93,15 @@ class _SignUpScreenState extends State<SignUpScreen> {
                                   style: const TextStyle(color: Colors.red),
                                 ),
                               const SizedBox(height: 30),
+                              _buildTextField(
+                                name: 'username',
+                                autovalidateMode: AutovalidateMode.onUnfocus,
+                                validator: FormBuilderValidators.compose([
+                                  FormBuilderValidators.required(),
+                                  FormBuilderValidators.minLength(4),
+                                ]),
+                              ),
+                              const SizedBox(height: 16),
                               _buildTextField(
                                 name: 'email',
                                 autovalidateMode: AutovalidateMode.onUnfocus,
