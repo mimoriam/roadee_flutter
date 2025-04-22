@@ -29,15 +29,17 @@ class _SignUpScreenState extends State<SignUpScreen> {
         password: _formKey.currentState?.fields['password']?.value,
       );
 
-      await FirebaseFirestore.instance.collection("users").doc(user.user!.uid)
+      await FirebaseFirestore.instance
+          .collection("users")
+          .doc(user.user!.uid)
           .set({
-        "username": _formKey.currentState?.fields['username']?.value,
-        "email": user.user!.email,
-        "phone": _formKey.currentState?.fields['phone']?.value,
-        "address": "",
-        "profileImage": "",
-        "createdAt": FieldValue.serverTimestamp(),
-      });
+            "username": _formKey.currentState?.fields['username']?.value,
+            "email": user.user!.email,
+            "phone": _formKey.currentState?.fields['phone']?.value,
+            "address": "",
+            "profileImage": "",
+            "createdAt": FieldValue.serverTimestamp(),
+          });
 
       return user;
     } on FirebaseAuthException {
@@ -98,7 +100,12 @@ class _SignUpScreenState extends State<SignUpScreen> {
                                 autovalidateMode: AutovalidateMode.onUnfocus,
                                 validator: FormBuilderValidators.compose([
                                   FormBuilderValidators.required(),
-                                  FormBuilderValidators.minLength(4),
+                                  FormBuilderValidators.minLength(
+                                    4,
+                                    errorText:
+                                    "Length should be greater "
+                                        "than 3",
+                                  ),
                                 ]),
                               ),
                               const SizedBox(height: 16),
@@ -117,7 +124,12 @@ class _SignUpScreenState extends State<SignUpScreen> {
                                 keyboardType: TextInputType.phone,
                                 validator: FormBuilderValidators.compose([
                                   FormBuilderValidators.required(),
-                                  FormBuilderValidators.minLength(6),
+                                  FormBuilderValidators.minLength(
+                                    6,
+                                    errorText:
+                                        "Length should be greater "
+                                        "than 5",
+                                  ),
                                   FormBuilderValidators.phoneNumber(),
                                 ]),
                               ),
@@ -128,7 +140,12 @@ class _SignUpScreenState extends State<SignUpScreen> {
                                 autovalidateMode: AutovalidateMode.onUnfocus,
                                 validator: FormBuilderValidators.compose([
                                   FormBuilderValidators.required(),
-                                  FormBuilderValidators.minLength(6),
+                                  FormBuilderValidators.minLength(
+                                    6,
+                                    errorText:
+                                    "Length should be greater "
+                                        "than 5",
+                                  ),
                                 ]),
                               ),
                               const SizedBox(height: 16),
@@ -230,9 +247,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
             if (user != null) {
               Navigator.push(
                 context,
-                MaterialPageRoute(
-                  builder: (context) => LoginScreen(),
-                ),
+                MaterialPageRoute(builder: (context) => LoginScreen()),
               );
             }
           }
