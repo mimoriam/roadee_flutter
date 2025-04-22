@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
 
+import 'package:flutter_form_builder/flutter_form_builder.dart';
+import 'package:form_builder_validators/form_builder_validators.dart';
+
 class SubmitOrderScreen extends StatefulWidget {
   const SubmitOrderScreen({super.key});
 
@@ -8,7 +11,7 @@ class SubmitOrderScreen extends StatefulWidget {
 }
 
 class _SubmitOrderScreenState extends State<SubmitOrderScreen> {
-  final _formKey = GlobalKey<FormState>();
+  final _formKey = GlobalKey<FormBuilderState>();
 
   // Controllers for form fields
   final _nameController = TextEditingController();
@@ -27,166 +30,89 @@ class _SubmitOrderScreenState extends State<SubmitOrderScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: const Color(0xFF128f8b),
-      // Blue background color matching the image
+      appBar: AppBar(
+        backgroundColor: const Color(0xFF128f8b),
+        title: const Text("Roadee"),
+        actions: [Text("You are logged in as "), CircleAvatar()],
+      ),
+      drawer: Drawer(),
       body: SafeArea(
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 24.0),
-          child: Form(
-            key: _formKey,
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                const SizedBox(height: 160),
-                Center(
-                  child: const Text(
-                    'Submit Order',
-                    style: TextStyle(
-                      fontSize: 48,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.white,
-                    ),
-                  ),
-                ),
-                const SizedBox(height: 30),
-                _buildTextField(controller: _nameController, hintText: 'Name'),
-                const SizedBox(height: 16),
-                _buildTextField(
-                  controller: _emailController,
-                  hintText: 'Email',
-                  keyboardType: TextInputType.emailAddress,
-                ),
-                const SizedBox(height: 16),
-                _buildLocationField(),
-                const SizedBox(height: 24),
-                const Align(
-                  alignment: Alignment.centerLeft,
-                  child: Text(
-                    'Payment',
-                    style: TextStyle(
-                      fontSize: 20,
-                      fontWeight: FontWeight.w500,
-                      color: Color(0xFF024d4a),
-                    ),
-                  ),
-                ),
-                const SizedBox(height: 12),
-                _buildPaymentMethodSelector(),
-                const SizedBox(height: 24),
-                _buildSubmitButton(),
-              ],
-            ),
-          ),
-        ),
-      ),
-    );
-  }
+        child: Stack(
+          children: [
+            GestureDetector(
+              onTap: () => FocusScope.of(context).unfocus(),
+              child: LayoutBuilder(
+                builder: (context, constraints) {
+                  return SingleChildScrollView(
+                    reverse: true,
+                    padding: EdgeInsets.only(left: 24.0, right: 24.0),
+                    child: ConstrainedBox(
+                      constraints: BoxConstraints(
+                        minWidth: constraints.maxWidth,
+                        minHeight: constraints.maxHeight,
+                      ),
+                      child: IntrinsicHeight(
+                        child: FormBuilder(
+                          key: _formKey,
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.stretch,
+                            mainAxisSize: MainAxisSize.max,
+                            children: [
+                              const SizedBox(height: 200),
+                              Center(
+                                child: Text(
+                                  "Enter Your Info.",
+                                  style: TextStyle(
+                                    fontSize: 20,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                              ),
+                              Center(
+                                child: Text(
+                                  "And We'll Be On The Way!",
+                                  style: TextStyle(
+                                    fontSize: 20,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                              ),
 
-  Widget _buildTextField({
-    required TextEditingController controller,
-    required String hintText,
-    bool obscureText = false,
-    TextInputType keyboardType = TextInputType.text,
-  }) {
-    return Container(
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(16),
-      ),
-      child: TextFormField(
-        controller: controller,
-        obscureText: obscureText,
-        keyboardType: keyboardType,
-        decoration: InputDecoration(
-          hintText: hintText,
-          hintStyle: TextStyle(color: Color(0xFF799ac2), fontSize: 18),
-          contentPadding: const EdgeInsets.symmetric(
-            horizontal: 20,
-            vertical: 16,
-          ),
-          border: InputBorder.none,
-        ),
-      ),
-    );
-  }
+                              const SizedBox(height: 16),
+                              _roundedInputField('Name'),
 
-  Widget _buildLocationField() {
-    return Container(
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(16),
-      ),
-      child: Row(
-        children: [
-          Padding(
-            padding: const EdgeInsets.only(left: 16.0),
-            child: Icon(Icons.location_on, color: Colors.blue[200], size: 24),
-          ),
-          Expanded(
-            child: TextFormField(
-              controller: _locationController,
-              decoration: InputDecoration(
-                hintText: 'Current Location',
-                hintStyle: TextStyle(color: Color(0xFF799ac2), fontSize: 18),
-                contentPadding: const EdgeInsets.symmetric(
-                  horizontal: 10,
-                  vertical: 16,
-                ),
-                border: InputBorder.none,
+                              const SizedBox(height: 16),
+                              _roundedInputField('Phone #'),
+
+                              const SizedBox(height: 16),
+                              _roundedInputField('Email'),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ),
+                  );
+                },
               ),
             ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildPaymentMethodSelector() {
-    return Align(
-      alignment: Alignment.centerLeft,
-      child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-        decoration: BoxDecoration(
-          color: const Color(0xFF0a6966), // Slightly darker blue
-          borderRadius: BorderRadius.circular(10),
-        ),
-        child: const Text(
-          'Stripe',
-          style: TextStyle(
-            color: Colors.white,
-            fontSize: 18,
-            fontWeight: FontWeight.w500,
-          ),
+          ],
         ),
       ),
     );
   }
 
-  Widget _buildSubmitButton() {
-    return Container(
-      height: 56,
-      decoration: BoxDecoration(
-        color: const Color(0xFF0a6966), // Slightly darker green than
-        // background
-        borderRadius: BorderRadius.circular(10),
-      ),
-      child: TextButton(
-        onPressed: () {
-          if (_formKey.currentState!.validate()) {
-            // Process order submission
-          }
-        },
-        style: TextButton.styleFrom(
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(10),
-          ),
+  Widget _roundedInputField(String hint) {
+    return TextField(
+      decoration: InputDecoration(
+        hintText: hint,
+        contentPadding: const EdgeInsets.symmetric(
+          horizontal: 24,
+          vertical: 16,
         ),
-        child: const Text(
-          'Submit Order',
-          style: TextStyle(
-            color: Colors.white,
-            fontSize: 22,
-            fontWeight: FontWeight.w500,
-          ),
+        border: OutlineInputBorder(borderRadius: BorderRadius.circular(30)),
+        enabledBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(30),
+          borderSide: const BorderSide(color: Colors.black, width: 2),
         ),
       ),
     );
