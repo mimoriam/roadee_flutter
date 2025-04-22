@@ -2,9 +2,10 @@ import 'package:flutter/material.dart';
 
 import 'package:flutter_form_builder/flutter_form_builder.dart';
 import 'package:form_builder_validators/form_builder_validators.dart';
+import 'package:roadee_flutter/screens/forgot_password_screen.dart';
+import 'package:roadee_flutter/screens/home_screen.dart';
 
 import 'package:roadee_flutter/screens/signup_screen.dart';
-import 'package:roadee_flutter/screens/submit_order_screen.dart';
 
 import 'package:firebase_auth/firebase_auth.dart';
 
@@ -32,25 +33,12 @@ class _LoginScreenState extends State<LoginScreen> {
 
     try {
       final user = await FirebaseAuth.instance.signInWithEmailAndPassword(
-        // email: _emailController.text.trim(),
-        // password: _passwordController.text.trim(),
         email: _formKey.currentState?.fields['email']?.value,
         password: _formKey.currentState?.fields['password']?.value,
       );
 
       return user;
     } on FirebaseAuthException catch (e) {
-      // if (e.code == 'weak-password') {
-      //   setState(() => error = e.message ?? 'Auth error');
-      // } else if (e.code == 'email-already-in-use') {
-      //   setState(() => error = e.message ?? 'Auth error');
-      // } else if (e.code == 'user-not-found') {
-      //   setState(() => error = e.message ?? 'Auth error');
-      // } else if (e.code == 'wrong-password') {
-      //   setState(() => error = e.message ?? 'Auth error');
-      // } else if (e.code == 'INVALID_LOGIN_CREDENTIALS') {
-      //   setState(() => error = e.message ?? 'Auth error');
-      // }
       setState(() {
         // error = e.message ?? 'Authentication error';
         error = "Authentication error";
@@ -125,7 +113,7 @@ class _LoginScreenState extends State<LoginScreen> {
                                 autovalidateMode: AutovalidateMode.onUnfocus,
                                 validator: FormBuilderValidators.compose([
                                   FormBuilderValidators.required(),
-                                  FormBuilderValidators.minLength(6)
+                                  FormBuilderValidators.minLength(6),
                                 ]),
                               ),
                               Align(
@@ -133,6 +121,13 @@ class _LoginScreenState extends State<LoginScreen> {
                                 child: TextButton(
                                   onPressed: () {
                                     // Handle forgot password
+                                    Navigator.push(
+                                      context,
+                                      MaterialPageRoute(
+                                        builder:
+                                            (context) => ForgotPasswordScreen(),
+                                      ),
+                                    );
                                   },
                                   child: const Text(
                                     'Forgot password?',
@@ -156,21 +151,23 @@ class _LoginScreenState extends State<LoginScreen> {
                 },
               ),
             ),
-            MediaQuery.of(context).viewInsets.bottom == 0.0 ? Align(
-              alignment: Alignment.bottomCenter,
-              child: Padding(
-                padding: const EdgeInsets.only(bottom: 16.0),
-                child: Container(
-                  // margin: const EdgeInsets.only(bottom: 8.0),
-                  width: 135,
-                  height: 5,
-                  decoration: BoxDecoration(
-                    color: Colors.white.withValues(alpha: 0.5),
-                    borderRadius: BorderRadius.circular(2.5),
+            MediaQuery.of(context).viewInsets.bottom == 0.0
+                ? Align(
+                  alignment: Alignment.bottomCenter,
+                  child: Padding(
+                    padding: const EdgeInsets.only(bottom: 16.0),
+                    child: Container(
+                      // margin: const EdgeInsets.only(bottom: 8.0),
+                      width: 135,
+                      height: 5,
+                      decoration: BoxDecoration(
+                        color: Colors.white.withValues(alpha: 0.5),
+                        borderRadius: BorderRadius.circular(2.5),
+                      ),
+                    ),
                   ),
-                ),
-              ),
-            ): Container(),
+                )
+                : Container(),
           ],
         ),
       ),
@@ -232,9 +229,7 @@ class _LoginScreenState extends State<LoginScreen> {
                 if (user != null) {
                   Navigator.push(
                     context,
-                    MaterialPageRoute(
-                      builder: (context) => SubmitOrderScreen(),
-                    ),
+                    MaterialPageRoute(builder: (context) => HomeScreen()),
                   );
                 }
               }
