@@ -24,6 +24,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
   @override
   Widget build(BuildContext context) {
+    setState(() {});
     return FutureBuilder<Map<String, dynamic>?>(
         future: getUserProfile(),
         builder: (context, snapshot) {
