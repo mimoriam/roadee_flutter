@@ -86,6 +86,28 @@ class _SubmitOrderScreenState extends State<SubmitOrderScreen> {
 
                               const SizedBox(height: 16),
                               _roundedInputField('Email'),
+
+                              const SizedBox(height: 16),
+                              SizedBox(
+                                width: double.infinity,
+                                height: 50,
+                                child: ElevatedButton(
+                                  style: ElevatedButton.styleFrom(
+                                    backgroundColor: Colors.black,
+                                    shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(30),
+                                    ),
+                                  ),
+                                  onPressed: () {
+                                    // Submit logic here
+                                  },
+                                  child: const Text(
+                                    'Request Roadside Assistance',
+                                    style: TextStyle(fontSize: 16, color:
+                                    Colors.white),
+                                  ),
+                                ),
+                              )
                             ],
                           ),
                         ),
