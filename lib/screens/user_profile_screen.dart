@@ -8,6 +8,9 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:roadee_flutter/screens/home_screen.dart';
 import 'package:roadee_flutter/screens/login_screen.dart';
 
+import 'package:geolocator/geolocator.dart';
+import 'package:geocoding/geocoding.dart';
+
 class UserProfileScreen extends StatefulWidget {
   const UserProfileScreen({super.key});
 
@@ -18,10 +21,93 @@ class UserProfileScreen extends StatefulWidget {
 class _UserProfileScreenState extends State<UserProfileScreen> {
   final _formKey = GlobalKey<FormBuilderState>();
   final MenuController _menuController = MenuController();
+  String userAddress = "";
+
+  Future<String?> getUserAddress(BuildContext context) async {
+    bool serviceEnabled;
+    LocationPermission permission;
+
+    // Check if location services are enabled
+    serviceEnabled = await Geolocator.isLocationServiceEnabled();
+    if (!serviceEnabled) {
+      await showDialog(
+        context: context,
+        builder:
+            (ctx) => AlertDialog(
+              title: Text("Location Services Disabled"),
+              content: Text("Please enable location services in settings."),
+              actions: [
+                TextButton(
+                  onPressed: () {
+                    Navigator.of(ctx).pop();
+                    Geolocator.openLocationSettings();
+                  },
+                  child: Text("Open Settings"),
+                ),
+                TextButton(
+                  onPressed: () => Navigator.of(ctx).pop(),
+                  child: Text("Cancel"),
+                ),
+              ],
+            ),
+      );
+      return null;
+    }
+
+    // Handle permission
+    permission = await Geolocator.checkPermission();
+    if (permission == LocationPermission.denied) {
+      permission = await Geolocator.requestPermission();
+      if (permission == LocationPermission.denied) {
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text("Location permission denied")));
+        return null;
+      }
+    }
+
+    if (permission == LocationPermission.deniedForever) {
+      await showDialog(
+        context: context,
+        builder:
+            (ctx) => AlertDialog(
+              title: Text("Permission Denied"),
+              content: Text("Enable location permissions from app settings."),
+              actions: [
+                TextButton(
+                  onPressed: () {
+                    Navigator.of(ctx).pop();
+                    Geolocator.openAppSettings();
+                  },
+                  child: Text("Open App Settings"),
+                ),
+                TextButton(
+                  onPressed: () => Navigator.of(ctx).pop(),
+                  child: Text("Cancel"),
+                ),
+              ],
+            ),
+      );
+      return null;
+    }
+
+    // Get position and address
+    Position position = await Geolocator.getCurrentPosition(
+      desiredAccuracy: LocationAccuracy.high,
+    );
+    List<Placemark> placemarks = await placemarkFromCoordinates(
+      position.latitude,
+      position.longitude,
+    );
+    Placemark place = placemarks[0];
+    return '${place.name}, ${place.locality}, ${place.administrativeArea}, ${place.country}';
+  }
 
   Future<void> _onSelected(String value) async {
     switch (value) {
       case 'Settings':
+        String? address = await getUserAddress(context);
+        print(address);
         break;
       case 'Log out':
         await FirebaseAuth.instance.signOut();
@@ -66,6 +152,18 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
     return null;
   }
 
+  Future<UserCredential?> updateAddress() async {
+    try {
+      final user = FirebaseAuth.instance.currentUser!;
+
+      // Update Firestore email
+      await FirebaseFirestore.instance.collection('users').doc(user.uid).update(
+        {'address': userAddress},
+      );
+    } on FirebaseAuthException {}
+    return null;
+  }
+
   Widget _buildButtons({required String name, required String func}) {
     return Container(
       height: 40,
@@ -75,12 +173,26 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
       ),
       child: TextButton(
         onPressed: () async {
-          setState(() {
+          setState(() async {
             if (func == "Username") {
               updateUsername();
             }
             if (func == "Phone") {
               updatePhone();
+            }
+
+            if (func == "Address") {
+              // Update Address
+              String? userAddresss = await getUserAddress(context);
+
+              if (userAddresss != null) {
+                setState(() {
+                  userAddress = userAddresss;
+                });
+
+                print(userAddress);
+                updateAddress();
+              }
             }
 
             Navigator.pushReplacement(
@@ -232,6 +344,7 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
                                       Expanded(
                                         child: _buildTextField(
                                           name: 'username',
+                                          enabled: true,
                                           initialValue: "${user['username']}",
                                           autovalidateMode:
                                               AutovalidateMode.onUnfocus,
@@ -256,6 +369,7 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
                                       Expanded(
                                         child: _buildTextField(
                                           name: 'email',
+                                          enabled: false,
                                           initialValue: "${user['email']}",
                                           autovalidateMode:
                                               AutovalidateMode.onUnfocus,
@@ -275,6 +389,7 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
                                       Expanded(
                                         child: _buildTextField(
                                           name: 'phone',
+                                          enabled: true,
                                           initialValue: "${user['phone']}",
                                           autovalidateMode:
                                               AutovalidateMode.onUnfocus,
@@ -289,6 +404,30 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
                                       _buildButtons(
                                         name: "Update Phone",
                                         func: "Phone",
+                                      ),
+                                    ],
+                                  ),
+
+                                  Row(
+                                    children: [
+                                      Expanded(
+                                        child: _buildTextField(
+                                          name: 'address',
+                                          enabled: false,
+                                          initialValue: "${user['address']}",
+                                          autovalidateMode:
+                                          AutovalidateMode.onUnfocus,
+                                          validator:
+                                          FormBuilderValidators.compose([
+                                            FormBuilderValidators.required(),
+                                            FormBuilderValidators.email(),
+                                          ]),
+                                        ),
+                                      ),
+
+                                      _buildButtons(
+                                        name: "Update Address",
+                                        func: "Address",
                                       ),
                                     ],
                                   ),
@@ -312,10 +451,11 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
 
 Widget _buildTextField({
   required String name,
-  initialValue,
+  String? initialValue,
   required AutovalidateMode autovalidateMode,
   required validator,
   bool obscureText = false,
+  required bool enabled,
 }) {
   return Container(
     decoration: BoxDecoration(
@@ -323,6 +463,8 @@ Widget _buildTextField({
       borderRadius: BorderRadius.circular(16),
     ),
     child: FormBuilderTextField(
+      maxLines: null,
+      enabled: enabled,
       name: name,
       initialValue: initialValue,
       autovalidateMode: autovalidateMode,
