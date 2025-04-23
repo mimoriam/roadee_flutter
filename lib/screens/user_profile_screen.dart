@@ -17,6 +17,21 @@ class UserProfileScreen extends StatefulWidget {
 
 class _UserProfileScreenState extends State<UserProfileScreen> {
   final _formKey = GlobalKey<FormBuilderState>();
+  final MenuController _menuController = MenuController();
+
+  Future<void> _onSelected(String value) async {
+    switch (value) {
+      case 'Settings':
+        break;
+      case 'Log out':
+        await FirebaseAuth.instance.signOut();
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(builder: (context) => LoginScreen()),
+        );
+        break;
+    }
+  }
 
   Future<Map<String, dynamic>?> getUserProfile() async {
     final uid = FirebaseAuth.instance.currentUser?.uid;
@@ -67,12 +82,6 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
             if (func == "Phone") {
               updatePhone();
             }
-            // Navigator.pushReplacement(
-            //   context,
-            //   MaterialPageRoute(
-            //     builder: (BuildContext context) => super.widget,
-            //   ),
-            // );
 
             Navigator.pushReplacement(
               context,
@@ -146,9 +155,41 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
                     ],
                   ),
                   const SizedBox(width: 8),
-                  const CircleAvatar(
-                    radius: 18,
-                    backgroundImage: AssetImage("images/default_pfp.jpg"),
+                  MenuAnchor(
+                    controller: _menuController,
+                    style: MenuStyle(
+                      backgroundColor: MaterialStateProperty.all(Colors.white),
+                    ),
+                    menuChildren: [
+                      MenuItemButton(
+                        onPressed: () => _onSelected('Settings'),
+                        child: Text('Settings'),
+                      ),
+                      MenuItemButton(
+                        onPressed: () => _onSelected('Log out'),
+                        child: Text('Log out'),
+                      ),
+                    ],
+                    builder: (
+                      BuildContext context,
+                      MenuController controller,
+                      Widget? child,
+                    ) {
+                      return GestureDetector(
+                        onTap: () {
+                          if (controller.isOpen) {
+                            controller.close();
+                          } else {
+                            controller.open();
+                          }
+                        },
+
+                        child: CircleAvatar(
+                          radius: 18,
+                          backgroundImage: AssetImage("images/default_pfp.jpg"),
+                        ),
+                      );
+                    },
                   ),
                 ],
               ),

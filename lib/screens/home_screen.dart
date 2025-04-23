@@ -1,6 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:roadee_flutter/draft_local/draft_login.dart';
 import 'package:roadee_flutter/screens/submit_order_screen.dart';
 import 'package:roadee_flutter/screens/user_profile_screen.dart';
 
@@ -12,6 +13,8 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
+  final MenuController _menuController = MenuController();
+
   Future<Map<String, dynamic>?> getUserProfile() async {
     final uid = FirebaseAuth.instance.currentUser?.uid;
     if (uid == null) return null;
@@ -24,6 +27,27 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   Widget build(BuildContext context) {
     setState(() {});
+
+    Future<void> _onSelected(String value) async {
+      switch (value) {
+        case 'Your Profile':
+          Navigator.push(
+            context,
+            MaterialPageRoute(builder: (context) => UserProfileScreen()),
+          );
+          break;
+        case 'Settings':
+          break;
+        case 'Log out':
+          await FirebaseAuth.instance.signOut();
+          Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(builder: (context) => LoginScreen()),
+          );
+          break;
+      }
+    }
+
     return FutureBuilder<Map<String, dynamic>?>(
       future: getUserProfile(),
       builder: (context, snapshot) {
@@ -76,19 +100,60 @@ class _HomeScreenState extends State<HomeScreen> {
                     ],
                   ),
                   const SizedBox(width: 8),
-                  GestureDetector(
-                    onTap: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => UserProfileScreen(),
+
+                  // GestureDetector(
+                  //   onTap: () {
+                  //     Navigator.push(
+                  //       context,
+                  //       MaterialPageRoute(
+                  //         builder: (context) => UserProfileScreen(),
+                  //       ),
+                  //     );
+                  //   },
+                  //   child: CircleAvatar(
+                  //     radius: 18,
+                  //     backgroundImage: AssetImage("images/default_pfp.jpg"),
+                  //   ),
+                  // ),
+                  MenuAnchor(
+                    controller: _menuController,
+                    style: MenuStyle(
+                      backgroundColor: MaterialStateProperty.all(Colors.white),
+                    ),
+                    menuChildren: [
+                      MenuItemButton(
+                        onPressed: () => _onSelected('Your Profile'),
+                        child: Text('Your Profile'),
+                      ),
+                      MenuItemButton(
+                        onPressed: () => _onSelected('Settings'),
+                        child: Text('Settings'),
+                      ),
+                      MenuItemButton(
+                        onPressed: () => _onSelected('Log out'),
+                        child: Text('Log out'),
+                      ),
+                    ],
+                    builder: (
+                      BuildContext context,
+                      MenuController controller,
+                      Widget? child,
+                    ) {
+                      return GestureDetector(
+                        onTap: () {
+                          if (controller.isOpen) {
+                            controller.close();
+                          } else {
+                            controller.open();
+                          }
+                        },
+
+                        child: CircleAvatar(
+                          radius: 18,
+                          backgroundImage: AssetImage("images/default_pfp.jpg"),
                         ),
                       );
                     },
-                    child: CircleAvatar(
-                      radius: 18,
-                      backgroundImage: AssetImage("images/default_pfp.jpg"),
-                    ),
                   ),
                 ],
               ),
