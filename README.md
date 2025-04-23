@@ -5,7 +5,7 @@
 Implement Registration & Login functionality using email and password via Firebase Authentication.
 Also add ability to manage passwords, email confirmation and other misc. functionalities.
 
-## Milestone 2: Profile Management
+## Milestone 2: Profile Management ✅
 
 Create a user profile page.
 
