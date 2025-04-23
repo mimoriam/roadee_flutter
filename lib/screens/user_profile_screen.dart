@@ -158,7 +158,7 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
                   MenuAnchor(
                     controller: _menuController,
                     style: MenuStyle(
-                      backgroundColor: MaterialStateProperty.all(Colors.white),
+                      backgroundColor: WidgetStateProperty.all(Colors.white),
                     ),
                     menuChildren: [
                       MenuItemButton(
