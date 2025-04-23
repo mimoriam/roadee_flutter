@@ -100,21 +100,6 @@ class _HomeScreenState extends State<HomeScreen> {
                     ],
                   ),
                   const SizedBox(width: 8),
-
-                  // GestureDetector(
-                  //   onTap: () {
-                  //     Navigator.push(
-                  //       context,
-                  //       MaterialPageRoute(
-                  //         builder: (context) => UserProfileScreen(),
-                  //       ),
-                  //     );
-                  //   },
-                  //   child: CircleAvatar(
-                  //     radius: 18,
-                  //     backgroundImage: AssetImage("images/default_pfp.jpg"),
-                  //   ),
-                  // ),
                   MenuAnchor(
                     controller: _menuController,
                     style: MenuStyle(
