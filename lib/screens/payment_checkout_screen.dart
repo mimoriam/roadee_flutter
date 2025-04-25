@@ -27,6 +27,7 @@ class _PaymentCheckoutScreenState extends State<PaymentCheckoutScreen> {
         {
           "orders": FieldValue.arrayUnion([
             {
+              "assistant_assigned": "",
               "billing_address": "asdasdasdsad",
               "card number": "2134 4123 2141 4214",
               "cvc": "431",
