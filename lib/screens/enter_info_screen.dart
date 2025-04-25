@@ -187,7 +187,7 @@ class _EnterInfoScreenState extends State<EnterInfoScreen> {
                                       fontWeight: FontWeight.bold,
                                     ),
                                   ),
-                                  const SizedBox(height: 22),
+                                  const SizedBox(height: 16),
                                   _buildTextField(
                                     name: 'username',
                                     enabled: true,
@@ -199,7 +199,7 @@ class _EnterInfoScreenState extends State<EnterInfoScreen> {
                                       FormBuilderValidators.minLength(5),
                                     ]),
                                   ),
-                                  const SizedBox(height: 22),
+                                  const SizedBox(height: 16),
                                   _buildTextField(
                                     name: 'email',
                                     enabled: false,
@@ -229,7 +229,7 @@ class _EnterInfoScreenState extends State<EnterInfoScreen> {
                                       ),
                                     ]),
                                   ),
-                                  const SizedBox(height: 8),
+                                  const SizedBox(height: 16),
                                   SizedBox(
                                     width: double.infinity,
                                     child: ElevatedButton(
@@ -314,7 +314,11 @@ Widget _buildTextField({
           horizontal: 20,
           vertical: 16,
         ),
-        border: InputBorder.none,
+        border: OutlineInputBorder(borderRadius: BorderRadius.circular(30)),
+        enabledBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(30),
+          borderSide: const BorderSide(color: Colors.black, width: 2),
+        ),
       ),
     ),
   );
