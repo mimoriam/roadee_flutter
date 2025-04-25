@@ -4,7 +4,8 @@ import 'package:flutter/material.dart';
 import 'package:roadee_flutter/draft_local/draft_login.dart';
 import 'package:roadee_flutter/screens/submit_order_screen.dart';
 import 'package:roadee_flutter/screens/user_profile_screen.dart';
-import 'package:google_maps_flutter/google_maps_flutter.dart';
+
+enum OrderStatus { Pending, OnRoute, Completed }
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({Key? key}) : super(key: key);
@@ -15,6 +16,30 @@ class HomeScreen extends StatefulWidget {
 
 class _HomeScreenState extends State<HomeScreen> {
   final MenuController _menuController = MenuController();
+
+  Future<void> updatePaymentOrderData() async {
+    try {
+      final user = FirebaseAuth.instance.currentUser!;
+
+      // Update Firestore email
+      await FirebaseFirestore.instance.collection('users').doc(user.uid).update(
+        {
+          "orders": FieldValue.arrayUnion([
+            {
+              "billing_address": "asdasdasdsad",
+              "card number": "2134 4123 2141 4214",
+              "cvc": "431",
+              "mm_yy": "03/27",
+              "orderCreatedAt": DateTime.now(),
+              "promo code": "13",
+              "service": "tire change 3",
+              "status": OrderStatus.Pending.name,
+            },
+          ]),
+        },
+      );
+    } on FirebaseAuthException {}
+  }
 
   Future<Map<String, dynamic>?> getUserProfile() async {
     final uid = FirebaseAuth.instance.currentUser?.uid;
@@ -146,95 +171,91 @@ class _HomeScreenState extends State<HomeScreen> {
             ),
           ),
           body: SafeArea(
-            child: Column(
+            child: Stack(
               children: [
-                // Placeholder for Map
-                Container(
-                  height: 250,
-                  width: double.infinity,
-                  decoration: const BoxDecoration(
-                    image: DecorationImage(
-                      image: AssetImage('assets/map_placeholder.png'),
-                      // Add map placeholder
-                      fit: BoxFit.cover,
+                Column(
+                  children: [
+                    // Placeholder for Map
+                    SizedBox(height: 250, width: double.infinity),
+                    ElevatedButton(
+                      onPressed: () {
+                        updatePaymentOrderData();
+                      },
+                      child: const Text("Place Order"),
                     ),
-                  ),
-                ),
-                Container(
-                  padding: const EdgeInsets.all(16),
-                  color: Colors.white,
-                  child: Column(
-                    children: [
-                      Row(
+                    Container(
+                      padding: const EdgeInsets.all(16),
+                      color: Colors.white,
+                      child: Column(
                         children: [
-                          const CircleAvatar(
-                            radius: 25,
-                            backgroundImage: AssetImage(
-                              'assets/tech_placeholder.png',
-                            ), // Add placeholder
+                          Row(
+                            children: [
+                              // Avatar
+                              Container(),
+                              const SizedBox(width: 12),
+                              const Expanded(
+                                child: Text(
+                                  'Your Roadside Assistance Tech: Aaron G.',
+                                  style: TextStyle(
+                                    fontSize: 16,
+                                    fontWeight: FontWeight.w600,
+                                  ),
+                                ),
+                              ),
+                            ],
                           ),
-                          const SizedBox(width: 12),
-                          const Expanded(
-                            child: Text(
-                              'Your Roadside Assistance Tech: Aaron G.',
-                              style: TextStyle(
-                                fontSize: 16,
-                                fontWeight: FontWeight.w600,
+                          const SizedBox(height: 20),
+                          Wrap(
+                            spacing: 12,
+                            runSpacing: 12,
+                            children: const [
+                              AssistanceOption(
+                                icon: Icons.local_shipping,
+                                label: 'Towing',
+                              ),
+                              AssistanceOption(
+                                icon: Icons.tire_repair,
+                                label: 'Flat Tire',
+                                selected: true,
+                              ),
+                              AssistanceOption(
+                                icon: Icons.battery_full,
+                                label: 'Battery',
+                              ),
+                              AssistanceOption(
+                                icon: Icons.local_gas_station,
+                                label: 'Fuel',
+                              ),
+                            ],
+                          ),
+                          const SizedBox(height: 20),
+                          const Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Icon(Icons.check_circle, color: Colors.green),
+                              SizedBox(width: 8),
+                              Text(
+                                'Assistance is on the way',
+                                style: TextStyle(
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.w500,
+                                ),
+                              ),
+                            ],
+                          ),
+                          Center(
+                            child: Padding(
+                              padding: EdgeInsets.only(top: 4),
+                              child: Text(
+                                'Arriving in 15 min',
+                                style: TextStyle(color: Colors.black54),
                               ),
                             ),
                           ),
                         ],
                       ),
-                      const SizedBox(height: 20),
-                      Wrap(
-                        spacing: 12,
-                        runSpacing: 12,
-                        children: const [
-                          AssistanceOption(
-                            icon: Icons.local_shipping,
-                            label: 'Towing',
-                          ),
-                          AssistanceOption(
-                            icon: Icons.tire_repair,
-                            label: 'Flat Tire',
-                            selected: true,
-                          ),
-                          AssistanceOption(
-                            icon: Icons.battery_full,
-                            label: 'Battery',
-                          ),
-                          AssistanceOption(
-                            icon: Icons.local_gas_station,
-                            label: 'Fuel',
-                          ),
-                        ],
-                      ),
-                      const SizedBox(height: 20),
-                      const Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Icon(Icons.check_circle, color: Colors.green),
-                          SizedBox(width: 8),
-                          Text(
-                            'Assistance is on the way',
-                            style: TextStyle(
-                              fontSize: 16,
-                              fontWeight: FontWeight.w500,
-                            ),
-                          ),
-                        ],
-                      ),
-                      Center(
-                        child: Padding(
-                          padding: EdgeInsets.only(top: 4),
-                          child: Text(
-                            'Arriving in 15 min',
-                            style: TextStyle(color: Colors.black54),
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
+                    ),
+                  ],
                 ),
               ],
             ),
