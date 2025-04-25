@@ -2,10 +2,9 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:roadee_flutter/draft_local/draft_login.dart';
+import 'package:roadee_flutter/screens/payment_checkout_screen.dart';
 import 'package:roadee_flutter/screens/submit_order_screen.dart';
 import 'package:roadee_flutter/screens/user_profile_screen.dart';
-
-enum OrderStatus { Pending, OnRoute, Completed }
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({Key? key}) : super(key: key);
@@ -16,30 +15,6 @@ class HomeScreen extends StatefulWidget {
 
 class _HomeScreenState extends State<HomeScreen> {
   final MenuController _menuController = MenuController();
-
-  Future<void> updatePaymentOrderData() async {
-    try {
-      final user = FirebaseAuth.instance.currentUser!;
-
-      // Update Firestore email
-      await FirebaseFirestore.instance.collection('users').doc(user.uid).update(
-        {
-          "orders": FieldValue.arrayUnion([
-            {
-              "billing_address": "asdasdasdsad",
-              "card number": "2134 4123 2141 4214",
-              "cvc": "431",
-              "mm_yy": "03/27",
-              "orderCreatedAt": DateTime.now(),
-              "promo code": "13",
-              "service": "tire change 3",
-              "status": OrderStatus.Pending.name,
-            },
-          ]),
-        },
-      );
-    } on FirebaseAuthException {}
-  }
 
   Future<Map<String, dynamic>?> getUserProfile() async {
     final uid = FirebaseAuth.instance.currentUser?.uid;
@@ -179,7 +154,11 @@ class _HomeScreenState extends State<HomeScreen> {
                     SizedBox(height: 250, width: double.infinity),
                     ElevatedButton(
                       onPressed: () {
-                        updatePaymentOrderData();
+                        // updatePaymentOrderData();
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(builder: (context) => PaymentCheckoutScreen()),
+                        );
                       },
                       child: const Text("Place Order"),
                     ),
