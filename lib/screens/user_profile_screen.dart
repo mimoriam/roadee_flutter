@@ -1,12 +1,13 @@
 import 'package:flutter/material.dart';
 
+import 'package:roadee_flutter/screens/home_screen.dart';
+import 'package:roadee_flutter/screens/login_screen.dart';
+
 import 'package:flutter_form_builder/flutter_form_builder.dart';
 import 'package:form_builder_validators/form_builder_validators.dart';
 
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:roadee_flutter/screens/home_screen.dart';
-import 'package:roadee_flutter/screens/login_screen.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 
 import 'package:geolocator/geolocator.dart';
 import 'package:geocoding/geocoding.dart';
@@ -93,7 +94,10 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
 
     // Get position and address
     Position position = await Geolocator.getCurrentPosition(
-      desiredAccuracy: LocationAccuracy.high,
+      // desiredAccuracy: LocationAccuracy.high,
+      locationSettings: LocationSettings(
+        accuracy: LocationAccuracy.high
+      )
     );
     List<Placemark> placemarks = await placemarkFromCoordinates(
       position.latitude,
@@ -107,7 +111,6 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
     switch (value) {
       case 'Settings':
         String? address = await getUserAddress(context);
-        print(address);
         break;
       case 'Log out':
         await FirebaseAuth.instance.signOut();
@@ -190,7 +193,6 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
                   userAddress = userAddresss;
                 });
 
-                print(userAddress);
                 updateAddress();
               }
             }
