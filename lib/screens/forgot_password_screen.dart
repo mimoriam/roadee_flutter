@@ -1,8 +1,9 @@
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
 import 'package:flutter_form_builder/flutter_form_builder.dart';
 import 'package:form_builder_validators/form_builder_validators.dart';
+
+import 'package:firebase_auth/firebase_auth.dart';
 
 class ForgotPasswordScreen extends StatefulWidget {
   const ForgotPasswordScreen({super.key});
@@ -21,8 +22,7 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
       );
 
       return user;
-    } on FirebaseAuthException catch (e) {
-    } catch (e) {}
+    } on FirebaseAuthException {}
   }
 
   @override
@@ -86,9 +86,7 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
                                   borderRadius: BorderRadius.circular(10),
                                 ),
                                 child: TextButton(
-                                  onPressed: () {
-
-                                  },
+                                  onPressed: () {},
                                   style: TextButton.styleFrom(
                                     shape: RoundedRectangleBorder(
                                       borderRadius: BorderRadius.circular(10),

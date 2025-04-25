@@ -1,15 +1,14 @@
 import 'package:flutter/material.dart';
-import 'package:roadee_flutter/screens/payment_checkout_screen.dart';
-import 'package:roadee_flutter/screens/submit_order_screen.dart';
 
+import 'package:roadee_flutter/screens/payment_checkout_screen.dart';
 import 'package:roadee_flutter/screens/user_profile_screen.dart';
 import 'package:roadee_flutter/screens/login_screen.dart';
 
-import 'package:firebase_auth/firebase_auth.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
-
 import 'package:flutter_form_builder/flutter_form_builder.dart';
 import 'package:form_builder_validators/form_builder_validators.dart';
+
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 
 class EnterInfoScreen extends StatefulWidget {
   const EnterInfoScreen({super.key});
@@ -35,7 +34,7 @@ class _EnterInfoScreenState extends State<EnterInfoScreen> {
   Widget build(BuildContext context) {
     setState(() {});
 
-    Future<void> _onSelected(String value) async {
+    Future<void> onSelected(String value) async {
       switch (value) {
         case 'Your Profile':
           Navigator.push(
@@ -72,14 +71,7 @@ class _EnterInfoScreenState extends State<EnterInfoScreen> {
               elevation: 0,
               leading: IconButton(
                 icon: const Icon(Icons.menu, color: Colors.black),
-                onPressed: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => SubmitOrderScreen(),
-                    ),
-                  );
-                },
+                onPressed: () {},
               ),
               title: Row(
                 children: [
@@ -114,15 +106,15 @@ class _EnterInfoScreenState extends State<EnterInfoScreen> {
                     ),
                     menuChildren: [
                       MenuItemButton(
-                        onPressed: () => _onSelected('Your Profile'),
+                        onPressed: () => onSelected('Your Profile'),
                         child: Text('Your Profile'),
                       ),
                       MenuItemButton(
-                        onPressed: () => _onSelected('Settings'),
+                        onPressed: () => onSelected('Settings'),
                         child: Text('Settings'),
                       ),
                       MenuItemButton(
-                        onPressed: () => _onSelected('Log out'),
+                        onPressed: () => onSelected('Log out'),
                         child: Text('Log out'),
                       ),
                     ],
@@ -224,7 +216,7 @@ class _EnterInfoScreenState extends State<EnterInfoScreen> {
                                       FormBuilderValidators.minLength(
                                         6,
                                         errorText:
-                                        "Length should be greater "
+                                            "Length should be greater "
                                             "than 5",
                                       ),
                                     ]),
@@ -237,8 +229,9 @@ class _EnterInfoScreenState extends State<EnterInfoScreen> {
                                         Navigator.pushReplacement(
                                           context,
                                           MaterialPageRoute(
-                                            builder: (context) =>
-                                                PaymentCheckoutScreen(),
+                                            builder:
+                                                (context) =>
+                                                    PaymentCheckoutScreen(),
                                           ),
                                         );
                                       },

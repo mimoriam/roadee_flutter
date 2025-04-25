@@ -1,17 +1,17 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:roadee_flutter/draft_local/draft_login.dart';
-import 'package:roadee_flutter/screens/enter_info_screen.dart';
-import 'package:roadee_flutter/screens/payment_checkout_screen.dart';
-import 'package:roadee_flutter/screens/submit_order_screen.dart';
+
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+
+import 'package:roadee_flutter/screens/login_screen.dart';
 import 'package:roadee_flutter/screens/user_profile_screen.dart';
+import 'package:roadee_flutter/screens/enter_info_screen.dart';
 
 class HomeScreen extends StatefulWidget {
-  const HomeScreen({Key? key}) : super(key: key);
+  const HomeScreen({super.key});
 
   @override
-  _HomeScreenState createState() => _HomeScreenState();
+  State<HomeScreen> createState() => _HomeScreenState();
 }
 
 class _HomeScreenState extends State<HomeScreen> {
@@ -30,7 +30,7 @@ class _HomeScreenState extends State<HomeScreen> {
   Widget build(BuildContext context) {
     setState(() {});
 
-    Future<void> _onSelected(String value) async {
+    Future<void> onSelected(String value) async {
       switch (value) {
         case 'Your Profile':
           Navigator.push(
@@ -100,14 +100,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 elevation: 0,
                 leading: IconButton(
                   icon: const Icon(Icons.menu, color: Colors.black),
-                  onPressed: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => SubmitOrderScreen(),
-                      ),
-                    );
-                  },
+                  onPressed: () {},
                 ),
                 title: Row(
                   children: [
@@ -142,15 +135,15 @@ class _HomeScreenState extends State<HomeScreen> {
                       ),
                       menuChildren: [
                         MenuItemButton(
-                          onPressed: () => _onSelected('Your Profile'),
+                          onPressed: () => onSelected('Your Profile'),
                           child: Text('Your Profile'),
                         ),
                         MenuItemButton(
-                          onPressed: () => _onSelected('Settings'),
+                          onPressed: () => onSelected('Settings'),
                           child: Text('Settings'),
                         ),
                         MenuItemButton(
-                          onPressed: () => _onSelected('Log out'),
+                          onPressed: () => onSelected('Log out'),
                           child: Text('Log out'),
                         ),
                       ],
