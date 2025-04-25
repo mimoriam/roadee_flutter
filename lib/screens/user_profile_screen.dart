@@ -195,6 +195,8 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
               }
             }
 
+            Navigator.of(context).popUntil((route) => route.isFirst);
+
             Navigator.pushReplacement(
               context,
               MaterialPageRoute(
