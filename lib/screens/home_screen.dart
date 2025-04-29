@@ -221,19 +221,8 @@ class _HomeScreenState extends State<HomeScreen> {
                   Column(
                     children: [
                       // Placeholder for Map
-                      SizedBox(height: 250, width: double.infinity),
-                      ElevatedButton(
-                        onPressed: () {
-                          // updatePaymentOrderData();
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) => EnterInfoScreen(),
-                            ),
-                          );
-                        },
-                        child: const Text("Place Order"),
-                      ),
+                      Placeholder(),
+                      // SizedBox(height: 350, width: double.infinity),
                       Container(
                         padding: const EdgeInsets.all(16),
                         color: Colors.white,
@@ -244,12 +233,46 @@ class _HomeScreenState extends State<HomeScreen> {
                                 // Avatar
                                 Container(),
                                 const SizedBox(width: 12),
-                                const Expanded(
-                                  child: Text(
-                                    'Your Roadside Assistance Tech: Aaron G.',
-                                    style: TextStyle(
-                                      fontSize: 16,
-                                      fontWeight: FontWeight.w600,
+                                Expanded(
+                                  child: Center(
+                                    child: Builder(
+                                      builder: (context) {
+                                        if (user['orders'][0]["status"]
+                                                .toString() ==
+                                            "Pending") {
+                                          return Text(
+                                            "We are working on our end to "
+                                            "send someone to your assistance!",
+                                            style: TextStyle(
+                                              fontSize: 16,
+                                              fontWeight: FontWeight.w600,
+                                            ),
+                                          );
+                                        } else if (user['orders'][0]["status"]
+                                                .toString() ==
+                                            "OnRoute") {
+                                          print(
+                                            user['orders'][0]["status"]
+                                                .toString(),
+                                          );
+                                          return Text(
+                                            'Your Roadside '
+                                            'Assistance Tech: Aaron G.',
+                                            style: TextStyle(
+                                              fontSize: 16,
+                                              fontWeight: FontWeight.w600,
+                                            ),
+                                          );
+                                        } else {
+                                          return Text(
+                                            'We are here to help!',
+                                            style: TextStyle(
+                                              fontSize: 16,
+                                              fontWeight: FontWeight.w600,
+                                            ),
+                                          );
+                                        }
+                                      },
                                     ),
                                   ),
                                 ),
@@ -267,28 +290,121 @@ class _HomeScreenState extends State<HomeScreen> {
                               ],
                             ),
                             const SizedBox(height: 20),
-                            const Row(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                Icon(Icons.check_circle, color: Colors.green),
-                                SizedBox(width: 8),
-                                Text(
-                                  'Assistance is on the way',
-                                  style: TextStyle(
-                                    fontSize: 16,
-                                    fontWeight: FontWeight.w500,
-                                  ),
-                                ),
-                              ],
+                            ElevatedButton(
+                              onPressed: () {
+                                if (selectedIndex == -1) {
+                                  showDialog(
+                                    context: context,
+                                    builder: (BuildContext context) {
+                                      return AlertDialog(
+                                        title: Text(
+                                          "You did not select a "
+                                          "service!",
+                                        ),
+                                        actions: <Widget>[
+                                          TextButton(
+                                            onPressed: () {
+                                              Navigator.of(
+                                                context,
+                                              ).pop(); // Don't exit
+                                            },
+                                            child: Text("Okay"),
+                                          ),
+                                        ],
+                                      );
+                                    },
+                                  );
+                                } else {
+                                  Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                      builder: (context) => EnterInfoScreen(),
+                                    ),
+                                  );
+                                }
+                              },
+                              child: const Text("Place Order"),
                             ),
-                            Center(
-                              child: Padding(
-                                padding: EdgeInsets.only(top: 4),
-                                child: Text(
-                                  'Arriving in 15 min',
-                                  style: TextStyle(color: Colors.black54),
-                                ),
-                              ),
+                            const SizedBox(height: 20),
+                            Builder(
+                              builder: (context) {
+                                if (user['orders'][0]["status"].toString() ==
+                                    "Pending") {
+                                  return Column(
+                                    children: [
+                                      Row(
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.center,
+                                        children: [
+                                          Icon(
+                                            Icons.warning,
+                                            color: Colors.yellow,
+                                          ),
+                                          SizedBox(width: 8),
+                                          Text(
+                                            'Your current order is in review: ',
+                                            style: TextStyle(
+                                              fontSize: 16,
+                                              fontWeight: FontWeight.w500,
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                      Center(
+                                        child: Padding(
+                                          padding: EdgeInsets.only(top: 4),
+                                          child: Text(
+                                            user['orders'][0]["service"]
+                                                .toString()
+                                                .toCapitalize(),
+                                            style: TextStyle(
+                                              color: Colors.black54,
+                                            ),
+                                          ),
+                                        ),
+                                      ),
+                                    ],
+                                  );
+                                } else if (user['orders'][0]["status"]
+                                        .toString() ==
+                                    "OnRoute") {
+                                  return Column(
+                                    children: [
+                                      Row(
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.center,
+                                        children: [
+                                          Icon(
+                                            Icons.check_circle,
+                                            color: Colors.green,
+                                          ),
+                                          SizedBox(width: 8),
+                                          Text(
+                                            'Assistance is on the way',
+                                            style: TextStyle(
+                                              fontSize: 16,
+                                              fontWeight: FontWeight.w500,
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                      Center(
+                                        child: Padding(
+                                          padding: EdgeInsets.only(top: 4),
+                                          child: Text(
+                                            'Arriving in 15 min',
+                                            style: TextStyle(
+                                              color: Colors.black54,
+                                            ),
+                                          ),
+                                        ),
+                                      ),
+                                    ],
+                                  );
+                                } else {
+                                  return Text("");
+                                }
+                              },
                             ),
                           ],
                         ),
