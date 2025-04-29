@@ -7,6 +7,9 @@ import 'package:roadee_flutter/screens/login_screen.dart';
 import 'package:roadee_flutter/screens/user_profile_screen.dart';
 import 'package:roadee_flutter/screens/enter_info_screen.dart';
 
+import 'package:geolocator/geolocator.dart';
+import 'package:geocoding/geocoding.dart';
+
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
 
@@ -31,6 +34,96 @@ class _HomeScreenState extends State<HomeScreen> {
     final doc =
         await FirebaseFirestore.instance.collection("users").doc(uid).get();
     return doc.exists ? doc.data() : null;
+  }
+
+  // Future<Map<String, String>?> getUserAddress(BuildContext context) async {
+  Future<String?> getUserAddress(BuildContext context) async {
+    bool serviceEnabled;
+    LocationPermission permission;
+
+    // Check if location services are enabled
+    serviceEnabled = await Geolocator.isLocationServiceEnabled();
+    if (!serviceEnabled) {
+      await showDialog(
+            context: context,
+            barrierDismissible: false,
+            builder:
+                (ctx) => AlertDialog(
+                  title: Text("Location Services Disabled"),
+                  content: Text("Please enable location services in settings."),
+                  actions: [
+                    TextButton(
+                      onPressed: () {
+                        Navigator.of(ctx).pop();
+                        Geolocator.openLocationSettings();
+                      },
+                      child: Text("Open Settings"),
+                    ),
+                    TextButton(
+                      onPressed: () => Navigator.of(ctx).pop(),
+                      child: Text("Cancel"),
+                    ),
+                  ],
+                ),
+          ) ??
+          false;
+      return null;
+    }
+
+    // Handle permission
+    permission = await Geolocator.checkPermission();
+    if (permission == LocationPermission.denied) {
+      permission = await Geolocator.requestPermission();
+      if (permission == LocationPermission.denied) {
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text("Location permission denied")));
+        return null;
+      }
+    }
+
+    if (permission == LocationPermission.deniedForever) {
+      await showDialog(
+        context: context,
+        builder:
+            (ctx) => AlertDialog(
+              title: Text("Permission Denied"),
+              content: Text("Enable location permissions from app settings."),
+              actions: [
+                TextButton(
+                  onPressed: () {
+                    Navigator.of(ctx).pop();
+                    Geolocator.openAppSettings();
+                  },
+                  child: Text("Open App Settings"),
+                ),
+                TextButton(
+                  onPressed: () => Navigator.of(ctx).pop(),
+                  child: Text("Cancel"),
+                ),
+              ],
+            ),
+      );
+      return null;
+    }
+
+    // Get position and address
+    Position position = await Geolocator.getCurrentPosition(
+      // desiredAccuracy: LocationAccuracy.high,
+      locationSettings: LocationSettings(accuracy: LocationAccuracy.high),
+    );
+    List<Placemark> placemarks = await placemarkFromCoordinates(
+      position.latitude,
+      position.longitude,
+    );
+    Placemark place = placemarks[0];
+    return '${place.name}, ${place.locality}, ${place.administrativeArea}, ${place.country}';
+    // return {
+    //   "locationPerm": "$permission",
+    //   "place":
+    //       '${place.name}, ${place.locality}, ${place.administrativeArea}, '
+    //       '${place.country}',
+    // };
   }
 
   Widget buildButton(int index, String label, IconData icon) {
@@ -243,6 +336,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                           return Text(
                                             "We are working on our end to "
                                             "send someone to your assistance!",
+                                            textAlign: TextAlign.center,
                                             style: TextStyle(
                                               fontSize: 16,
                                               fontWeight: FontWeight.w600,
@@ -251,13 +345,10 @@ class _HomeScreenState extends State<HomeScreen> {
                                         } else if (user['orders'][0]["status"]
                                                 .toString() ==
                                             "OnRoute") {
-                                          print(
-                                            user['orders'][0]["status"]
-                                                .toString(),
-                                          );
                                           return Text(
                                             'Your Roadside '
                                             'Assistance Tech: Aaron G.',
+                                            textAlign: TextAlign.center,
                                             style: TextStyle(
                                               fontSize: 16,
                                               fontWeight: FontWeight.w600,
@@ -291,7 +382,7 @@ class _HomeScreenState extends State<HomeScreen> {
                             ),
                             const SizedBox(height: 20),
                             ElevatedButton(
-                              onPressed: () {
+                              onPressed: () async {
                                 if (selectedIndex == -1) {
                                   showDialog(
                                     context: context,
@@ -315,12 +406,42 @@ class _HomeScreenState extends State<HomeScreen> {
                                     },
                                   );
                                 } else {
-                                  Navigator.push(
-                                    context,
-                                    MaterialPageRoute(
-                                      builder: (context) => EnterInfoScreen(),
-                                    ),
-                                  );
+                                  var address = await getUserAddress(context);
+
+                                  if (address == null) {
+                                    // showDialog(
+                                    //   context: context,
+                                    //   builder: (BuildContext context) {
+                                    //     return AlertDialog(
+                                    //       title: Text(
+                                    //         "You did not select a "
+                                    //         "location!",
+                                    //       ),
+                                    //       actions: <Widget>[
+                                    //         TextButton(
+                                    //           onPressed: () {
+                                    //             Navigator.of(
+                                    //               context,
+                                    //             ).pop(); // Don't exit
+                                    //           },
+                                    //           child: Text("Okay"),
+                                    //         ),
+                                    //       ],
+                                    //     );
+                                    //   },
+                                    // );
+                                  } else {
+                                    Navigator.push(
+                                      context,
+                                      MaterialPageRoute(
+                                        builder:
+                                            (context) => EnterInfoScreen(
+                                              serviceSelected: selectedIndex,
+                                              addressSelected: address,
+                                            ),
+                                      ),
+                                    );
+                                  }
                                 }
                               },
                               child: const Text("Place Order"),

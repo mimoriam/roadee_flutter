@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:roadee_flutter/constants.dart';
 
 import 'package:roadee_flutter/screens/payment_checkout_screen.dart';
 import 'package:roadee_flutter/screens/user_profile_screen.dart';
@@ -11,7 +12,14 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 
 class EnterInfoScreen extends StatefulWidget {
-  const EnterInfoScreen({super.key});
+  final int serviceSelected;
+  final String addressSelected;
+
+  const EnterInfoScreen({
+    super.key,
+    required this.serviceSelected,
+    required this.addressSelected,
+  });
 
   @override
   State<EnterInfoScreen> createState() => _EnterInfoScreenState();
@@ -230,8 +238,17 @@ class _EnterInfoScreenState extends State<EnterInfoScreen> {
                                           context,
                                           MaterialPageRoute(
                                             builder:
-                                                (context) =>
-                                                    PaymentCheckoutScreen(),
+                                                (
+                                                  context,
+                                                ) => PaymentCheckoutScreen(
+                                                  name: "${user['username']}",
+                                                  email: "${user['email']}",
+                                                  phone: "${user['phone']}",
+                                                  serviceSelected:
+                                                      widget.serviceSelected,
+                                                  addressSelected:
+                                                      widget.addressSelected,
+                                                ),
                                           ),
                                         );
                                       },

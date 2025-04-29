@@ -5,13 +5,27 @@ import 'package:form_builder_validators/form_builder_validators.dart';
 
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:roadee_flutter/constants.dart';
 import 'package:roadee_flutter/screens/home_screen.dart';
 import 'package:roadee_flutter/services/stripe_service.dart';
 
 enum OrderStatus { Pending, OnRoute, Completed }
 
 class PaymentCheckoutScreen extends StatefulWidget {
-  const PaymentCheckoutScreen({super.key});
+  final String name;
+  final String email;
+  final String phone;
+  final int serviceSelected;
+  final String addressSelected;
+
+  const PaymentCheckoutScreen({
+    super.key,
+    required this.name,
+    required this.email,
+    required this.phone,
+    required this.serviceSelected,
+    required this.addressSelected,
+  });
 
   @override
   State<PaymentCheckoutScreen> createState() => _PaymentCheckoutScreenState();
@@ -97,7 +111,8 @@ class _PaymentCheckoutScreenState extends State<PaymentCheckoutScreen> {
                                   padding: const EdgeInsets.all(20),
                                   child: Column(
                                     mainAxisSize: MainAxisSize.min,
-                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
                                     children: [
                                       Row(
                                         children: [
@@ -127,8 +142,11 @@ class _PaymentCheckoutScreenState extends State<PaymentCheckoutScreen> {
                                       Row(
                                         mainAxisAlignment:
                                             MainAxisAlignment.spaceBetween,
-                                        children: const [
-                                          Text("Tire Change"),
+                                        children: [
+                                          Text(
+                                            serviceSelectedIndex[widget
+                                                .serviceSelected]!,
+                                          ),
                                           Text("\$50.00"),
                                         ],
                                       ),
@@ -160,9 +178,8 @@ class _PaymentCheckoutScreenState extends State<PaymentCheckoutScreen> {
                                               vertical: 16,
                                             ),
                                             shape: RoundedRectangleBorder(
-                                              borderRadius: BorderRadius.circular(
-                                                8,
-                                              ),
+                                              borderRadius:
+                                                  BorderRadius.circular(8),
                                             ),
                                             backgroundColor: Colors.blue,
                                           ),

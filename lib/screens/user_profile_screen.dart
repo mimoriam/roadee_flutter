@@ -52,6 +52,7 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
               ],
             ),
       );
+
       return null;
     }
 
@@ -95,10 +96,9 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
     // Get position and address
     Position position = await Geolocator.getCurrentPosition(
       // desiredAccuracy: LocationAccuracy.high,
-      locationSettings: LocationSettings(
-        accuracy: LocationAccuracy.high
-      )
+      locationSettings: LocationSettings(accuracy: LocationAccuracy.high),
     );
+
     List<Placemark> placemarks = await placemarkFromCoordinates(
       position.latitude,
       position.longitude,
@@ -193,7 +193,7 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
                   userAddress = userAddresss;
                 });
 
-                updateAddress();
+                await updateAddress();
               }
             }
 
@@ -420,12 +420,12 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
                                           enabled: false,
                                           initialValue: "${user['address']}",
                                           autovalidateMode:
-                                          AutovalidateMode.onUnfocus,
+                                              AutovalidateMode.onUnfocus,
                                           validator:
-                                          FormBuilderValidators.compose([
-                                            FormBuilderValidators.required(),
-                                            FormBuilderValidators.email(),
-                                          ]),
+                                              FormBuilderValidators.compose([
+                                                FormBuilderValidators.required(),
+                                                FormBuilderValidators.email(),
+                                              ]),
                                         ),
                                       ),
 
