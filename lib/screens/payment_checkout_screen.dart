@@ -5,6 +5,7 @@ import 'package:form_builder_validators/form_builder_validators.dart';
 
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:roadee_flutter/services/stripe_service.dart';
 
 enum OrderStatus { Pending, OnRoute, Completed }
 
@@ -22,7 +23,6 @@ class _PaymentCheckoutScreenState extends State<PaymentCheckoutScreen> {
     try {
       final user = FirebaseAuth.instance.currentUser!;
 
-      // Update Firestore email
       await FirebaseFirestore.instance.collection('users').doc(user.uid).update(
         {
           "orders": FieldValue.arrayUnion([
@@ -36,6 +36,27 @@ class _PaymentCheckoutScreenState extends State<PaymentCheckoutScreen> {
               "promo code": "13",
               "service": "tire change 3",
               "status": OrderStatus.Pending.name,
+            },
+          ]),
+        },
+      );
+    } on FirebaseAuthException {}
+  }
+
+  Future<void> addOrderToDB() async {
+    try {
+      final user = FirebaseAuth.instance.currentUser!;
+
+      await FirebaseFirestore.instance.collection('users').doc(user.uid).update(
+        {
+          "orders": FieldValue.arrayUnion([
+            {
+              "assistant_assigned": "",
+              "orderCreatedAt": DateTime.now(),
+              "promo code": "",
+              "service": "tire change",
+              "status": OrderStatus.Pending.name,
+              "payment": "Successful",
             },
           ]),
         },
@@ -96,7 +117,9 @@ class _PaymentCheckoutScreenState extends State<PaymentCheckoutScreen> {
                                     const Divider(height: 30),
                                     const Text(
                                       "Service",
-                                      style: TextStyle(fontWeight: FontWeight.bold),
+                                      style: TextStyle(
+                                        fontWeight: FontWeight.bold,
+                                      ),
                                     ),
                                     const SizedBox(height: 8),
                                     Row(
@@ -110,17 +133,24 @@ class _PaymentCheckoutScreenState extends State<PaymentCheckoutScreen> {
                                     const Divider(height: 30),
                                     const Text(
                                       "Payment Method",
-                                      style: TextStyle(fontWeight: FontWeight.bold),
+                                      style: TextStyle(
+                                        fontWeight: FontWeight.bold,
+                                      ),
                                     ),
                                     const SizedBox(height: 10),
                                     FormBuilderTextField(
                                       name: "card_number",
-                                      autovalidateMode: AutovalidateMode.disabled,
+                                      autovalidateMode:
+                                          AutovalidateMode.disabled,
                                       decoration: InputDecoration(
-                                        prefixIcon: const Icon(Icons.credit_card),
+                                        prefixIcon: const Icon(
+                                          Icons.credit_card,
+                                        ),
                                         hintText: "Card number",
                                         border: OutlineInputBorder(
-                                          borderRadius: BorderRadius.circular(8),
+                                          borderRadius: BorderRadius.circular(
+                                            8,
+                                          ),
                                         ),
                                       ),
                                     ),
@@ -133,9 +163,8 @@ class _PaymentCheckoutScreenState extends State<PaymentCheckoutScreen> {
                                             decoration: InputDecoration(
                                               hintText: "MM / YY",
                                               border: OutlineInputBorder(
-                                                borderRadius: BorderRadius.circular(
-                                                  8,
-                                                ),
+                                                borderRadius:
+                                                    BorderRadius.circular(8),
                                               ),
                                             ),
                                           ),
@@ -147,9 +176,8 @@ class _PaymentCheckoutScreenState extends State<PaymentCheckoutScreen> {
                                             decoration: InputDecoration(
                                               hintText: "CVC",
                                               border: OutlineInputBorder(
-                                                borderRadius: BorderRadius.circular(
-                                                  8,
-                                                ),
+                                                borderRadius:
+                                                    BorderRadius.circular(8),
                                               ),
                                             ),
                                           ),
@@ -159,7 +187,9 @@ class _PaymentCheckoutScreenState extends State<PaymentCheckoutScreen> {
                                     const SizedBox(height: 20),
                                     const Text(
                                       "Billing Address (optional)",
-                                      style: TextStyle(fontWeight: FontWeight.bold),
+                                      style: TextStyle(
+                                        fontWeight: FontWeight.bold,
+                                      ),
                                     ),
                                     const SizedBox(height: 10),
                                     FormBuilderTextField(
@@ -167,14 +197,18 @@ class _PaymentCheckoutScreenState extends State<PaymentCheckoutScreen> {
                                       decoration: InputDecoration(
                                         hintText: "Billing address",
                                         border: OutlineInputBorder(
-                                          borderRadius: BorderRadius.circular(8),
+                                          borderRadius: BorderRadius.circular(
+                                            8,
+                                          ),
                                         ),
                                       ),
                                     ),
                                     const SizedBox(height: 20),
                                     const Text(
                                       "Promo Code",
-                                      style: TextStyle(fontWeight: FontWeight.bold),
+                                      style: TextStyle(
+                                        fontWeight: FontWeight.bold,
+                                      ),
                                     ),
                                     const SizedBox(height: 10),
                                     Row(
@@ -185,9 +219,8 @@ class _PaymentCheckoutScreenState extends State<PaymentCheckoutScreen> {
                                             decoration: InputDecoration(
                                               hintText: "Enter code",
                                               border: OutlineInputBorder(
-                                                borderRadius: BorderRadius.circular(
-                                                  8,
-                                                ),
+                                                borderRadius:
+                                                    BorderRadius.circular(8),
                                               ),
                                             ),
                                           ),
@@ -227,12 +260,24 @@ class _PaymentCheckoutScreenState extends State<PaymentCheckoutScreen> {
                                             vertical: 16,
                                           ),
                                           shape: RoundedRectangleBorder(
-                                            borderRadius: BorderRadius.circular(8),
+                                            borderRadius: BorderRadius.circular(
+                                              8,
+                                            ),
                                           ),
                                           backgroundColor: Colors.blue,
                                         ),
-                                        onPressed: () {
-                                          updatePaymentOrderData();
+                                        onPressed: () async {
+                                          // updatePaymentOrderData();
+                                          var result =
+                                              await StripeService.instance
+                                                  .makePayment();
+
+                                          print(result);
+
+                                          if (result == "Error") {
+                                          } else {
+                                            await addOrderToDB();
+                                          }
                                         },
                                         child: const Text(
                                           "Confirm Payment",
