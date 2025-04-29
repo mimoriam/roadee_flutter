@@ -16,6 +16,13 @@ class HomeScreen extends StatefulWidget {
 
 class _HomeScreenState extends State<HomeScreen> {
   final MenuController _menuController = MenuController();
+  int selectedIndex = -1;
+
+  void onButtonPressed(int index) {
+    setState(() {
+      selectedIndex = index;
+    });
+  }
 
   Future<Map<String, dynamic>?> getUserProfile() async {
     final uid = FirebaseAuth.instance.currentUser?.uid;
@@ -24,6 +31,40 @@ class _HomeScreenState extends State<HomeScreen> {
     final doc =
         await FirebaseFirestore.instance.collection("users").doc(uid).get();
     return doc.exists ? doc.data() : null;
+  }
+
+  Widget buildButton(int index, String label, IconData icon) {
+    final bool isSelected = selectedIndex == index;
+    return GestureDetector(
+      onTap: () => onButtonPressed(index),
+      child: Container(
+        width: 150,
+        padding: const EdgeInsets.symmetric(vertical: 10),
+        decoration: BoxDecoration(
+          color: isSelected ? Colors.teal : Colors.grey[200],
+          borderRadius: BorderRadius.circular(12),
+        ),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(icon, color: isSelected ? Colors.white : Colors.black),
+            const SizedBox(width: 8),
+            Text(
+              label,
+              style: TextStyle(
+                color: isSelected ? Colors.white : Colors.black,
+                fontWeight: FontWeight.w600,
+              ),
+            ),
+            if (isSelected)
+              const Padding(
+                padding: EdgeInsets.only(left: 4),
+                child: Icon(Icons.check, color: Colors.white, size: 18),
+              ),
+          ],
+        ),
+      ),
+    );
   }
 
   @override
@@ -218,24 +259,11 @@ class _HomeScreenState extends State<HomeScreen> {
                             Wrap(
                               spacing: 12,
                               runSpacing: 12,
-                              children: const [
-                                AssistanceOption(
-                                  icon: Icons.local_shipping,
-                                  label: 'Towing',
-                                ),
-                                AssistanceOption(
-                                  icon: Icons.tire_repair,
-                                  label: 'Flat Tire',
-                                  selected: true,
-                                ),
-                                AssistanceOption(
-                                  icon: Icons.battery_full,
-                                  label: 'Battery',
-                                ),
-                                AssistanceOption(
-                                  icon: Icons.local_gas_station,
-                                  label: 'Fuel',
-                                ),
+                              children: [
+                                buildButton(0, 'Towing', Icons.local_shipping),
+                                buildButton(1, 'Flat Tire', Icons.tire_repair),
+                                buildButton(2, 'Battery', Icons.battery_full),
+                                buildButton(3, 'Fuel', Icons.local_gas_station),
                               ],
                             ),
                             const SizedBox(height: 20),
@@ -273,50 +301,6 @@ class _HomeScreenState extends State<HomeScreen> {
           ),
         );
       },
-    );
-  }
-}
-
-class AssistanceOption extends StatelessWidget {
-  final IconData icon;
-  final String label;
-  final bool selected;
-
-  const AssistanceOption({
-    super.key,
-    required this.icon,
-    required this.label,
-    this.selected = false,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      width: 150,
-      padding: const EdgeInsets.symmetric(vertical: 10),
-      decoration: BoxDecoration(
-        color: selected ? Colors.teal : Colors.grey[200],
-        borderRadius: BorderRadius.circular(12),
-      ),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Icon(icon, color: selected ? Colors.white : Colors.black),
-          const SizedBox(width: 8),
-          Text(
-            label,
-            style: TextStyle(
-              color: selected ? Colors.white : Colors.black,
-              fontWeight: FontWeight.w600,
-            ),
-          ),
-          if (selected)
-            const Padding(
-              padding: EdgeInsets.only(left: 4),
-              child: Icon(Icons.check, color: Colors.white, size: 18),
-            ),
-        ],
-      ),
     );
   }
 }
