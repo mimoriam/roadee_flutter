@@ -9,7 +9,7 @@ import 'package:roadee_flutter/constants.dart';
 import 'package:roadee_flutter/screens/home_screen.dart';
 import 'package:roadee_flutter/services/stripe_service.dart';
 
-enum OrderStatus { Pending, OnRoute, Completed }
+enum OrderStatus { Pending, OnRoute, Completed, Empty }
 
 class PaymentCheckoutScreen extends StatefulWidget {
   final String name;

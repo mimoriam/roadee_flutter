@@ -6,6 +6,7 @@ import 'package:form_builder_validators/form_builder_validators.dart';
 
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:roadee_flutter/screens/payment_checkout_screen.dart';
 
 class SignUpScreen extends StatefulWidget {
   const SignUpScreen({super.key});
@@ -39,6 +40,12 @@ class _SignUpScreenState extends State<SignUpScreen> {
             "address": "",
             "profileImage": "default_pfp.jpg",
             "createdAt": FieldValue.serverTimestamp(),
+            "orders": FieldValue.arrayUnion([
+              {
+                "orderCreatedAt": DateTime.now(),
+                "status": OrderStatus.Empty.name,
+              },
+            ]),
           });
 
       return user;
@@ -103,7 +110,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
                                   FormBuilderValidators.minLength(
                                     4,
                                     errorText:
-                                    "Length should be greater "
+                                        "Length should be greater "
                                         "than 3",
                                   ),
                                 ]),
@@ -143,7 +150,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
                                   FormBuilderValidators.minLength(
                                     6,
                                     errorText:
-                                    "Length should be greater "
+                                        "Length should be greater "
                                         "than 5",
                                   ),
                                 ]),

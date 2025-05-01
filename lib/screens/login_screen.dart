@@ -191,6 +191,18 @@ class _LoginScreenState extends State<LoginScreen> {
         validator: validator,
         obscureText: obscureText,
         decoration: InputDecoration(
+          // suffix:
+          //     obscureText == true
+          //         ? IconButton(
+          //           padding: const EdgeInsetsDirectional.only(end: 12),
+          //           onPressed: () {
+          //             setState(() {
+          //               obscureText = false;
+          //             });
+          //           },
+          //           icon: Icon(Icons.visibility),
+          //         )
+          //         : null,
           hintText: name.toCapitalize(),
           hintStyle: TextStyle(color: Color(0xFF799ac2), fontSize: 18),
           contentPadding: const EdgeInsets.symmetric(

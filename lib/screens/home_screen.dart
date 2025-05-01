@@ -330,6 +330,9 @@ class _HomeScreenState extends State<HomeScreen> {
                                   child: Center(
                                     child: Builder(
                                       builder: (context) {
+                                        // if (user.containsKey('orders')) {
+                                        //   return Text("AAA")
+                                        // }
                                         if (user['orders'][0]["status"]
                                                 .toString() ==
                                             "Pending") {
