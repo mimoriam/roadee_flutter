@@ -1,6 +1,11 @@
-import 'package:flutter/material.dart';
+import 'dart:async';
+
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:pluto_grid/pluto_grid.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter/material.dart';
+import 'package:roadee_flutter/draft_local/payment_checkout_screen.draft.dart';
 
 class AdminScreen extends StatefulWidget {
   const AdminScreen({super.key});
@@ -12,15 +17,84 @@ class AdminScreen extends StatefulWidget {
 class _AdminScreenState extends State<AdminScreen> {
   List<PlutoColumn> columns = [];
   List<PlutoRow> rows = [];
-
   late PlutoGridStateManager stateManager;
+
+  late Map<String, dynamic>? user;
+
+  Future<Map<String, dynamic>?> getUserData() async {
+    final uid = FirebaseAuth.instance.currentUser?.uid;
+
+    final doc = await FirebaseFirestore.instance.collection("users").doc(uid).get();
+    return doc.data();
+  }
+
+  Future<List<Map<String, dynamic>>> getAllUsersData() async {
+    final querySnapshot = await FirebaseFirestore.instance.collection("users").get();
+
+    return querySnapshot.docs.map((doc) => doc.data()).toList();
+  }
+
+  void openGridPopup(BuildContext context, String selectFieldName, var user, int orderIndex) {
+    // final ordersColumn = PlutoColumn(
+    //   title: selectFieldName,
+    //   field: selectFieldName,
+    //   type: PlutoColumnType.text(),
+    // );
+
+    final List<PlutoColumn> ordersColumn = [];
+
+    ordersColumn.addAll([
+      PlutoColumn(title: "Assistant", field: "assistant_assigned", type: PlutoColumnType.text()),
+      PlutoColumn(title: "Service", field: "service", type: PlutoColumnType.text()),
+      PlutoColumn(title: "Status", field: "status", type: PlutoColumnType.text()),
+    ]);
+
+    // final List<PlutoRow> ordersRow = [];
+    // ordersRow.addAll([
+    //   PlutoRow(
+    //     cells: {
+    //       'assistant_assigned': PlutoCell(value: user!["orders"][1]["assistant_assigned"]),
+    //       'service': PlutoCell(value: user!["orders"][1]["service"]),
+    //       'status': PlutoCell(value: user!["orders"][1]["status"]),
+    //     },
+    //   ),
+    // ]);
+    //
+    final ordersRow =
+        List.generate(orderIndex, (index) => index)
+            .map((index) {
+              if (user["orders"][index + 1]["status"].toString() == OrderStatus.Completed.name) {
+                return null;
+              }
+              return PlutoRow(
+                cells: {
+                  'assistant_assigned': PlutoCell(value: user["orders"][index + 1]["assistant_assigned"]),
+                  'service': PlutoCell(value: user["orders"][index + 1]["service"]),
+                  'status': PlutoCell(value: user["orders"][index + 1]["status"]),
+                },
+              );
+            })
+            .whereType<PlutoRow>()
+            .toList();
+
+    PlutoGridPopup(
+      context: context,
+      columns: ordersColumn,
+      rows: ordersRow,
+      mode: PlutoGridMode.normal,
+      configuration: PlutoGridConfiguration(
+        columnSize: PlutoGridColumnSizeConfig(autoSizeMode: PlutoAutoSizeMode.scale),
+      ),
+      onLoaded: (PlutoGridOnLoadedEvent event) {
+        event.stateManager.setShowColumnFilter(true);
+      },
+      onSelected: (PlutoGridOnSelectedEvent event) {},
+    );
+  }
 
   @override
   void dispose() {
-    SystemChrome.setPreferredOrientations([
-      DeviceOrientation.portraitUp,
-      DeviceOrientation.portraitDown,
-    ]);
+    SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp, DeviceOrientation.portraitDown]);
     super.dispose();
   }
 
@@ -47,7 +121,7 @@ class _AdminScreenState extends State<AdminScreen> {
                   final row = rendererContext.row;
                   final id = row.cells['order_index']?.value;
 
-                  print(id);
+                  openGridPopup(context, 'orders', user, id);
                 },
                 iconSize: 18,
                 color: Colors.green,
@@ -67,123 +141,8 @@ class _AdminScreenState extends State<AdminScreen> {
       PlutoColumn(title: 'email', field: 'email', type: PlutoColumnType.text()),
       PlutoColumn(title: 'address', field: 'address', type: PlutoColumnType.text()),
       PlutoColumn(title: 'orders', field: 'orders', type: PlutoColumnType.text()),
-      // PlutoColumn(
-      //   title: 'action',
-      //   field: 'action',
-      //   type: PlutoColumnType.text(),
-      //   renderer: (rendererContext) {
-      //     return GestureDetector(
-      //       onSecondaryTap: () {
-      //         final row = rendererContext.row;
-      //         final id = row.cells['order_index']?.value;
-      //         print(id);
-      //       },
-      //       child: Icon(Icons.check_box),
-      //     );
-      //   },
-      // ),
-    ]);
-
-    rows.addAll([
-      PlutoRow(
-        cells: {
-          'order_index': PlutoCell(value: 22),
-          'email': PlutoCell(value: "CCC"),
-          'address': PlutoCell(value: "BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB"),
-          'orders': PlutoCell(value: "DDD"),
-          // 'action': PlutoCell(value: ''),
-        },
-      ),
-
-      PlutoRow(
-        cells: {
-          'order_index': PlutoCell(value: 22),
-          'email': PlutoCell(value: "CCC"),
-          'address': PlutoCell(value: "BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB"),
-          'orders': PlutoCell(value: "DDD"),
-          // 'action': PlutoCell(value: ''),
-        },
-      ),
-
-      PlutoRow(
-        cells: {
-          'order_index': PlutoCell(value: 11),
-          'email': PlutoCell(value: "CCC"),
-          'address': PlutoCell(value: "BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB"),
-          'orders': PlutoCell(value: "DDD"),
-          // 'action': PlutoCell(value: ''),
-        },
-      ),
     ]);
   }
-
-  // void openDetail(PlutoRow? row) async {
-  //   String? value = await showDialog(
-  //     context: context,
-  //     builder: (BuildContext ctx) {
-  //       final textController = TextEditingController();
-  //       return Dialog(
-  //         child: LayoutBuilder(
-  //           builder: (ctx, size) {
-  //             return Container(
-  //               padding: const EdgeInsets.all(15),
-  //               width: 400,
-  //               height: 500,
-  //               child: SingleChildScrollView(
-  //                 scrollDirection: Axis.vertical,
-  //                 child: Column(
-  //                   crossAxisAlignment: CrossAxisAlignment.start,
-  //                   children: [
-  //                     const Text('Update Cell'),
-  //                     TextField(controller: textController, autofocus: true),
-  //                     const SizedBox(height: 20),
-  //                     ...row!.cells.entries
-  //                         .map(
-  //                           (e) => Padding(
-  //                             padding: const EdgeInsets.all(8.0),
-  //                             child: Text(e.value.value.toString()),
-  //                           ),
-  //                         )
-  //                         .toList(),
-  //                     const SizedBox(height: 20),
-  //                     Center(
-  //                       child: Wrap(
-  //                         spacing: 10,
-  //                         children: [
-  //                           TextButton(
-  //                             onPressed: () {
-  //                               Navigator.pop(ctx, null);
-  //                             },
-  //                             child: const Text('Cancel.'),
-  //                           ),
-  //                           ElevatedButton(
-  //                             onPressed: () {
-  //                               Navigator.pop(ctx, textController.text);
-  //                             },
-  //                             style: ButtonStyle(
-  //                               backgroundColor: MaterialStateProperty.all<Color>(Colors.blue),
-  //                             ),
-  //                             child: const Text('Update.', style: TextStyle(color: Colors.white)),
-  //                           ),
-  //                         ],
-  //                       ),
-  //                     ),
-  //                   ],
-  //                 ),
-  //               ),
-  //             );
-  //           },
-  //         ),
-  //       );
-  //     },
-  //   );
-  //
-  //   if (value == null || value.isEmpty) {
-  //     return;
-  //   }
-  //
-  //   stateManager.changeCellValue(stateManager.currentRow!.cells['order_index']!, value, force: true);
-  // }
 
   @override
   Widget build(BuildContext context) {
@@ -204,15 +163,44 @@ class _AdminScreenState extends State<AdminScreen> {
                 },
               ),
             ),
-            onChanged: (PlutoGridOnChangedEvent event) {
-              print(event);
-            },
-            onLoaded: (PlutoGridOnLoadedEvent event) {
+            onChanged: (PlutoGridOnChangedEvent event) {},
+            onLoaded: (PlutoGridOnLoadedEvent event) async {
               stateManager = event.stateManager;
 
-              stateManager.setShowColumnFilter(true);
+              user = await getUserData();
+              var users = await getAllUsersData();
 
-              // stateManager.setSelectingMode(PlutoGridSelectingMode.cell);
+              setState(() {
+                // stateManager.appendRows([
+                //   PlutoRow(
+                //     cells: {
+                //       'order_index': PlutoCell(value: user!['order_index']),
+                //       'email': PlutoCell(value: user!['email']),
+                //       'address': PlutoCell(value: user!['address']),
+                //       'orders': PlutoCell(value: user!['orders']),
+                //       // 'action': PlutoCell(value: ''),
+                //     },
+                //   ),
+                // ]);
+                stateManager.appendRows(
+                  List.generate(users.length, (index) => index)
+                      .map((index) {
+                        return PlutoRow(
+                          cells: {
+                            'order_index': PlutoCell(value: users[index]["order_index"]),
+                            'email': PlutoCell(value: users[index]['email']),
+                            'address': PlutoCell(value: users[index]['address']),
+                            'orders': PlutoCell(value: users[index]['orders']),
+                          },
+                        );
+                      })
+                      .whereType<PlutoRow>()
+                      .toList(),
+                );
+              });
+
+              stateManager.setShowColumnFilter(true);
+              stateManager.setSelectingMode(PlutoGridSelectingMode.row);
             },
             // onSelected: (PlutoGridOnSelectedEvent event) {
             //   if (event.row != null) {
