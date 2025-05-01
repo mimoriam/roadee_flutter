@@ -11,11 +11,11 @@ Create a user profile page.
 
 Allow users to view and edit basic profile information.
 
-## Milestone 3: Order Placement
+## Milestone 3: Order Placement ✅
 
 Enable users to place orders using their current live location (GPS integration).
 
-## Milestone 4: Payment Integration
+## Milestone 4: Payment Integration ✅
 
 Integrate Stripe Payment Gateway for secure and seamless order payment.
 
