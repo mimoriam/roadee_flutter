@@ -147,14 +147,16 @@ class _PaymentCheckoutScreenState extends State<PaymentCheckoutScreen> {
                                             serviceSelectedIndex[widget
                                                 .serviceSelected]!,
                                           ),
-                                          Text("\$50.00"),
+                                          Text(
+                                            "\$${serviceSelectedIndexPayment[widget.serviceSelected]![0][serviceSelectedIndex[widget.serviceSelected]]}.00",
+                                          ),
                                         ],
                                       ),
                                       const Divider(height: 30),
                                       Row(
                                         mainAxisAlignment:
                                             MainAxisAlignment.spaceBetween,
-                                        children: const [
+                                        children: [
                                           Text(
                                             "Total",
                                             style: TextStyle(
@@ -162,7 +164,7 @@ class _PaymentCheckoutScreenState extends State<PaymentCheckoutScreen> {
                                             ),
                                           ),
                                           Text(
-                                            "\$50.00",
+                                            "\$${serviceSelectedIndexPayment[widget.serviceSelected]![0][serviceSelectedIndex[widget.serviceSelected]]}.00",
                                             style: TextStyle(
                                               fontWeight: FontWeight.bold,
                                             ),
@@ -185,9 +187,13 @@ class _PaymentCheckoutScreenState extends State<PaymentCheckoutScreen> {
                                           ),
                                           onPressed: () async {
                                             // updatePaymentOrderData();
-                                            var result =
-                                                await StripeService.instance
-                                                    .makePayment();
+                                            var result = await StripeService
+                                                .instance
+                                                .makePayment(
+                                                  serviceSelectedIndexPayment[widget
+                                                      .serviceSelected]![0][serviceSelectedIndex[widget
+                                                      .serviceSelected]]!,
+                                                );
 
                                             if (result == "Error") {
                                             } else {
