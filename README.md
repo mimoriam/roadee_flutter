@@ -19,29 +19,25 @@ Enable users to place orders using their current live location (GPS integration)
 
 Integrate Stripe Payment Gateway for secure and seamless order payment.
 
-## Milestone 5: Push Notifications
-
-Set up push notification system to inform users about order status, updates, and other alerts.
-
-## Milestone 6: Order History
+## Milestone 5: Order History
 
 Develop a feature for users to view and manage their past orders.
 
-## Milestone 7: Admin Authentication
+## Milestone 6: Admin Authentication ✅
 
 Allow admin login with unique credentials for secure access.
 
-## Milestone 8: Order Management
+## Milestone 7: Order Management ✅
 
 Display incoming user orders.
 
 Enable admin to accept or manage these orders.
 
-## Milestone 9: User Notifications
+## Milestone 8: User Notifications
 
 Provide functionality for admin to send custom push notifications to users directly from the Admin App.
 
-# Milestone 10:
+# Milestone 9:
 
 Provide a consistent UI across the app and ensure a seamless experience. Thrash any bugs that 
 may come along the way! :)
