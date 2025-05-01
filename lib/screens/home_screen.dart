@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:flutter/services.dart';
 import 'package:roadee_flutter/screens/admin_panel_screen.dart';
 
 import 'package:roadee_flutter/screens/login_screen.dart';
@@ -155,6 +156,8 @@ class _HomeScreenState extends State<HomeScreen> {
   Widget build(BuildContext context) {
     setState(() {});
 
+    SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp, DeviceOrientation.portraitDown]);
+
     Future<void> onSelected(String value) async {
       switch (value) {
         case 'Your Profile':
@@ -162,7 +165,7 @@ class _HomeScreenState extends State<HomeScreen> {
           break;
         case 'Admin':
           // Go to Admin area:
-          Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => AdminScreen()));
+          Navigator.push(context, MaterialPageRoute(builder: (context) => AdminScreen()));
           break;
         case 'Log out':
           await FirebaseAuth.instance.signOut();
@@ -280,191 +283,194 @@ class _HomeScreenState extends State<HomeScreen> {
             body: SafeArea(
               child: Stack(
                 children: [
-                  Column(
-                    children: [
-                      // Placeholder for Map
-                      Placeholder(),
-                      // SizedBox(height: 350, width: double.infinity),
-                      Container(
-                        padding: const EdgeInsets.all(16),
-                        color: Colors.white,
-                        child: Column(
-                          children: [
-                            Row(
-                              children: [
-                                // Avatar
-                                Container(),
-                                const SizedBox(width: 12),
-                                Expanded(
-                                  child: Center(
-                                    child: Builder(
-                                      builder: (context) {
-                                        if (user['orders'][user["order_index"]]["status"].toString() ==
-                                            "Pending") {
-                                          return Text(
-                                            "We are working on our end to "
-                                            "send someone to your assistance!",
-                                            textAlign: TextAlign.center,
-                                            style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
-                                          );
-                                        } else if (user['orders'][user["order_index"]]["status"].toString() ==
-                                            "OnRoute") {
-                                          return Text(
-                                            'Your Roadside '
-                                            'Assistance Tech: '
-                                            '${user['orders'][user["order_index"]]["assistant_assigned"].toString().toCapitalize()}',
-                                            textAlign: TextAlign.center,
-                                            style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
-                                          );
-                                        } else {
-                                          return Text(
-                                            'We are here to help!',
-                                            style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
-                                          );
-                                        }
-                                      },
+                  SingleChildScrollView(
+                    child: Column(
+                      children: [
+                        // Placeholder for Map
+                        Placeholder(),
+                        // SizedBox(height: 350, width: double.infinity),
+                        Container(
+                          padding: const EdgeInsets.all(16),
+                          color: Colors.white,
+                          child: Column(
+                            children: [
+                              Row(
+                                children: [
+                                  // Avatar
+                                  Container(),
+                                  const SizedBox(width: 12),
+                                  Expanded(
+                                    child: Center(
+                                      child: Builder(
+                                        builder: (context) {
+                                          if (user['orders'][user["order_index"]]["status"].toString() ==
+                                              "Pending") {
+                                            return Text(
+                                              "We are working on our end to "
+                                              "send someone to your assistance!",
+                                              textAlign: TextAlign.center,
+                                              style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
+                                            );
+                                          } else if (user['orders'][user["order_index"]]["status"]
+                                                  .toString() ==
+                                              "OnRoute") {
+                                            return Text(
+                                              'Your Roadside '
+                                              'Assistance Tech: '
+                                              '${user['orders'][user["order_index"]]["assistant_assigned"].toString().toCapitalize()}',
+                                              textAlign: TextAlign.center,
+                                              style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
+                                            );
+                                          } else {
+                                            return Text(
+                                              'We are here to help!',
+                                              style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
+                                            );
+                                          }
+                                        },
+                                      ),
                                     ),
                                   ),
-                                ),
-                              ],
-                            ),
-                            const SizedBox(height: 20),
-                            Wrap(
-                              spacing: 12,
-                              runSpacing: 12,
-                              children: [
-                                buildButton(0, 'Towing', Icons.local_shipping),
-                                buildButton(1, 'Flat Tire', Icons.tire_repair),
-                                buildButton(2, 'Battery', Icons.battery_full),
-                                buildButton(3, 'Fuel', Icons.local_gas_station),
-                              ],
-                            ),
-                            const SizedBox(height: 20),
-                            ElevatedButton(
-                              onPressed: () async {
-                                if (selectedIndex == -1) {
-                                  showDialog(
-                                    context: context,
-                                    builder: (BuildContext context) {
-                                      return AlertDialog(
-                                        title: Text(
-                                          "You did not select a "
-                                          "service!",
-                                        ),
-                                        actions: <Widget>[
-                                          TextButton(
-                                            onPressed: () {
-                                              Navigator.of(context).pop(); // Don't exit
-                                            },
-                                            child: Text("Okay"),
+                                ],
+                              ),
+                              const SizedBox(height: 20),
+                              Wrap(
+                                spacing: 12,
+                                runSpacing: 12,
+                                children: [
+                                  buildButton(0, 'Towing', Icons.local_shipping),
+                                  buildButton(1, 'Flat Tire', Icons.tire_repair),
+                                  buildButton(2, 'Battery', Icons.battery_full),
+                                  buildButton(3, 'Fuel', Icons.local_gas_station),
+                                ],
+                              ),
+                              const SizedBox(height: 20),
+                              ElevatedButton(
+                                onPressed: () async {
+                                  if (selectedIndex == -1) {
+                                    showDialog(
+                                      context: context,
+                                      builder: (BuildContext context) {
+                                        return AlertDialog(
+                                          title: Text(
+                                            "You did not select a "
+                                            "service!",
                                           ),
-                                        ],
-                                      );
-                                    },
-                                  );
-                                } else {
-                                  var address = await getUserAddress(context);
-
-                                  if (address == null) {
-                                    // showDialog(
-                                    //   context: context,
-                                    //   builder: (BuildContext context) {
-                                    //     return AlertDialog(
-                                    //       title: Text(
-                                    //         "You did not select a "
-                                    //         "location!",
-                                    //       ),
-                                    //       actions: <Widget>[
-                                    //         TextButton(
-                                    //           onPressed: () {
-                                    //             Navigator.of(
-                                    //               context,
-                                    //             ).pop(); // Don't exit
-                                    //           },
-                                    //           child: Text("Okay"),
-                                    //         ),
-                                    //       ],
-                                    //     );
-                                    //   },
-                                    // );
-                                  } else {
-                                    Navigator.push(
-                                      context,
-                                      MaterialPageRoute(
-                                        builder:
-                                            (context) => EnterInfoScreen(
-                                              serviceSelected: selectedIndex,
-                                              addressSelected: address,
+                                          actions: <Widget>[
+                                            TextButton(
+                                              onPressed: () {
+                                                Navigator.of(context).pop(); // Don't exit
+                                              },
+                                              child: Text("Okay"),
                                             ),
-                                      ),
+                                          ],
+                                        );
+                                      },
                                     );
+                                  } else {
+                                    var address = await getUserAddress(context);
+
+                                    if (address == null) {
+                                      // showDialog(
+                                      //   context: context,
+                                      //   builder: (BuildContext context) {
+                                      //     return AlertDialog(
+                                      //       title: Text(
+                                      //         "You did not select a "
+                                      //         "location!",
+                                      //       ),
+                                      //       actions: <Widget>[
+                                      //         TextButton(
+                                      //           onPressed: () {
+                                      //             Navigator.of(
+                                      //               context,
+                                      //             ).pop(); // Don't exit
+                                      //           },
+                                      //           child: Text("Okay"),
+                                      //         ),
+                                      //       ],
+                                      //     );
+                                      //   },
+                                      // );
+                                    } else {
+                                      Navigator.push(
+                                        context,
+                                        MaterialPageRoute(
+                                          builder:
+                                              (context) => EnterInfoScreen(
+                                                serviceSelected: selectedIndex,
+                                                addressSelected: address,
+                                              ),
+                                        ),
+                                      );
+                                    }
                                   }
-                                }
-                              },
-                              child: const Text("Place Order"),
-                            ),
-                            const SizedBox(height: 20),
-                            Builder(
-                              builder: (context) {
-                                if (user['orders'][0]["status"].toString() == "Pending") {
-                                  return Column(
-                                    children: [
-                                      Row(
-                                        mainAxisAlignment: MainAxisAlignment.center,
-                                        children: [
-                                          Icon(Icons.warning, color: Colors.yellow),
-                                          SizedBox(width: 8),
-                                          Text(
-                                            'Your current order is in review: ',
-                                            style: TextStyle(fontSize: 16, fontWeight: FontWeight.w500),
-                                          ),
-                                        ],
-                                      ),
-                                      Center(
-                                        child: Padding(
-                                          padding: EdgeInsets.only(top: 4),
-                                          child: Text(
-                                            user['orders'][0]["service"].toString().toCapitalize(),
-                                            style: TextStyle(color: Colors.black54),
+                                },
+                                child: const Text("Place Order"),
+                              ),
+                              const SizedBox(height: 20),
+                              Builder(
+                                builder: (context) {
+                                  if (user['orders'][0]["status"].toString() == "Pending") {
+                                    return Column(
+                                      children: [
+                                        Row(
+                                          mainAxisAlignment: MainAxisAlignment.center,
+                                          children: [
+                                            Icon(Icons.warning, color: Colors.yellow),
+                                            SizedBox(width: 8),
+                                            Text(
+                                              'Your current order is in review: ',
+                                              style: TextStyle(fontSize: 16, fontWeight: FontWeight.w500),
+                                            ),
+                                          ],
+                                        ),
+                                        Center(
+                                          child: Padding(
+                                            padding: EdgeInsets.only(top: 4),
+                                            child: Text(
+                                              user['orders'][0]["service"].toString().toCapitalize(),
+                                              style: TextStyle(color: Colors.black54),
+                                            ),
                                           ),
                                         ),
-                                      ),
-                                    ],
-                                  );
-                                } else if (user['orders'][0]["status"].toString() == "OnRoute") {
-                                  return Column(
-                                    children: [
-                                      Row(
-                                        mainAxisAlignment: MainAxisAlignment.center,
-                                        children: [
-                                          Icon(Icons.check_circle, color: Colors.green),
-                                          SizedBox(width: 8),
-                                          Text(
-                                            'Assistance is on the way',
-                                            style: TextStyle(fontSize: 16, fontWeight: FontWeight.w500),
-                                          ),
-                                        ],
-                                      ),
-                                      Center(
-                                        child: Padding(
-                                          padding: EdgeInsets.only(top: 4),
-                                          child: Text(
-                                            'Arriving in 15 min',
-                                            style: TextStyle(color: Colors.black54),
+                                      ],
+                                    );
+                                  } else if (user['orders'][0]["status"].toString() == "OnRoute") {
+                                    return Column(
+                                      children: [
+                                        Row(
+                                          mainAxisAlignment: MainAxisAlignment.center,
+                                          children: [
+                                            Icon(Icons.check_circle, color: Colors.green),
+                                            SizedBox(width: 8),
+                                            Text(
+                                              'Assistance is on the way',
+                                              style: TextStyle(fontSize: 16, fontWeight: FontWeight.w500),
+                                            ),
+                                          ],
+                                        ),
+                                        Center(
+                                          child: Padding(
+                                            padding: EdgeInsets.only(top: 4),
+                                            child: Text(
+                                              'Arriving in 15 min',
+                                              style: TextStyle(color: Colors.black54),
+                                            ),
                                           ),
                                         ),
-                                      ),
-                                    ],
-                                  );
-                                } else {
-                                  return Text("");
-                                }
-                              },
-                            ),
-                          ],
+                                      ],
+                                    );
+                                  } else {
+                                    return Text("");
+                                  }
+                                },
+                              ),
+                            ],
+                          ),
                         ),
-                      ),
-                    ],
+                      ],
+                    ),
                   ),
                 ],
               ),
