@@ -30,24 +30,19 @@ class _SignUpScreenState extends State<SignUpScreen> {
         password: _formKey.currentState?.fields['password']?.value,
       );
 
-      await FirebaseFirestore.instance
-          .collection("users")
-          .doc(user.user!.uid)
-          .set({
-            "username": _formKey.currentState?.fields['username']?.value,
-            "email": user.user!.email,
-            "phone": _formKey.currentState?.fields['phone']?.value,
-            "address": "",
-            "profileImage": "default_pfp.jpg",
-            "createdAt": FieldValue.serverTimestamp(),
-            "order_index": 0,
-            "orders": FieldValue.arrayUnion([
-              {
-                "orderCreatedAt": DateTime.now(),
-                "status": OrderStatus.Empty.name,
-              },
-            ]),
-          });
+      await FirebaseFirestore.instance.collection("users").doc(user.user!.uid).set({
+        "username": _formKey.currentState?.fields['username']?.value,
+        "is_admin": false,
+        "email": user.user!.email,
+        "phone": _formKey.currentState?.fields['phone']?.value,
+        "address": "",
+        "profileImage": "default_pfp.jpg",
+        "createdAt": FieldValue.serverTimestamp(),
+        "order_index": 0,
+        "orders": FieldValue.arrayUnion([
+          {"orderCreatedAt": DateTime.now(), "status": OrderStatus.Empty.name},
+        ]),
+      });
 
       // await FirebaseFirestore.instance
       //     .collection("users")
@@ -107,11 +102,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
                                   color: Colors.white,
                                 ),
                               ),
-                              if (error.isNotEmpty)
-                                Text(
-                                  error,
-                                  style: const TextStyle(color: Colors.red),
-                                ),
+                              if (error.isNotEmpty) Text(error, style: const TextStyle(color: Colors.red)),
                               const SizedBox(height: 30),
                               _buildTextField(
                                 name: 'username',
@@ -170,15 +161,10 @@ class _SignUpScreenState extends State<SignUpScreen> {
                               _buildTextField(
                                 name: 'confirm_password',
                                 obscureText: true,
-                                autovalidateMode:
-                                    AutovalidateMode.onUserInteraction,
+                                autovalidateMode: AutovalidateMode.onUserInteraction,
                                 validator:
                                     (value) =>
-                                        _formKey
-                                                    .currentState
-                                                    ?.fields['password']
-                                                    ?.value !=
-                                                value
+                                        _formKey.currentState?.fields['password']?.value != value
                                             ? 'Passwords do not match.'
                                             : null,
                               ),
@@ -224,25 +210,16 @@ class _SignUpScreenState extends State<SignUpScreen> {
     bool obscureText = false,
   }) {
     return Container(
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(16),
-      ),
+      decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(16)),
       child: FormBuilderTextField(
         name: name,
         autovalidateMode: autovalidateMode,
         validator: validator,
         obscureText: obscureText,
         decoration: InputDecoration(
-          hintText:
-              name == "confirm_password"
-                  ? "Confirm Password"
-                  : name.toCapitalize(),
+          hintText: name == "confirm_password" ? "Confirm Password" : name.toCapitalize(),
           hintStyle: TextStyle(color: Color(0xFF799ac2), fontSize: 18),
-          contentPadding: const EdgeInsets.symmetric(
-            horizontal: 20,
-            vertical: 16,
-          ),
+          contentPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
           border: InputBorder.none,
         ),
       ),
@@ -263,25 +240,14 @@ class _SignUpScreenState extends State<SignUpScreen> {
             final user = await authenticate();
 
             if (user != null) {
-              Navigator.push(
-                context,
-                MaterialPageRoute(builder: (context) => LoginScreen()),
-              );
+              Navigator.push(context, MaterialPageRoute(builder: (context) => LoginScreen()));
             }
           }
         },
-        style: TextButton.styleFrom(
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(10),
-          ),
-        ),
+        style: TextButton.styleFrom(shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10))),
         child: const Text(
           'Sign Up',
-          style: TextStyle(
-            color: Colors.white,
-            fontSize: 22,
-            fontWeight: FontWeight.w500,
-          ),
+          style: TextStyle(color: Colors.white, fontSize: 22, fontWeight: FontWeight.w500),
         ),
       ),
     );

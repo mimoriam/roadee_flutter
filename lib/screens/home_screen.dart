@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:roadee_flutter/screens/admin_panel_screen.dart';
 
 import 'package:roadee_flutter/screens/login_screen.dart';
 import 'package:roadee_flutter/screens/user_profile_screen.dart';
@@ -159,7 +160,9 @@ class _HomeScreenState extends State<HomeScreen> {
         case 'Your Profile':
           Navigator.push(context, MaterialPageRoute(builder: (context) => UserProfileScreen()));
           break;
-        case 'Settings':
+        case 'Admin':
+          // Go to Admin area:
+          Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => AdminScreen()));
           break;
         case 'Log out':
           await FirebaseAuth.instance.signOut();
@@ -248,7 +251,9 @@ class _HomeScreenState extends State<HomeScreen> {
                           onPressed: () => onSelected('Your Profile'),
                           child: Text('Your Profile'),
                         ),
-                        MenuItemButton(onPressed: () => onSelected('Settings'), child: Text('Settings')),
+                        user["is_admin"]
+                            ? MenuItemButton(onPressed: () => onSelected('Admin'), child: Text('Admin Panel'))
+                            : Container(),
                         MenuItemButton(onPressed: () => onSelected('Log out'), child: Text('Log out')),
                       ],
                       builder: (BuildContext context, MenuController controller, Widget? child) {
