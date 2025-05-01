@@ -36,6 +36,15 @@ class _HomeScreenState extends State<HomeScreen> {
     return doc.exists ? doc.data() : null;
   }
 
+  Future<void> updateUserAddressOnPlaceOrder(String userAddress) async {
+    final user = FirebaseAuth.instance.currentUser!;
+
+    // Update Firestore address
+    await FirebaseFirestore.instance.collection('users').doc(user.uid).update({
+      'address': userAddress,
+    });
+  }
+
   // Future<Map<String, String>?> getUserAddress(BuildContext context) async {
   Future<String?> getUserAddress(BuildContext context) async {
     bool serviceEnabled;
@@ -117,13 +126,11 @@ class _HomeScreenState extends State<HomeScreen> {
       position.longitude,
     );
     Placemark place = placemarks[0];
+    await updateUserAddressOnPlaceOrder(
+      '${place.name}, ${place.locality}, '
+      '${place.administrativeArea}, ${place.country}',
+    );
     return '${place.name}, ${place.locality}, ${place.administrativeArea}, ${place.country}';
-    // return {
-    //   "locationPerm": "$permission",
-    //   "place":
-    //       '${place.name}, ${place.locality}, ${place.administrativeArea}, '
-    //       '${place.country}',
-    // };
   }
 
   Widget buildButton(int index, String label, IconData icon) {
@@ -330,10 +337,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                   child: Center(
                                     child: Builder(
                                       builder: (context) {
-                                        // if (user.containsKey('orders')) {
-                                        //   return Text("AAA")
-                                        // }
-                                        if (user['orders'][0]["status"]
+                                        if (user['orders'][user["order_index"]]["status"]
                                                 .toString() ==
                                             "Pending") {
                                           return Text(
@@ -345,7 +349,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                               fontWeight: FontWeight.w600,
                                             ),
                                           );
-                                        } else if (user['orders'][0]["status"]
+                                        } else if (user['orders'][user["order_index"]]["status"]
                                                 .toString() ==
                                             "OnRoute") {
                                           return Text(
