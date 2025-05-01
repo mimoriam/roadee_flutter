@@ -40,6 +40,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
             "address": "",
             "profileImage": "default_pfp.jpg",
             "createdAt": FieldValue.serverTimestamp(),
+            "order_index": 0,
             "orders": FieldValue.arrayUnion([
               {
                 "orderCreatedAt": DateTime.now(),
@@ -47,6 +48,16 @@ class _SignUpScreenState extends State<SignUpScreen> {
               },
             ]),
           });
+
+      // await FirebaseFirestore.instance
+      //     .collection("users")
+      //     .doc(user.user!.uid)
+      //     .collection('orders')
+      //     .doc()
+      //     .set({
+      //       "orderCreatedAt": DateTime.now(),
+      //       "status": OrderStatus.Empty.name,
+      //     });
 
       return user;
     } on FirebaseAuthException {

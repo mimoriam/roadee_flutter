@@ -10,9 +10,10 @@ class StripeService {
   static final StripeService instance = StripeService._();
   late String paymentResult;
 
-  Future<String> makePayment() async {
+  Future<String> makePayment(int amount) async {
     try {
-      String? paymentIntentClientSecret = await _createPaymentIntent(10, "usd");
+      String? paymentIntentClientSecret = await _createPaymentIntent(amount,
+          "usd");
 
       if (paymentIntentClientSecret == null) return "No_Client";
 

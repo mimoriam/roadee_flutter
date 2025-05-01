@@ -31,8 +31,7 @@ class _HomeScreenState extends State<HomeScreen> {
     final uid = FirebaseAuth.instance.currentUser?.uid;
     if (uid == null) return null;
 
-    final doc =
-        await FirebaseFirestore.instance.collection("users").doc(uid).get();
+    final doc = await FirebaseFirestore.instance.collection("users").doc(uid).get();
     return doc.exists ? doc.data() : null;
   }
 
@@ -40,9 +39,7 @@ class _HomeScreenState extends State<HomeScreen> {
     final user = FirebaseAuth.instance.currentUser!;
 
     // Update Firestore address
-    await FirebaseFirestore.instance.collection('users').doc(user.uid).update({
-      'address': userAddress,
-    });
+    await FirebaseFirestore.instance.collection('users').doc(user.uid).update({'address': userAddress});
   }
 
   // Future<Map<String, String>?> getUserAddress(BuildContext context) async {
@@ -68,10 +65,7 @@ class _HomeScreenState extends State<HomeScreen> {
                       },
                       child: Text("Open Settings"),
                     ),
-                    TextButton(
-                      onPressed: () => Navigator.of(ctx).pop(),
-                      child: Text("Cancel"),
-                    ),
+                    TextButton(onPressed: () => Navigator.of(ctx).pop(), child: Text("Cancel")),
                   ],
                 ),
           ) ??
@@ -84,9 +78,7 @@ class _HomeScreenState extends State<HomeScreen> {
     if (permission == LocationPermission.denied) {
       permission = await Geolocator.requestPermission();
       if (permission == LocationPermission.denied) {
-        ScaffoldMessenger.of(
-          context,
-        ).showSnackBar(SnackBar(content: Text("Location permission denied")));
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("Location permission denied")));
         return null;
       }
     }
@@ -106,10 +98,7 @@ class _HomeScreenState extends State<HomeScreen> {
                   },
                   child: Text("Open App Settings"),
                 ),
-                TextButton(
-                  onPressed: () => Navigator.of(ctx).pop(),
-                  child: Text("Cancel"),
-                ),
+                TextButton(onPressed: () => Navigator.of(ctx).pop(), child: Text("Cancel")),
               ],
             ),
       );
@@ -121,10 +110,7 @@ class _HomeScreenState extends State<HomeScreen> {
       // desiredAccuracy: LocationAccuracy.high,
       locationSettings: LocationSettings(accuracy: LocationAccuracy.high),
     );
-    List<Placemark> placemarks = await placemarkFromCoordinates(
-      position.latitude,
-      position.longitude,
-    );
+    List<Placemark> placemarks = await placemarkFromCoordinates(position.latitude, position.longitude);
     Placemark place = placemarks[0];
     await updateUserAddressOnPlaceOrder(
       '${place.name}, ${place.locality}, '
@@ -151,10 +137,7 @@ class _HomeScreenState extends State<HomeScreen> {
             const SizedBox(width: 8),
             Text(
               label,
-              style: TextStyle(
-                color: isSelected ? Colors.white : Colors.black,
-                fontWeight: FontWeight.w600,
-              ),
+              style: TextStyle(color: isSelected ? Colors.white : Colors.black, fontWeight: FontWeight.w600),
             ),
             if (isSelected)
               const Padding(
@@ -174,19 +157,13 @@ class _HomeScreenState extends State<HomeScreen> {
     Future<void> onSelected(String value) async {
       switch (value) {
         case 'Your Profile':
-          Navigator.push(
-            context,
-            MaterialPageRoute(builder: (context) => UserProfileScreen()),
-          );
+          Navigator.push(context, MaterialPageRoute(builder: (context) => UserProfileScreen()));
           break;
         case 'Settings':
           break;
         case 'Log out':
           await FirebaseAuth.instance.signOut();
-          Navigator.pushReplacement(
-            context,
-            MaterialPageRoute(builder: (context) => LoginScreen()),
-          );
+          Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => LoginScreen()));
           break;
       }
     }
@@ -239,10 +216,7 @@ class _HomeScreenState extends State<HomeScreen> {
               child: AppBar(
                 backgroundColor: Colors.white,
                 elevation: 0,
-                leading: IconButton(
-                  icon: const Icon(Icons.menu, color: Colors.black),
-                  onPressed: () {},
-                ),
+                leading: IconButton(icon: const Icon(Icons.menu, color: Colors.black), onPressed: () {}),
                 title: Row(
                   children: [
                     const Text(
@@ -262,37 +236,22 @@ class _HomeScreenState extends State<HomeScreen> {
                           'You Are Logged In',
                           style: TextStyle(fontSize: 12, color: Colors.black54),
                         ),
-                        Text(
-                          "${user['username']}",
-                          style: TextStyle(fontSize: 12, color: Colors.black),
-                        ),
+                        Text("${user['username']}", style: TextStyle(fontSize: 12, color: Colors.black)),
                       ],
                     ),
                     const SizedBox(width: 8),
                     MenuAnchor(
                       controller: _menuController,
-                      style: MenuStyle(
-                        backgroundColor: WidgetStateProperty.all(Colors.white),
-                      ),
+                      style: MenuStyle(backgroundColor: WidgetStateProperty.all(Colors.white)),
                       menuChildren: [
                         MenuItemButton(
                           onPressed: () => onSelected('Your Profile'),
                           child: Text('Your Profile'),
                         ),
-                        MenuItemButton(
-                          onPressed: () => onSelected('Settings'),
-                          child: Text('Settings'),
-                        ),
-                        MenuItemButton(
-                          onPressed: () => onSelected('Log out'),
-                          child: Text('Log out'),
-                        ),
+                        MenuItemButton(onPressed: () => onSelected('Settings'), child: Text('Settings')),
+                        MenuItemButton(onPressed: () => onSelected('Log out'), child: Text('Log out')),
                       ],
-                      builder: (
-                        BuildContext context,
-                        MenuController controller,
-                        Widget? child,
-                      ) {
+                      builder: (BuildContext context, MenuController controller, Widget? child) {
                         return GestureDetector(
                           onTap: () {
                             if (controller.isOpen) {
@@ -304,9 +263,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
                           child: CircleAvatar(
                             radius: 18,
-                            backgroundImage: AssetImage(
-                              "images/default_pfp.jpg",
-                            ),
+                            backgroundImage: AssetImage("images/default_pfp.jpg"),
                           ),
                         );
                       },
@@ -337,37 +294,27 @@ class _HomeScreenState extends State<HomeScreen> {
                                   child: Center(
                                     child: Builder(
                                       builder: (context) {
-                                        if (user['orders'][user["order_index"]]["status"]
-                                                .toString() ==
+                                        if (user['orders'][user["order_index"]]["status"].toString() ==
                                             "Pending") {
                                           return Text(
                                             "We are working on our end to "
                                             "send someone to your assistance!",
                                             textAlign: TextAlign.center,
-                                            style: TextStyle(
-                                              fontSize: 16,
-                                              fontWeight: FontWeight.w600,
-                                            ),
+                                            style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
                                           );
-                                        } else if (user['orders'][user["order_index"]]["status"]
-                                                .toString() ==
+                                        } else if (user['orders'][user["order_index"]]["status"].toString() ==
                                             "OnRoute") {
                                           return Text(
                                             'Your Roadside '
-                                            'Assistance Tech: Aaron G.',
+                                            'Assistance Tech: '
+                                            '${user['orders'][user["order_index"]]["assistant_assigned"].toString().toCapitalize()}',
                                             textAlign: TextAlign.center,
-                                            style: TextStyle(
-                                              fontSize: 16,
-                                              fontWeight: FontWeight.w600,
-                                            ),
+                                            style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
                                           );
                                         } else {
                                           return Text(
                                             'We are here to help!',
-                                            style: TextStyle(
-                                              fontSize: 16,
-                                              fontWeight: FontWeight.w600,
-                                            ),
+                                            style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
                                           );
                                         }
                                       },
@@ -402,9 +349,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                         actions: <Widget>[
                                           TextButton(
                                             onPressed: () {
-                                              Navigator.of(
-                                                context,
-                                              ).pop(); // Don't exit
+                                              Navigator.of(context).pop(); // Don't exit
                                             },
                                             child: Text("Okay"),
                                           ),
@@ -456,25 +401,17 @@ class _HomeScreenState extends State<HomeScreen> {
                             const SizedBox(height: 20),
                             Builder(
                               builder: (context) {
-                                if (user['orders'][0]["status"].toString() ==
-                                    "Pending") {
+                                if (user['orders'][0]["status"].toString() == "Pending") {
                                   return Column(
                                     children: [
                                       Row(
-                                        mainAxisAlignment:
-                                            MainAxisAlignment.center,
+                                        mainAxisAlignment: MainAxisAlignment.center,
                                         children: [
-                                          Icon(
-                                            Icons.warning,
-                                            color: Colors.yellow,
-                                          ),
+                                          Icon(Icons.warning, color: Colors.yellow),
                                           SizedBox(width: 8),
                                           Text(
                                             'Your current order is in review: ',
-                                            style: TextStyle(
-                                              fontSize: 16,
-                                              fontWeight: FontWeight.w500,
-                                            ),
+                                            style: TextStyle(fontSize: 16, fontWeight: FontWeight.w500),
                                           ),
                                         ],
                                       ),
@@ -482,37 +419,24 @@ class _HomeScreenState extends State<HomeScreen> {
                                         child: Padding(
                                           padding: EdgeInsets.only(top: 4),
                                           child: Text(
-                                            user['orders'][0]["service"]
-                                                .toString()
-                                                .toCapitalize(),
-                                            style: TextStyle(
-                                              color: Colors.black54,
-                                            ),
+                                            user['orders'][0]["service"].toString().toCapitalize(),
+                                            style: TextStyle(color: Colors.black54),
                                           ),
                                         ),
                                       ),
                                     ],
                                   );
-                                } else if (user['orders'][0]["status"]
-                                        .toString() ==
-                                    "OnRoute") {
+                                } else if (user['orders'][0]["status"].toString() == "OnRoute") {
                                   return Column(
                                     children: [
                                       Row(
-                                        mainAxisAlignment:
-                                            MainAxisAlignment.center,
+                                        mainAxisAlignment: MainAxisAlignment.center,
                                         children: [
-                                          Icon(
-                                            Icons.check_circle,
-                                            color: Colors.green,
-                                          ),
+                                          Icon(Icons.check_circle, color: Colors.green),
                                           SizedBox(width: 8),
                                           Text(
                                             'Assistance is on the way',
-                                            style: TextStyle(
-                                              fontSize: 16,
-                                              fontWeight: FontWeight.w500,
-                                            ),
+                                            style: TextStyle(fontSize: 16, fontWeight: FontWeight.w500),
                                           ),
                                         ],
                                       ),
@@ -521,9 +445,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                           padding: EdgeInsets.only(top: 4),
                                           child: Text(
                                             'Arriving in 15 min',
-                                            style: TextStyle(
-                                              color: Colors.black54,
-                                            ),
+                                            style: TextStyle(color: Colors.black54),
                                           ),
                                         ),
                                       ),

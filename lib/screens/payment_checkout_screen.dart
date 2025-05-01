@@ -34,42 +34,20 @@ class PaymentCheckoutScreen extends StatefulWidget {
 class _PaymentCheckoutScreenState extends State<PaymentCheckoutScreen> {
   final _formKey = GlobalKey<FormBuilderState>();
 
-  Future<void> updatePaymentOrderData() async {
-    try {
-      final user = FirebaseAuth.instance.currentUser!;
-
-      await FirebaseFirestore.instance.collection('users').doc(user.uid).update(
-        {
-          "orders": FieldValue.arrayUnion([
-            {
-              "assistant_assigned": "",
-              "billing_address": "asdasdasdsad",
-              "card number": "2134 4123 2141 4214",
-              "cvc": "431",
-              "mm_yy": "03/27",
-              "orderCreatedAt": DateTime.now(),
-              "promo code": "13",
-              "service": "tire change 3",
-              "status": OrderStatus.Pending.name,
-            },
-          ]),
-        },
-      );
-    } on FirebaseAuthException {}
-  }
-
   Future<void> addOrderToDB() async {
     try {
       final user = FirebaseAuth.instance.currentUser!;
 
       await FirebaseFirestore.instance.collection('users').doc(user.uid).update(
         {
+          "order_index": FieldValue.increment(1),
           "orders": FieldValue.arrayUnion([
             {
               "assistant_assigned": "",
               "orderCreatedAt": DateTime.now(),
               "promo code": "",
-              "service": "tire change",
+              "service": serviceSelectedIndex[widget
+                  .serviceSelected],
               "status": OrderStatus.Pending.name,
               "payment": "Successful",
             },
@@ -186,7 +164,6 @@ class _PaymentCheckoutScreenState extends State<PaymentCheckoutScreen> {
                                             backgroundColor: Colors.blue,
                                           ),
                                           onPressed: () async {
-                                            // updatePaymentOrderData();
                                             var result = await StripeService
                                                 .instance
                                                 .makePayment(
