@@ -293,8 +293,8 @@ class _HomeScreenState extends State<HomeScreen> {
   void _onMapCreated(mp.MapboxMap mapboxMap) async {
     mapboxMapController = mapboxMap;
 
-    _pointAnnotationManager = await mapboxMapController.annotations.createPointAnnotationManager();
     _polylineAnnotationManager = await mapboxMap.annotations.createPolylineAnnotationManager();
+    _pointAnnotationManager = await mapboxMapController.annotations.createPointAnnotationManager();
 
     mapboxMapController.location.updateSettings(
       mp.LocationComponentSettings(enabled: true, pulsingEnabled: true),
@@ -306,7 +306,7 @@ class _HomeScreenState extends State<HomeScreen> {
   void drawPolyline(startLng, startLat, endLng, endLat) async {
     var coords;
     final url =
-        'https://api.mapbox.com/directions/v5/mapbox/driving/$startLng,$startLat;$endLng,$endLat?geometries=geojson&access_token=$mapBoxToken';
+        'https://api.mapbox.com/directions/v5/mapbox/driving/$startLng,$startLat;$endLng,$endLat?overview=full&geometries=geojson&access_token=$mapBoxToken';
 
     final response = await http.get(Uri.parse(url));
 
@@ -569,13 +569,14 @@ class _HomeScreenState extends State<HomeScreen> {
                                       currentLong: context.point.coordinates.lng,
                                       currentLat: context.point.coordinates.lat,
                                     );
+
+                                    drawPolyline(
+                                      _currentPosition!.longitude,
+                                      _currentPosition!.latitude,
+                                      context.point.coordinates.lng,
+                                      context.point.coordinates.lat,
+                                    );
                                   }
-                                  drawPolyline(
-                                    _currentPosition!.longitude,
-                                    _currentPosition!.latitude,
-                                    context.point.coordinates.lng,
-                                    context.point.coordinates.lat,
-                                  );
                                 },
                                 // onMapLoadErrorListener: (mp.MapLoadingErrorEventData data) {
                                 //   print("MapLoadingErrorEventData: timestamp: ${data.timestamp}");
