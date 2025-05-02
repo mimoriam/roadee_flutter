@@ -6,6 +6,7 @@ import 'package:pluto_grid/pluto_grid.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/material.dart';
 import 'package:roadee_flutter/draft_local/payment_checkout_screen.draft.dart';
+import 'package:roadee_flutter/screens/home_screen.dart';
 
 class AdminScreen extends StatefulWidget {
   const AdminScreen({super.key});
@@ -15,6 +16,7 @@ class AdminScreen extends StatefulWidget {
 }
 
 class _AdminScreenState extends State<AdminScreen> {
+  List<String> adminUsers = [];
   List<PlutoColumn> columns = [];
   List<PlutoRow> rows = [];
   late PlutoGridStateManager stateManager;
@@ -25,6 +27,8 @@ class _AdminScreenState extends State<AdminScreen> {
     final uid = FirebaseAuth.instance.currentUser?.uid;
 
     final doc = await FirebaseFirestore.instance.collection("users").doc(uid).get();
+
+    adminUsers.add(doc.data()!["username"]);
     return doc.data();
   }
 
@@ -44,7 +48,7 @@ class _AdminScreenState extends State<AdminScreen> {
     final List<PlutoColumn> ordersColumn = [];
 
     ordersColumn.addAll([
-      PlutoColumn(title: "Assistant", field: "assistant_assigned", type: PlutoColumnType.text()),
+      PlutoColumn(title: "Assistant", field: "assistant_assigned", type: PlutoColumnType.select(adminUsers)),
       PlutoColumn(title: "Service", field: "service", type: PlutoColumnType.text()),
       PlutoColumn(title: "Status", field: "status", type: PlutoColumnType.text()),
     ]);

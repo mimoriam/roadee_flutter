@@ -101,6 +101,7 @@ class _HomeScreenState extends State<HomeScreen> {
                       onPressed: () {
                         Navigator.of(ctx).pop();
                         Geolocator.openLocationSettings();
+                        // setState(() {});
                       },
                       child: Text("Open Settings"),
                     ),
@@ -140,6 +141,7 @@ class _HomeScreenState extends State<HomeScreen> {
                     Navigator.of(ctx).pop();
                     // Geolocator.openAppSettings();
                     Geolocator.openLocationSettings();
+                    // setState(() {});
                   },
                   child: Text("Open App Settings"),
                 ),
@@ -226,7 +228,7 @@ class _HomeScreenState extends State<HomeScreen> {
     if (permission == LocationPermission.denied) {
       permission = await Geolocator.requestPermission();
       if (permission == LocationPermission.denied) {
-        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("Location permission denied")));
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("Location permission denied!")));
         return null;
       }
     }
@@ -243,10 +245,24 @@ class _HomeScreenState extends State<HomeScreen> {
                   onPressed: () {
                     Navigator.of(ctx).pop();
                     Geolocator.openAppSettings();
+                    // Geolocator.openLocationSettings();
+                    // Navigator.pushReplacement(
+                    //   ctx,
+                    //   MaterialPageRoute(builder: (BuildContext context) => super.widget),
+                    // );
                   },
                   child: Text("Open App Settings"),
                 ),
-                TextButton(onPressed: () => Navigator.of(ctx).pop(), child: Text("Cancel")),
+                TextButton(
+                  onPressed: () {
+                    Navigator.of(ctx).pop();
+                    Navigator.pushReplacement(
+                      ctx,
+                      MaterialPageRoute(builder: (BuildContext context) => super.widget),
+                    );
+                  },
+                  child: Text("Cancel"),
+                ),
               ],
             ),
       );
@@ -465,8 +481,9 @@ class _HomeScreenState extends State<HomeScreen> {
                       ),
                       TextButton(
                         onPressed: () {
-                          Navigator.of(context).pop(); // Close dialog
-                          Navigator.of(context).pop(); // Pop the route
+                          // Navigator.of(context).pop(); // Close dialog
+                          // Navigator.of(context).pop(); // Pop the route
+                          SystemNavigator.pop();
                         },
                         child: Text("Exit"),
                       ),
@@ -589,12 +606,12 @@ class _HomeScreenState extends State<HomeScreen> {
                                       currentLat: context.point.coordinates.lat,
                                     );
 
-                                    drawPolyline(
-                                      _currentPosition!.longitude,
-                                      _currentPosition!.latitude,
-                                      context.point.coordinates.lng,
-                                      context.point.coordinates.lat,
-                                    );
+                                    // drawPolyline(
+                                    //   _currentPosition!.longitude,
+                                    //   _currentPosition!.latitude,
+                                    //   context.point.coordinates.lng,
+                                    //   context.point.coordinates.lat,
+                                    // );
                                   }
                                 },
                                 // onScrollListener: (mp.MapContentGestureContext context) {
