@@ -46,13 +46,15 @@ class _AdminScreenState extends State<AdminScreen> {
           .limit(1)
           .get();
 
-      final docRef = await query.docs.first.reference;
+      final docRef = query.docs.first.reference;
       final doc = await docRef.get();
+
       final orders = List<Map<String, dynamic>>.from(doc.data()?['orders'] ?? []);
       final order_idx = doc.data()?["order_index"];
 
       if (order_idx > 0) {
         orders[order_idx]["assistant_assigned"] = "${user?["username"]}";
+        orders[order_idx]["status"] = OrderStatus.OnRoute.name;
       }
 
       await docRef.update({'orders': orders});
