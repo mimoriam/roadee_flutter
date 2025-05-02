@@ -443,7 +443,7 @@ class _HomeScreenState extends State<HomeScreen> {
           break;
         case 'Admin':
           // Go to Admin area:
-          Navigator.push(context, MaterialPageRoute(builder: (context) => AdminScreen()));
+          Navigator.push(context, MaterialPageRoute(builder: (context) => AdminScreen(placemark: _place)));
           break;
         case 'Log out':
           await FirebaseAuth.instance.signOut();

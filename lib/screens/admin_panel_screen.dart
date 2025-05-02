@@ -2,13 +2,16 @@ import 'dart:async';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:geocoding/geocoding.dart';
 import 'package:pluto_grid/pluto_grid.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/material.dart';
 import 'package:roadee_flutter/draft_local/payment_checkout_screen.draft.dart';
 
 class AdminScreen extends StatefulWidget {
-  const AdminScreen({super.key});
+  final Placemark placemark;
+
+  const AdminScreen({super.key, required this.placemark});
 
   @override
   State<AdminScreen> createState() => _AdminScreenState();
@@ -40,11 +43,11 @@ class _AdminScreenState extends State<AdminScreen> {
   Future<void> updateAssistantForAnotherUser(String username) async {
     try {
       final query =
-      await FirebaseFirestore.instance
-          .collection("users")
-          .where('username', isEqualTo: username)
-          .limit(1)
-          .get();
+          await FirebaseFirestore.instance
+              .collection("users")
+              .where('username', isEqualTo: username)
+              .limit(1)
+              .get();
 
       final docRef = query.docs.first.reference;
       final doc = await docRef.get();
@@ -54,19 +57,19 @@ class _AdminScreenState extends State<AdminScreen> {
 
       if (order_idx > 0) {
         orders[order_idx]["assistant_assigned"] = "${user?["username"]}";
+        orders[order_idx]["assistant_address"] =
+            widget.placemark.thoroughfare == ""
+                ? "${widget.placemark.name} ${widget.placemark.street}"
+                : "${widget.placemark.thoroughfare} "
+                    "${widget.placemark.subThoroughfare}";
+
         orders[order_idx]["status"] = OrderStatus.OnRoute.name;
       }
 
       await docRef.update({'orders': orders});
-
-      // final orders = List<Map<String, dynamic>>.from(doc['orders']);
-
-      // await docRef.update({
-      //   'address': '161-160, Multan, Punjab, Pakista',
-      // });
-
     } on FirebaseAuthException {}
   }
+
   void openGridPopup(BuildContext context, String selectFieldName, var queryUser, int orderIndex) {
     // final ordersColumn = PlutoColumn(
     //   title: selectFieldName,
