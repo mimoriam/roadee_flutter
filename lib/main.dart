@@ -10,10 +10,12 @@ import 'firebase_options.dart';
 import 'constants.dart';
 
 import 'package:flutter_stripe/flutter_stripe.dart';
+import 'package:mapbox_maps_flutter/mapbox_maps_flutter.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
+  MapboxOptions.setAccessToken(mapBoxToken);
   Stripe.publishableKey = publishableKey;
 
   runApp(const MyApp());

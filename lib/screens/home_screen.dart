@@ -11,6 +11,7 @@ import 'package:roadee_flutter/screens/enter_info_screen.dart';
 
 import 'package:geolocator/geolocator.dart';
 import 'package:geocoding/geocoding.dart';
+import 'package:mapbox_maps_flutter/mapbox_maps_flutter.dart' as mp;
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -22,6 +23,18 @@ class HomeScreen extends StatefulWidget {
 class _HomeScreenState extends State<HomeScreen> {
   final MenuController _menuController = MenuController();
   int selectedIndex = -1;
+
+  mp.MapWidget? mapWidget;
+
+  late mp.MapboxMap mapboxMap;
+  Position? _currentPosition;
+
+  @override
+  void initState() {
+    super.initState();
+
+    getCurrentLocationOnLaunch();
+  }
 
   void onButtonPressed(int index) {
     setState(() {
@@ -67,7 +80,107 @@ class _HomeScreenState extends State<HomeScreen> {
                       },
                       child: Text("Open Settings"),
                     ),
-                    TextButton(onPressed: () => Navigator.of(ctx).pop(), child: Text("Cancel")),
+                    TextButton(
+                      onPressed: () {
+                        Navigator.of(ctx).pop();
+                      },
+                      child: Text("Cancel"),
+                    ),
+                  ],
+                ),
+          ) ??
+          false;
+      return null;
+    }
+
+    // Handle permission
+    permission = await Geolocator.checkPermission();
+    if (permission == LocationPermission.denied) {
+      permission = await Geolocator.requestPermission();
+      if (permission == LocationPermission.denied) {
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("Location permission denied")));
+        return null;
+      }
+    }
+
+    if (permission == LocationPermission.deniedForever) {
+      await showDialog(
+        context: context,
+        builder:
+            (ctx) => AlertDialog(
+              title: Text("Permission Denied"),
+              content: Text("Enable location permissions from app settings."),
+              actions: [
+                TextButton(
+                  onPressed: () {
+                    Navigator.of(ctx).pop();
+                    // Geolocator.openAppSettings();
+                    Geolocator.openLocationSettings();
+                  },
+                  child: Text("Open App Settings"),
+                ),
+                TextButton(
+                  onPressed: () {
+                    Navigator.of(ctx).pop();
+                    // Navigator.of(ctx).pop();
+                  },
+                  child: Text("Cancel"),
+                ),
+              ],
+            ),
+      );
+      return null;
+    }
+
+    // Get position and address
+    Position position = await Geolocator.getCurrentPosition(
+      // desiredAccuracy: LocationAccuracy.high,
+      locationSettings: LocationSettings(accuracy: LocationAccuracy.high),
+    );
+    List<Placemark> placemarks = await placemarkFromCoordinates(position.latitude, position.longitude);
+    Placemark place = placemarks[0];
+    await updateUserAddressOnPlaceOrder(
+      '${place.name}, ${place.locality}, '
+      '${place.administrativeArea}, ${place.country}',
+    );
+    return '${place.name}, ${place.locality}, ${place.administrativeArea}, ${place.country}';
+  }
+
+  getCurrentLocationOnLaunch() async {
+    bool serviceEnabled;
+    LocationPermission permission;
+
+    serviceEnabled = await Geolocator.isLocationServiceEnabled();
+    if (!serviceEnabled) {
+      await showDialog(
+            context: context,
+            barrierDismissible: false,
+            builder:
+                (ctx) => AlertDialog(
+                  title: Text("Location Services Disabled"),
+                  content: Text("Please enable location services in settings."),
+                  actions: [
+                    TextButton(
+                      onPressed: () {
+                        Navigator.of(ctx).pop();
+                        Geolocator.openLocationSettings();
+                        Navigator.pushReplacement(
+                          ctx,
+                          MaterialPageRoute(builder: (BuildContext context) => super.widget),
+                        );
+                      },
+                      child: Text("Open Settings"),
+                    ),
+                    TextButton(
+                      onPressed: () {
+                        Navigator.of(ctx).pop();
+                        Navigator.pushReplacement(
+                          ctx,
+                          MaterialPageRoute(builder: (BuildContext context) => super.widget),
+                        );
+                      },
+                      child: Text("Cancel"),
+                    ),
                   ],
                 ),
           ) ??
@@ -109,16 +222,16 @@ class _HomeScreenState extends State<HomeScreen> {
 
     // Get position and address
     Position position = await Geolocator.getCurrentPosition(
-      // desiredAccuracy: LocationAccuracy.high,
       locationSettings: LocationSettings(accuracy: LocationAccuracy.high),
     );
-    List<Placemark> placemarks = await placemarkFromCoordinates(position.latitude, position.longitude);
-    Placemark place = placemarks[0];
-    await updateUserAddressOnPlaceOrder(
-      '${place.name}, ${place.locality}, '
-      '${place.administrativeArea}, ${place.country}',
-    );
-    return '${place.name}, ${place.locality}, ${place.administrativeArea}, ${place.country}';
+    setState(() {
+      _currentPosition = position;
+    });
+  }
+
+  void _onMapCreated(mp.MapboxMap mapboxMap) {
+    this.mapboxMap = mapboxMap;
+    // _addProximityMarkers();
   }
 
   Widget buildButton(int index, String label, IconData icon) {
@@ -287,8 +400,25 @@ class _HomeScreenState extends State<HomeScreen> {
                     child: Column(
                       children: [
                         // Placeholder for Map
-                        Placeholder(),
-                        // SizedBox(height: 350, width: double.infinity),
+                        _currentPosition == null
+                            ? Center(child: CircularProgressIndicator())
+                            : SizedBox(
+                              height: 350,
+                              width: double.infinity,
+                              child: mp.MapWidget(
+                                key: ValueKey('mapWidget'),
+                                cameraOptions: mp.CameraOptions(
+                                  center: mp.Point(
+                                    coordinates: mp.Position(
+                                      _currentPosition!.longitude,
+                                      _currentPosition!.latitude,
+                                    ),
+                                  ),
+                                  zoom: 12,
+                                ),
+                                onMapCreated: _onMapCreated,
+                              ),
+                            ),
                         Container(
                           padding: const EdgeInsets.all(16),
                           color: Colors.white,
