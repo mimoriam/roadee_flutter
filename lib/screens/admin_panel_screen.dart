@@ -89,6 +89,7 @@ class _AdminScreenState extends State<AdminScreen> {
       PlutoColumn(title: "Username", field: "username", type: PlutoColumnType.text()),
       PlutoColumn(title: "Service", field: "service", type: PlutoColumnType.text()),
       PlutoColumn(title: "Status", field: "status", type: PlutoColumnType.text()),
+      PlutoColumn(title: "Assistant Address", field: "assistant_address", type: PlutoColumnType.text()),
     ]);
 
     // final List<PlutoRow> ordersRow = [];
@@ -116,6 +117,7 @@ class _AdminScreenState extends State<AdminScreen> {
                   'username': PlutoCell(value: queryUser["username"]),
                   'service': PlutoCell(value: queryUser["orders"][index + 1]["service"]),
                   'status': PlutoCell(value: queryUser["orders"][index + 1]["status"]),
+                  'assistant_address': PlutoCell(value: queryUser["orders"][index + 1]["assistant_address"]),
                 },
               );
             })
