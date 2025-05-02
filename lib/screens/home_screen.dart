@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:convert';
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/gestures.dart';
@@ -16,6 +17,9 @@ import 'package:roadee_flutter/screens/enter_info_screen.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:geocoding/geocoding.dart';
 import 'package:mapbox_maps_flutter/mapbox_maps_flutter.dart' as mp;
+
+import '../constants.dart';
+import 'package:http/http.dart' as http;
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -300,9 +304,27 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   void drawPolyline(startLng, startLat, endLng, endLat) async {
+    var coords;
+    final url =
+        'https://api.mapbox.com/directions/v5/mapbox/driving/$startLng,$startLat;$endLng,$endLat?geometries=geojson&access_token=$mapBoxToken';
+
+    final response = await http.get(Uri.parse(url));
+
+    if (response.statusCode == 200) {
+      final data = jsonDecode(response.body);
+      coords = data['routes'][0]['geometry']['coordinates'] as List<dynamic>;
+      coords =
+          coords.map<mp.Position>((coord) {
+            final lon = coord[0] as double;
+            final lat = coord[1] as double;
+            return mp.Position(lon, lat); // Make sure to use correct order: (lon, lat)
+          }).toList();
+    }
+
     await _polylineAnnotationManager!.create(
       mp.PolylineAnnotationOptions(
-        geometry: mp.LineString(coordinates: [mp.Position(startLng, startLat), mp.Position(endLng, endLat)]),
+        // geometry: mp.LineString(coordinates: [mp.Position(startLng, startLat), mp.Position(endLng, endLat)]),
+        geometry: mp.LineString(coordinates: coords),
         // lineColor: 120000,
         lineWidth: 4.0,
       ),
