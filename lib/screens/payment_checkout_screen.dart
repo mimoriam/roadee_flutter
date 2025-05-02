@@ -44,6 +44,7 @@ class _PaymentCheckoutScreenState extends State<PaymentCheckoutScreen> {
           "orders": FieldValue.arrayUnion([
             {
               "assistant_assigned": "",
+              "assistant_address": "",
               "orderCreatedAt": DateTime.now(),
               "promo code": "",
               "service": serviceSelectedIndex[widget
