@@ -26,6 +26,8 @@ class _HomeScreenState extends State<HomeScreen> {
 
   mp.MapWidget? mapWidget;
 
+  mp.PointAnnotationManager? _pointAnnotationManager;
+
   late mp.MapboxMap mapboxMap;
   Position? _currentPosition;
 
@@ -40,6 +42,28 @@ class _HomeScreenState extends State<HomeScreen> {
     setState(() {
       selectedIndex = index;
     });
+  }
+
+  Future<void> _addMarkerAtCurrentLocation() async {
+    final point = mp.Point(coordinates: mp.Position(_currentPosition!.longitude, _currentPosition!.latitude));
+
+    // Create the annotation manager if not created yet
+    if (_pointAnnotationManager == null) {
+      final annotationManager = mapboxMap.annotations;
+      _pointAnnotationManager = await annotationManager.createPointAnnotationManager();
+    }
+
+    // Add the marker
+    await _pointAnnotationManager!.create(
+      mp.PointAnnotationOptions(
+        geometry: point,
+        iconImage: "marker-15", // default built-in icon
+        iconSize: 1.5,
+      ),
+    );
+
+    // Center the map on the user's location
+    mapboxMap!.flyTo(mp.CameraOptions(center: point, zoom: 13.0), mp.MapAnimationOptions(duration: 1000));
   }
 
   Future<Map<String, dynamic>?> getUserProfile() async {
@@ -229,9 +253,25 @@ class _HomeScreenState extends State<HomeScreen> {
     });
   }
 
-  void _onMapCreated(mp.MapboxMap mapboxMap) {
+  void _onMapCreated(mp.MapboxMap mapboxMap) async {
     this.mapboxMap = mapboxMap;
-    // _addProximityMarkers();
+    _pointAnnotationManager = await mapboxMap.annotations.createPointAnnotationManager();
+
+    // Load the image from assets
+    final ByteData bytes = await rootBundle.load("images/red_marker.png");
+    final Uint8List imageData = bytes.buffer.asUint8List();
+
+    // Create a PointAnnotationOptions
+    mp.PointAnnotationOptions pointAnnotationOptions = mp.PointAnnotationOptions(
+      geometry: mp.Point(
+        coordinates: mp.Position(_currentPosition!.longitude, _currentPosition!.latitude),
+      ), // Example coordinates
+      image: imageData,
+      iconSize: 1.0,
+    );
+
+    // Add the annotation to the map
+    _pointAnnotationManager?.create(pointAnnotationOptions);
   }
 
   Widget buildButton(int index, String label, IconData icon) {
@@ -414,7 +454,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                       _currentPosition!.latitude,
                                     ),
                                   ),
-                                  zoom: 12,
+                                  zoom: 13,
                                 ),
                                 onMapCreated: _onMapCreated,
                               ),
