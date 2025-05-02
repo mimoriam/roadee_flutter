@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 
 import 'package:firebase_auth/firebase_auth.dart';
@@ -28,42 +30,28 @@ class _HomeScreenState extends State<HomeScreen> {
 
   mp.PointAnnotationManager? _pointAnnotationManager;
 
-  late mp.MapboxMap mapboxMap;
+  late mp.MapboxMap mapboxMapController;
   Position? _currentPosition;
+
+  StreamSubscription? userPositionStream;
 
   @override
   void initState() {
     super.initState();
-
     getCurrentLocationOnLaunch();
+    setupPositionTracking();
+  }
+
+  @override
+  void dispose() {
+    userPositionStream?.cancel();
+    super.dispose();
   }
 
   void onButtonPressed(int index) {
     setState(() {
       selectedIndex = index;
     });
-  }
-
-  Future<void> _addMarkerAtCurrentLocation() async {
-    final point = mp.Point(coordinates: mp.Position(_currentPosition!.longitude, _currentPosition!.latitude));
-
-    // Create the annotation manager if not created yet
-    if (_pointAnnotationManager == null) {
-      final annotationManager = mapboxMap.annotations;
-      _pointAnnotationManager = await annotationManager.createPointAnnotationManager();
-    }
-
-    // Add the marker
-    await _pointAnnotationManager!.create(
-      mp.PointAnnotationOptions(
-        geometry: point,
-        iconImage: "marker-15", // default built-in icon
-        iconSize: 1.5,
-      ),
-    );
-
-    // Center the map on the user's location
-    mapboxMap!.flyTo(mp.CameraOptions(center: point, zoom: 13.0), mp.MapAnimationOptions(duration: 1000));
   }
 
   Future<Map<String, dynamic>?> getUserProfile() async {
@@ -81,7 +69,6 @@ class _HomeScreenState extends State<HomeScreen> {
     await FirebaseFirestore.instance.collection('users').doc(user.uid).update({'address': userAddress});
   }
 
-  // Future<Map<String, String>?> getUserAddress(BuildContext context) async {
   Future<String?> getUserAddress(BuildContext context) async {
     bool serviceEnabled;
     LocationPermission permission;
@@ -253,25 +240,64 @@ class _HomeScreenState extends State<HomeScreen> {
     });
   }
 
-  void _onMapCreated(mp.MapboxMap mapboxMap) async {
-    this.mapboxMap = mapboxMap;
-    _pointAnnotationManager = await mapboxMap.annotations.createPointAnnotationManager();
+  Future<void> setupPositionTracking() async {
+    userPositionStream?.cancel();
 
-    // Load the image from assets
+    LocationSettings locationSettings = LocationSettings(
+      accuracy: LocationAccuracy.high,
+      distanceFilter: 100,
+    );
+
+    userPositionStream = Geolocator.getPositionStream(locationSettings: locationSettings).listen((
+      Position position,
+    ) {
+      if (position != null && mapboxMapController != null) {
+        mapboxMapController.setCamera(
+          mp.CameraOptions(
+            zoom: 14,
+            center: mp.Point(coordinates: mp.Position(position.longitude, position.latitude)),
+          ),
+        );
+      }
+    });
+  }
+
+  void _onMapCreated(mp.MapboxMap mapboxMap) async {
+    mapboxMapController = mapboxMap;
+    _pointAnnotationManager = await mapboxMapController.annotations.createPointAnnotationManager();
+
+    mapboxMapController.location.updateSettings(
+      mp.LocationComponentSettings(enabled: true, pulsingEnabled: true),
+    );
+
+    createMarkerOnMap(currentLong: _currentPosition!.longitude, currentLat: _currentPosition!.latitude);
+  }
+
+  Future<void> createMarkerOnMap({required num currentLong, required num currentLat}) async {
+    // // Load the image from assets
     final ByteData bytes = await rootBundle.load("images/red_marker.png");
     final Uint8List imageData = bytes.buffer.asUint8List();
 
     // Create a PointAnnotationOptions
-    mp.PointAnnotationOptions pointAnnotationOptions = mp.PointAnnotationOptions(
-      geometry: mp.Point(
-        coordinates: mp.Position(_currentPosition!.longitude, _currentPosition!.latitude),
-      ), // Example coordinates
+    final mp.PointAnnotationOptions pointAnnotationOptions = mp.PointAnnotationOptions(
+      geometry: mp.Point(coordinates: mp.Position(currentLong, currentLat + 0.0007)), // Example
+      // coordinates
       image: imageData,
+      // textField: "AAA",
+      // textAnchor: mp.TextAnchor.TOP_LEFT,
       iconSize: 1.0,
     );
 
     // Add the annotation to the map
     _pointAnnotationManager?.create(pointAnnotationOptions);
+  }
+
+  _onCameraChangeListener(mp.CameraChangedEventData data) {
+    createMarkerOnMap(
+      currentLong: data.cameraState.center.coordinates.lng,
+      currentLat: data.cameraState.center.coordinates.lat,
+    );
+    _pointAnnotationManager?.deleteAll();
   }
 
   Widget buildButton(int index, String label, IconData icon) {
@@ -443,7 +469,7 @@ class _HomeScreenState extends State<HomeScreen> {
                         _currentPosition == null
                             ? Center(child: CircularProgressIndicator())
                             : SizedBox(
-                              height: 350,
+                              height: 480,
                               width: double.infinity,
                               child: mp.MapWidget(
                                 key: ValueKey('mapWidget'),
@@ -454,9 +480,20 @@ class _HomeScreenState extends State<HomeScreen> {
                                       _currentPosition!.latitude,
                                     ),
                                   ),
-                                  zoom: 13,
+                                  zoom: 14,
                                 ),
                                 onMapCreated: _onMapCreated,
+                                onCameraChangeListener: _onCameraChangeListener,
+                                onTapListener: (mp.MapContentGestureContext context) {
+                                  print(
+                                    "OnTap coordinate: {${context.point.coordinates.lng}, ${context.point.coordinates.lat}}" +
+                                        " point: {x: ${context.touchPosition.x}, y: ${context.touchPosition.y}}",
+                                  );
+                                },
+
+                                onMapLoadErrorListener: (mp.MapLoadingErrorEventData data) {
+                                  print("MapLoadingErrorEventData: timestamp: ${data.timestamp}");
+                                },
                               ),
                             ),
                         Container(
