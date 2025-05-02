@@ -175,6 +175,8 @@ class _HomeScreenState extends State<HomeScreen> {
   Future<void> calculatePlacemarks({required var long, required var lat}) async {
     List<Placemark> placemarks = await placemarkFromCoordinates(lat, long);
 
+    print(placemarks[0]);
+
     setState(() {
       _polylinePlacemarks = {"lng": long, "lat": lat};
       _place = placemarks[0];
@@ -300,7 +302,7 @@ class _HomeScreenState extends State<HomeScreen> {
       mp.LocationComponentSettings(enabled: true, pulsingEnabled: true),
     );
 
-    createMarkerOnMap(currentLong: _currentPosition!.longitude, currentLat: _currentPosition!.latitude);
+    // createMarkerOnMap(currentLong: _currentPosition!.longitude, currentLat: _currentPosition!.latitude);
   }
 
   void drawPolyline(startLng, startLat, endLng, endLat) async {
@@ -553,19 +555,21 @@ class _HomeScreenState extends State<HomeScreen> {
                                 ),
                                 onMapCreated: _onMapCreated,
                                 onCameraChangeListener: _onCameraChangeListener,
-                                onTapListener: (mp.MapContentGestureContext context) {
+                                onTapListener: (mp.MapContentGestureContext context) async {
                                   // print("OnTap coordinate: {${context.point.coordinates.lng}, ${context.point.coordinates.lat}}" +
                                   //     " point: {x: ${context.touchPosition.x}, y: ${context.touchPosition.y}}" +
                                   //     " state: ${context.gestureState}");
 
                                   if (context.gestureState == mp.GestureState.ended) {
-                                    _pointAnnotationManager?.deleteAll();
-                                    _polylineAnnotationManager?.deleteAll();
-                                    calculatePlacemarks(
+                                    await _pointAnnotationManager?.deleteAll();
+                                    await _polylineAnnotationManager?.deleteAll();
+
+                                    await calculatePlacemarks(
                                       long: context.point.coordinates.lng,
                                       lat: context.point.coordinates.lat,
                                     );
-                                    createMarkerOnMap(
+
+                                    await createMarkerOnMap(
                                       currentLong: context.point.coordinates.lng,
                                       currentLat: context.point.coordinates.lat,
                                     );
