@@ -161,6 +161,14 @@ class _HomeScreenState extends State<HomeScreen> {
     return '${place.name}, ${place.locality}, ${place.administrativeArea}, ${place.country}';
   }
 
+  Future<void> calculatePlacemarks({required var long, required var lat}) async {
+    List<Placemark> placemarks = await placemarkFromCoordinates(lat, long);
+
+    setState(() {
+      _place = placemarks[0];
+    });
+  }
+
   getCurrentLocationOnLaunch() async {
     bool serviceEnabled;
     LocationPermission permission;
@@ -294,8 +302,13 @@ class _HomeScreenState extends State<HomeScreen> {
       // Example
       // coordinates
       image: imageData,
-      textField: "${_place.thoroughfare} ${_place.subThoroughfare}",
-      textOffset: [0.0, -2.8],
+      // textField: "${_place.thoroughfare} ${_place.subThoroughfare}",
+      textField:
+          _place.thoroughfare == ""
+              ? "${_place.name} ${_place.street}"
+              : "${_place.thoroughfare} "
+                  "${_place.subThoroughfare}",
+      textOffset: [0.0, -3],
       // textAnchor: mp.TextAnchor.TOP_LEFT,
       iconSize: 1.0,
       iconOffset: [0.0, -18.0],
@@ -504,6 +517,10 @@ class _HomeScreenState extends State<HomeScreen> {
 
                                   if (context.gestureState == mp.GestureState.ended) {
                                     _pointAnnotationManager?.deleteAll();
+                                    calculatePlacemarks(
+                                      long: context.point.coordinates.lng,
+                                      lat: context.point.coordinates.lat,
+                                    );
                                     createMarkerOnMap(
                                       currentLong: context.point.coordinates.lng,
                                       currentLat: context.point.coordinates.lat,
