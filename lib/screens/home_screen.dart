@@ -1,5 +1,7 @@
 import 'dart:async';
 
+import 'package:flutter/foundation.dart';
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 
 import 'package:firebase_auth/firebase_auth.dart';
@@ -30,12 +32,18 @@ class _HomeScreenState extends State<HomeScreen> {
 
   mp.PointAnnotationManager? _pointAnnotationManager;
 
+  mp.PolylineAnnotationManager? _polylineAnnotationManager;
+
   late mp.MapboxMap mapboxMapController;
   Position? _currentPosition;
 
   StreamSubscription? userPositionStream;
 
+  late Map<String, dynamic> _polylinePlacemarks;
+
   late Placemark _place;
+
+  var locationChecked;
 
   @override
   void initState() {
@@ -157,7 +165,6 @@ class _HomeScreenState extends State<HomeScreen> {
       '${place.administrativeArea}, ${place.country}',
     );
 
-    print(place);
     return '${place.name}, ${place.locality}, ${place.administrativeArea}, ${place.country}';
   }
 
@@ -165,6 +172,7 @@ class _HomeScreenState extends State<HomeScreen> {
     List<Placemark> placemarks = await placemarkFromCoordinates(lat, long);
 
     setState(() {
+      _polylinePlacemarks = {"lng": long, "lat": lat};
       _place = placemarks[0];
     });
   }
@@ -280,7 +288,9 @@ class _HomeScreenState extends State<HomeScreen> {
 
   void _onMapCreated(mp.MapboxMap mapboxMap) async {
     mapboxMapController = mapboxMap;
+
     _pointAnnotationManager = await mapboxMapController.annotations.createPointAnnotationManager();
+    _polylineAnnotationManager = await mapboxMap.annotations.createPolylineAnnotationManager();
 
     mapboxMapController.location.updateSettings(
       mp.LocationComponentSettings(enabled: true, pulsingEnabled: true),
@@ -289,12 +299,20 @@ class _HomeScreenState extends State<HomeScreen> {
     createMarkerOnMap(currentLong: _currentPosition!.longitude, currentLat: _currentPosition!.latitude);
   }
 
+  void drawPolyline(startLng, startLat, endLng, endLat) async {
+    await _polylineAnnotationManager!.create(
+      mp.PolylineAnnotationOptions(
+        geometry: mp.LineString(coordinates: [mp.Position(startLng, startLat), mp.Position(endLng, endLat)]),
+        // lineColor: 120000,
+        lineWidth: 4.0,
+      ),
+    );
+  }
+
   Future<void> createMarkerOnMap({required num currentLong, required num currentLat}) async {
     // // Load the image from assets
     final ByteData bytes = await rootBundle.load("images/red_marker.png");
     final Uint8List imageData = bytes.buffer.asUint8List();
-
-    print(_place);
 
     // Create a PointAnnotationOptions
     final mp.PointAnnotationOptions pointAnnotationOptions = mp.PointAnnotationOptions(
@@ -499,6 +517,9 @@ class _HomeScreenState extends State<HomeScreen> {
                               width: double.infinity,
                               child: mp.MapWidget(
                                 key: ValueKey('mapWidget'),
+                                gestureRecognizers: {
+                                  Factory<EagerGestureRecognizer>(() => EagerGestureRecognizer()),
+                                },
                                 cameraOptions: mp.CameraOptions(
                                   center: mp.Point(
                                     coordinates: mp.Position(
@@ -517,6 +538,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
                                   if (context.gestureState == mp.GestureState.ended) {
                                     _pointAnnotationManager?.deleteAll();
+                                    _polylineAnnotationManager?.deleteAll();
                                     calculatePlacemarks(
                                       long: context.point.coordinates.lng,
                                       lat: context.point.coordinates.lat,
@@ -526,6 +548,12 @@ class _HomeScreenState extends State<HomeScreen> {
                                       currentLat: context.point.coordinates.lat,
                                     );
                                   }
+                                  drawPolyline(
+                                    _currentPosition!.longitude,
+                                    _currentPosition!.latitude,
+                                    context.point.coordinates.lng,
+                                    context.point.coordinates.lat,
+                                  );
                                 },
                                 // onMapLoadErrorListener: (mp.MapLoadingErrorEventData data) {
                                 //   print("MapLoadingErrorEventData: timestamp: ${data.timestamp}");
@@ -646,15 +674,56 @@ class _HomeScreenState extends State<HomeScreen> {
                                       //   },
                                       // );
                                     } else {
-                                      Navigator.push(
-                                        context,
-                                        MaterialPageRoute(
-                                          builder:
-                                              (context) => EnterInfoScreen(
-                                                serviceSelected: selectedIndex,
-                                                addressSelected: address,
+                                      showDialog(
+                                        context: context,
+                                        builder: (BuildContext context) {
+                                          return AlertDialog(
+                                            title: Text(
+                                              "Would you like to use current location or marked location?",
+                                            ),
+                                            actions: <Widget>[
+                                              TextButton(
+                                                onPressed: () {
+                                                  setState(() {
+                                                    locationChecked = "Blue";
+                                                  });
+                                                  Navigator.of(context).pop();
+                                                  Navigator.push(
+                                                    context,
+                                                    MaterialPageRoute(
+                                                      builder:
+                                                          (context) => EnterInfoScreen(
+                                                            serviceSelected: selectedIndex,
+                                                            addressSelected: address,
+                                                          ),
+                                                    ),
+                                                  );
+                                                },
+                                                child: Text("Current (Blue)"),
                                               ),
-                                        ),
+                                              TextButton(
+                                                onPressed: () {
+                                                  setState(() {
+                                                    locationChecked = "Red";
+                                                  });
+                                                  Navigator.of(context).pop();
+                                                  Navigator.push(
+                                                    context,
+                                                    MaterialPageRoute(
+                                                      builder:
+                                                          (context) => EnterInfoScreen(
+                                                            serviceSelected: selectedIndex,
+                                                            addressSelected:
+                                                                '${_place.name}, ${_place.locality}, ${_place.administrativeArea}, ${_place.country}',
+                                                          ),
+                                                    ),
+                                                  );
+                                                },
+                                                child: Text("Marked (Red)"),
+                                              ),
+                                            ],
+                                          );
+                                        },
                                       );
                                     }
                                   }
