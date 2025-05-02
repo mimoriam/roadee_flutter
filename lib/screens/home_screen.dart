@@ -35,6 +35,8 @@ class _HomeScreenState extends State<HomeScreen> {
 
   StreamSubscription? userPositionStream;
 
+  late Placemark _place;
+
   @override
   void initState() {
     super.initState();
@@ -154,6 +156,8 @@ class _HomeScreenState extends State<HomeScreen> {
       '${place.name}, ${place.locality}, '
       '${place.administrativeArea}, ${place.country}',
     );
+
+    print(place);
     return '${place.name}, ${place.locality}, ${place.administrativeArea}, ${place.country}';
   }
 
@@ -235,7 +239,11 @@ class _HomeScreenState extends State<HomeScreen> {
     Position position = await Geolocator.getCurrentPosition(
       locationSettings: LocationSettings(accuracy: LocationAccuracy.high),
     );
+
+    List<Placemark> placemarks = await placemarkFromCoordinates(position.latitude, position.longitude);
+
     setState(() {
+      _place = placemarks[0];
       _currentPosition = position;
     });
   }
@@ -278,14 +286,19 @@ class _HomeScreenState extends State<HomeScreen> {
     final ByteData bytes = await rootBundle.load("images/red_marker.png");
     final Uint8List imageData = bytes.buffer.asUint8List();
 
+    print(_place);
+
     // Create a PointAnnotationOptions
     final mp.PointAnnotationOptions pointAnnotationOptions = mp.PointAnnotationOptions(
-      geometry: mp.Point(coordinates: mp.Position(currentLong, currentLat + 0.0007)), // Example
+      geometry: mp.Point(coordinates: mp.Position(currentLong, currentLat)),
+      // Example
       // coordinates
       image: imageData,
-      // textField: "AAA",
+      textField: "${_place.thoroughfare} ${_place.subThoroughfare}",
+      textOffset: [0.0, -2.8],
       // textAnchor: mp.TextAnchor.TOP_LEFT,
       iconSize: 1.0,
+      iconOffset: [0.0, -18.0],
     );
 
     // Add the annotation to the map
@@ -293,11 +306,11 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   _onCameraChangeListener(mp.CameraChangedEventData data) {
-    createMarkerOnMap(
-      currentLong: data.cameraState.center.coordinates.lng,
-      currentLat: data.cameraState.center.coordinates.lat,
-    );
-    _pointAnnotationManager?.deleteAll();
+    // createMarkerOnMap(
+    //   currentLong: data.cameraState.center.coordinates.lng,
+    //   currentLat: data.cameraState.center.coordinates.lat,
+    // );
+    // _pointAnnotationManager?.deleteAll();
   }
 
   Widget buildButton(int index, String label, IconData icon) {
@@ -485,15 +498,31 @@ class _HomeScreenState extends State<HomeScreen> {
                                 onMapCreated: _onMapCreated,
                                 onCameraChangeListener: _onCameraChangeListener,
                                 onTapListener: (mp.MapContentGestureContext context) {
-                                  print(
-                                    "OnTap coordinate: {${context.point.coordinates.lng}, ${context.point.coordinates.lat}}" +
-                                        " point: {x: ${context.touchPosition.x}, y: ${context.touchPosition.y}}",
-                                  );
-                                },
+                                  // print("OnTap coordinate: {${context.point.coordinates.lng}, ${context.point.coordinates.lat}}" +
+                                  //     " point: {x: ${context.touchPosition.x}, y: ${context.touchPosition.y}}" +
+                                  //     " state: ${context.gestureState}");
 
-                                onMapLoadErrorListener: (mp.MapLoadingErrorEventData data) {
-                                  print("MapLoadingErrorEventData: timestamp: ${data.timestamp}");
+                                  if (context.gestureState == mp.GestureState.ended) {
+                                    _pointAnnotationManager?.deleteAll();
+                                    createMarkerOnMap(
+                                      currentLong: context.point.coordinates.lng,
+                                      currentLat: context.point.coordinates.lat,
+                                    );
+                                  }
                                 },
+                                // onMapLoadErrorListener: (mp.MapLoadingErrorEventData data) {
+                                //   print("MapLoadingErrorEventData: timestamp: ${data.timestamp}");
+                                // },
+                                // onScrollListener: (mp.MapContentGestureContext context) {
+                                //   if (context.gestureState == mp.GestureState.changed) {
+                                //     _pointAnnotationManager?.deleteAll();
+                                //   } else {
+                                //     createMarkerOnMap(
+                                //       currentLong: context.point.coordinates.lng,
+                                //       currentLat: context.point.coordinates.lat,
+                                //     );
+                                //   }
+                                // },
                               ),
                             ),
                         Container(
