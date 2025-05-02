@@ -1,5 +1,4 @@
 import 'dart:async';
-import 'dart:convert';
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/gestures.dart';
@@ -19,7 +18,7 @@ import 'package:geocoding/geocoding.dart';
 import 'package:mapbox_maps_flutter/mapbox_maps_flutter.dart' as mp;
 
 import '../constants.dart';
-import 'package:http/http.dart' as http;
+import 'package:dio/dio.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -30,6 +29,8 @@ class HomeScreen extends StatefulWidget {
 
 class _HomeScreenState extends State<HomeScreen> {
   final MenuController _menuController = MenuController();
+
+  final dio = Dio();
   int selectedIndex = -1;
 
   mp.MapWidget? mapWidget;
@@ -38,12 +39,10 @@ class _HomeScreenState extends State<HomeScreen> {
 
   mp.PolylineAnnotationManager? _polylineAnnotationManager;
 
-  late mp.MapboxMap mapboxMapController;
+  mp.MapboxMap? mapboxMapController;
   Position? _currentPosition;
 
   StreamSubscription? userPositionStream;
-
-  late Map<String, dynamic> _polylinePlacemarks;
 
   late Placemark _place;
 
@@ -175,10 +174,7 @@ class _HomeScreenState extends State<HomeScreen> {
   Future<void> calculatePlacemarks({required var long, required var lat}) async {
     List<Placemark> placemarks = await placemarkFromCoordinates(lat, long);
 
-    print(placemarks[0]);
-
     setState(() {
-      _polylinePlacemarks = {"lng": long, "lat": lat};
       _place = placemarks[0];
     });
   }
@@ -281,8 +277,8 @@ class _HomeScreenState extends State<HomeScreen> {
     userPositionStream = Geolocator.getPositionStream(locationSettings: locationSettings).listen((
       Position position,
     ) {
-      if (position != null && mapboxMapController != null) {
-        mapboxMapController.setCamera(
+      if (mapboxMapController != null) {
+        mapboxMapController?.setCamera(
           mp.CameraOptions(
             zoom: 14,
             center: mp.Point(coordinates: mp.Position(position.longitude, position.latitude)),
@@ -296,13 +292,13 @@ class _HomeScreenState extends State<HomeScreen> {
     mapboxMapController = mapboxMap;
 
     _polylineAnnotationManager = await mapboxMap.annotations.createPolylineAnnotationManager();
-    _pointAnnotationManager = await mapboxMapController.annotations.createPointAnnotationManager();
+    _pointAnnotationManager = await mapboxMapController?.annotations.createPointAnnotationManager();
 
-    mapboxMapController.location.updateSettings(
+    mapboxMapController?.location.updateSettings(
       mp.LocationComponentSettings(enabled: true, pulsingEnabled: true),
     );
 
-    // createMarkerOnMap(currentLong: _currentPosition!.longitude, currentLat: _currentPosition!.latitude);
+    await createMarkerOnMap(currentLong: _currentPosition!.longitude, currentLat: _currentPosition!.latitude);
   }
 
   void drawPolyline(startLng, startLat, endLng, endLat) async {
@@ -310,27 +306,46 @@ class _HomeScreenState extends State<HomeScreen> {
     final url =
         'https://api.mapbox.com/directions/v5/mapbox/driving/$startLng,$startLat;$endLng,$endLat?overview=full&geometries=geojson&access_token=$mapBoxToken';
 
-    final response = await http.get(Uri.parse(url));
+    // final response = await http.get(Uri.parse(url));
+    try {
+      final response = await dio.get(url);
+      if (response.statusCode == 200) {
+        final data = response.data;
+        coords =
+            coords =
+                (data['routes'][0]['geometry']['coordinates'] as List).map<mp.Position>((coord) {
+                  final lon = coord[0].toDouble();
+                  final lat = coord[1].toDouble();
+                  return mp.Position(lon, lat);
+                }).toList();
 
-    if (response.statusCode == 200) {
-      final data = jsonDecode(response.body);
-      coords = data['routes'][0]['geometry']['coordinates'] as List<dynamic>;
-      coords =
-          coords.map<mp.Position>((coord) {
-            final lon = coord[0] as double;
-            final lat = coord[1] as double;
-            return mp.Position(lon, lat); // Make sure to use correct order: (lon, lat)
-          }).toList();
+        await _polylineAnnotationManager!.create(
+          mp.PolylineAnnotationOptions(
+            // geometry: mp.LineString(coordinates: [mp.Position(startLng, startLat), mp.Position(endLng, endLat)]),
+            geometry: mp.LineString(coordinates: coords),
+            // lineColor: 120000,
+            lineWidth: 4.0,
+          ),
+        );
+      }
+    } catch (e) {
+      showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return AlertDialog(
+            title: Text("MapBox API Error"),
+            actions: <Widget>[
+              TextButton(
+                onPressed: () {
+                  Navigator.of(context).pop(); // Don't exit
+                },
+                child: Text("Ok"),
+              ),
+            ],
+          );
+        },
+      );
     }
-
-    await _polylineAnnotationManager!.create(
-      mp.PolylineAnnotationOptions(
-        // geometry: mp.LineString(coordinates: [mp.Position(startLng, startLat), mp.Position(endLng, endLat)]),
-        geometry: mp.LineString(coordinates: coords),
-        // lineColor: 120000,
-        lineWidth: 4.0,
-      ),
-    );
   }
 
   Future<void> createMarkerOnMap({required num currentLong, required num currentLat}) async {
@@ -582,9 +597,6 @@ class _HomeScreenState extends State<HomeScreen> {
                                     );
                                   }
                                 },
-                                // onMapLoadErrorListener: (mp.MapLoadingErrorEventData data) {
-                                //   print("MapLoadingErrorEventData: timestamp: ${data.timestamp}");
-                                // },
                                 // onScrollListener: (mp.MapContentGestureContext context) {
                                 //   if (context.gestureState == mp.GestureState.changed) {
                                 //     _pointAnnotationManager?.deleteAll();
