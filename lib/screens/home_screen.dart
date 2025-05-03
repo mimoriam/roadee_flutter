@@ -12,6 +12,7 @@ import 'package:roadee_flutter/screens/admin_panel_screen.dart';
 import 'package:roadee_flutter/screens/login_screen.dart';
 import 'package:roadee_flutter/screens/user_profile_screen.dart';
 import 'package:roadee_flutter/screens/enter_info_screen.dart';
+import 'package:roadee_flutter/screens/payment_checkout_screen.dart';
 
 import 'package:geolocator/geolocator.dart';
 import 'package:geocoding/geocoding.dart';
@@ -75,11 +76,44 @@ class _HomeScreenState extends State<HomeScreen> {
     return doc.exists ? doc.data() : null;
   }
 
-  Future<void> updateUserAddressOnPlaceOrder(String userAddress) async {
+  Future<void> updateUserAddressOnPlaceOrder(String addr) async {
     final user = FirebaseAuth.instance.currentUser!;
 
     // Update Firestore address
-    await FirebaseFirestore.instance.collection('users').doc(user.uid).update({'address': userAddress});
+    await FirebaseFirestore.instance.collection('users').doc(user.uid).update({'address': addr});
+  }
+
+  Future<Location?> getCoordinatesFromPlacemark({
+    String? thoroughfare,
+    required String subThoroughfare,
+    String? city,
+    String? country,
+  }) async {
+    final address = [
+      subThoroughfare,
+      thoroughfare,
+      city,
+      country,
+    ].where((e) => e != null && e.trim().isNotEmpty).join(', ');
+
+    try {
+      final locations = await locationFromAddress(address);
+
+      if (locations.isNotEmpty) {
+        return locations.first;
+      } else {
+        print('No location found');
+      }
+    } catch (e) {}
+    return null;
+  }
+
+  Future<Map<String, dynamic>?> getUserData() async {
+    final uid = FirebaseAuth.instance.currentUser?.uid;
+
+    final doc = await FirebaseFirestore.instance.collection("users").doc(uid).get();
+
+    return doc.data();
   }
 
   Future<String?> getUserAddress(BuildContext context) async {
@@ -165,12 +199,14 @@ class _HomeScreenState extends State<HomeScreen> {
     );
     List<Placemark> placemarks = await placemarkFromCoordinates(position.latitude, position.longitude);
     Placemark place = placemarks[0];
+
+    // Why is this here? Sheesh. Took me a long while to find this out
+    // Load bearing code, I guess
     await updateUserAddressOnPlaceOrder(
-      '${place.name}, ${place.locality}, '
-      '${place.administrativeArea}, ${place.country}',
+      '${place.name}, ${place.locality}, ${place.administrativeArea}, ${place.country} ${_place.thoroughfare}',
     );
 
-    return '${place.name}, ${place.locality}, ${place.administrativeArea}, ${place.country}';
+    return '${place.name}, ${place.locality}, ${place.administrativeArea}, ${place.country} ${_place.thoroughfare}';
   }
 
   Future<void> calculatePlacemarks({required var long, required var lat}) async {
@@ -282,6 +318,15 @@ class _HomeScreenState extends State<HomeScreen> {
     });
   }
 
+  Future<void> updateAddressFromMarker(String addr) async {
+    try {
+      final user = FirebaseAuth.instance.currentUser!;
+
+      // Update Firestore email
+      await FirebaseFirestore.instance.collection('users').doc(user.uid).update({'address': addr});
+    } on FirebaseAuthException {}
+  }
+
   Future<void> setupPositionTracking() async {
     userPositionStream?.cancel();
 
@@ -305,6 +350,9 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   void _onMapCreated(mp.MapboxMap mapboxMap) async {
+    mapboxMap.logo.updateSettings(mp.LogoSettings(enabled: true));
+    mapboxMap.attribution.updateSettings(mp.AttributionSettings(enabled: true));
+
     mapboxMapController = mapboxMap;
 
     _polylineAnnotationManager = await mapboxMap.annotations.createPolylineAnnotationManager();
@@ -314,7 +362,63 @@ class _HomeScreenState extends State<HomeScreen> {
       mp.LocationComponentSettings(enabled: true, pulsingEnabled: true),
     );
 
-    await createMarkerOnMap(currentLong: _currentPosition!.longitude, currentLat: _currentPosition!.latitude);
+    Map<String, dynamic>? user = await getUserData();
+
+    if (user == null) {
+      setState(() {});
+    }
+
+    // if (user?['orders'][user["order_index"]]["assistant_assigned"].isEmpty) {
+    if (user?['orders'][user["order_index"]]["status"] == OrderStatus.Empty.name ||
+        user?['orders'][user["order_index"]]["status"] == OrderStatus.Pending.name) {
+      await createMarkerOnMap(
+        currentLong: _currentPosition!.longitude,
+        currentLat: _currentPosition!.latitude,
+      );
+    } else {
+      var splitRiderAddress = user?['orders'][user["order_index"]]["assistant_address"].split(" ~ ");
+      var splitUserAddress = user?['address'].split(",");
+
+      var riderLatLng = await getCoordinatesFromPlacemark(
+        thoroughfare: splitRiderAddress[0],
+        subThoroughfare: splitRiderAddress[1],
+        city: user?['orders'][user["order_index"]]["assistant_city"],
+        country: user?['orders'][user["order_index"]]["assistant_country"],
+      );
+
+      // print(splitUserAddress);
+
+      var userLatLng = await getCoordinatesFromPlacemark(
+        thoroughfare: splitUserAddress[3],
+        subThoroughfare: splitUserAddress[0],
+        city: splitUserAddress[1],
+        country: splitUserAddress[2],
+      );
+
+      // print(riderLatLng);
+      // print(userLatLng);
+
+      // Draw marker for Assistant/Rider:
+      await createMarkerOnMap(
+        currentLong: riderLatLng?.longitude as num,
+        currentLat: riderLatLng?.latitude as num,
+        text: "Rider",
+      );
+
+      // Draw marker for User:
+      await createMarkerOnMap(
+        currentLong: userLatLng?.longitude as num,
+        currentLat: userLatLng?.latitude as num,
+        text: "User",
+      );
+
+      drawPolyline(
+        userLatLng?.longitude,
+        userLatLng?.latitude,
+        riderLatLng?.longitude,
+        riderLatLng?.latitude,
+      );
+    }
   }
 
   void drawPolyline(startLng, startLat, endLng, endLat) async {
@@ -364,7 +468,7 @@ class _HomeScreenState extends State<HomeScreen> {
     }
   }
 
-  Future<void> createMarkerOnMap({required num currentLong, required num currentLat}) async {
+  Future<void> createMarkerOnMap({required num currentLong, required num currentLat, String? text}) async {
     // // Load the image from assets
     final ByteData bytes = await rootBundle.load("images/red_marker.png");
     final Uint8List imageData = bytes.buffer.asUint8List();
@@ -377,10 +481,13 @@ class _HomeScreenState extends State<HomeScreen> {
       image: imageData,
       // textField: "${_place.thoroughfare} ${_place.subThoroughfare}",
       textField:
-          _place.thoroughfare == ""
-              ? "${_place.name} ${_place.street}"
-              : "${_place.thoroughfare} "
-                  "${_place.subThoroughfare}",
+          // TODO Fix a potential bug here that _place shows current location data:
+          (text != null && text.trim().isNotEmpty)
+              ? text
+              : (_place.thoroughfare == ""
+                  ? "${_place.name} ${_place.street}"
+                  : "${_place.thoroughfare} "
+                      "${_place.subThoroughfare}"),
       textOffset: [0.0, -3],
       // textAnchor: mp.TextAnchor.TOP_LEFT,
       iconSize: 1.0,
@@ -593,18 +700,25 @@ class _HomeScreenState extends State<HomeScreen> {
                                   //     " state: ${context.gestureState}");
 
                                   if (context.gestureState == mp.GestureState.ended) {
-                                    await _pointAnnotationManager?.deleteAll();
-                                    await _polylineAnnotationManager?.deleteAll();
+                                    // Disable Marker creation if user has assistant assigned:
+                                    // if (user['orders'][user["order_index"]]["assistant_assigned"].isEmpty) {
+                                    if (user['orders'][user["order_index"]]["status"] ==
+                                            OrderStatus.Empty.name ||
+                                        user['orders'][user["order_index"]]["status"] ==
+                                            OrderStatus.Pending.name) {
+                                      await _pointAnnotationManager?.deleteAll();
+                                      await _polylineAnnotationManager?.deleteAll();
 
-                                    await calculatePlacemarks(
-                                      long: context.point.coordinates.lng,
-                                      lat: context.point.coordinates.lat,
-                                    );
+                                      await calculatePlacemarks(
+                                        long: context.point.coordinates.lng,
+                                        lat: context.point.coordinates.lat,
+                                      );
 
-                                    await createMarkerOnMap(
-                                      currentLong: context.point.coordinates.lng,
-                                      currentLat: context.point.coordinates.lat,
-                                    );
+                                      await createMarkerOnMap(
+                                        currentLong: context.point.coordinates.lng,
+                                        currentLat: context.point.coordinates.lat,
+                                      );
+                                    } else {}
 
                                     // drawPolyline(
                                     //   _currentPosition!.longitude,
@@ -770,7 +884,8 @@ class _HomeScreenState extends State<HomeScreen> {
                                                           (context) => EnterInfoScreen(
                                                             serviceSelected: selectedIndex,
                                                             addressSelected:
-                                                                '${_place.name}, ${_place.locality}, ${_place.administrativeArea}, ${_place.country}',
+                                                                '${_place.name}, ${_place.locality}, '
+                                                                '${_place.administrativeArea}, ${_place.country}, ${_place.thoroughfare}',
                                                           ),
                                                     ),
                                                   );

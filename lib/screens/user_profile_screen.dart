@@ -110,7 +110,7 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
   Future<void> _onSelected(String value) async {
     switch (value) {
       case 'Settings':
-        String? address = await getUserAddress(context);
+        // String? address = await getUserAddress(context);
         break;
       case 'Log out':
         await FirebaseAuth.instance.signOut();

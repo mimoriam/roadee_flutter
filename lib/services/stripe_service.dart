@@ -96,7 +96,6 @@ class StripeService {
         return response.data["client_secret"];
       }
     } catch (e) {
-      print(e);
     }
 
     return null;

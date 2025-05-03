@@ -59,9 +59,11 @@ class _AdminScreenState extends State<AdminScreen> {
         orders[order_idx]["assistant_assigned"] = "${user?["username"]}";
         orders[order_idx]["assistant_address"] =
             widget.placemark.thoroughfare == ""
-                ? "${widget.placemark.name} ${widget.placemark.street}"
-                : "${widget.placemark.thoroughfare} "
-                    "${widget.placemark.subThoroughfare}";
+                ? "${widget.placemark.name} ~ ${widget.placemark.street} ~ ${widget.placemark.locality}"
+                : "${widget.placemark.thoroughfare} ~ ${widget.placemark.subThoroughfare}";
+
+        orders[order_idx]["assistant_city"] = widget.placemark.locality;
+        orders[order_idx]["assistant_country"] = widget.placemark.country;
 
         orders[order_idx]["status"] = OrderStatus.OnRoute.name;
       }

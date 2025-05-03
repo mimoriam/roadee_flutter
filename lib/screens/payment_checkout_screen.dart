@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 
 import 'package:flutter_form_builder/flutter_form_builder.dart';
-import 'package:form_builder_validators/form_builder_validators.dart';
 
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -45,6 +44,8 @@ class _PaymentCheckoutScreenState extends State<PaymentCheckoutScreen> {
             {
               "assistant_assigned": "",
               "assistant_address": "",
+              "assistant_city": "",
+              "assistant_country": "",
               "orderCreatedAt": DateTime.now(),
               "promo code": "",
               "service": serviceSelectedIndex[widget

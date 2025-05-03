@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:roadee_flutter/constants.dart';
 
 import 'package:roadee_flutter/screens/payment_checkout_screen.dart';
 import 'package:roadee_flutter/screens/user_profile_screen.dart';
