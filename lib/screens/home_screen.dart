@@ -10,6 +10,7 @@ import 'package:flutter/services.dart';
 import 'package:roadee_flutter/screens/admin_panel_screen.dart';
 
 import 'package:roadee_flutter/screens/login_screen.dart';
+import 'package:roadee_flutter/screens/order_history_screen.dart';
 import 'package:roadee_flutter/screens/user_profile_screen.dart';
 import 'package:roadee_flutter/screens/enter_info_screen.dart';
 import 'package:roadee_flutter/screens/payment_checkout_screen.dart';
@@ -552,6 +553,15 @@ class _HomeScreenState extends State<HomeScreen> {
           // Go to Admin area:
           Navigator.push(context, MaterialPageRoute(builder: (context) => AdminScreen(placemark: _place)));
           break;
+
+        case 'Your Orders':
+          // Go to orders:
+          var user = await getUserProfile();
+          Navigator.push(
+            context,
+            MaterialPageRoute(builder: (context) => OrderHistoryScreen(userData: user!)),
+          );
+          break;
         case 'Log out':
           await FirebaseAuth.instance.signOut();
           Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => LoginScreen()));
@@ -642,7 +652,10 @@ class _HomeScreenState extends State<HomeScreen> {
                         ),
                         user["is_admin"]
                             ? MenuItemButton(onPressed: () => onSelected('Admin'), child: Text('Admin Panel'))
-                            : Container(),
+                            : MenuItemButton(
+                              onPressed: () => onSelected('Your Orders'),
+                              child: Text("Your Orders"),
+                            ),
                         MenuItemButton(onPressed: () => onSelected('Log out'), child: Text('Log out')),
                       ],
                       builder: (BuildContext context, MenuController controller, Widget? child) {
