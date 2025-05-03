@@ -6,7 +6,7 @@ import 'package:geocoding/geocoding.dart';
 import 'package:pluto_grid/pluto_grid.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/material.dart';
-import 'package:roadee_flutter/draft_local/payment_checkout_screen.draft.dart';
+import 'package:roadee_flutter/screens/payment_checkout_screen.dart';
 
 class AdminScreen extends StatefulWidget {
   final Placemark placemark;
@@ -70,6 +70,30 @@ class _AdminScreenState extends State<AdminScreen> {
 
       await docRef.update({'orders': orders});
     } on FirebaseAuthException {}
+  }
+
+  Future<void> updateStatusToCompleteOnCheck(String email) async {
+    try {
+      final query =
+          await FirebaseFirestore.instance
+              .collection("users")
+              .where('email', isEqualTo: email)
+              .limit(1)
+              .get();
+
+      final docRef = query.docs.first.reference;
+      final doc = await docRef.get();
+
+      final orders = List<Map<String, dynamic>>.from(doc.data()?['orders'] ?? []);
+      final order_idx = doc.data()?["order_index"];
+
+      if (order_idx > 0) {
+        orders[order_idx]["status"] = OrderStatus.Completed.name;
+
+        await docRef.update({'order_index': FieldValue.increment(-1)});
+        await docRef.update({'orders': orders});
+      }
+    } catch (e) {}
   }
 
   void openGridPopup(BuildContext context, String selectFieldName, var queryUser, int orderIndex) {
@@ -176,6 +200,12 @@ class _AdminScreenState extends State<AdminScreen> {
                 onPressed: () async {
                   final row = rendererContext.row;
                   final id = row.cells['order_index']?.value;
+
+                  if (id > 0) {
+                    if (row.cells['orders']?.value[id]["assistant_assigned"].isNotEmpty) {
+                      await updateStatusToCompleteOnCheck(row.cells["email"]?.value);
+                    }
+                  }
 
                   final query =
                       await FirebaseFirestore.instance
