@@ -551,7 +551,12 @@ class _HomeScreenState extends State<HomeScreen> {
           break;
         case 'Admin':
           // Go to Admin area:
-          Navigator.push(context, MaterialPageRoute(builder: (context) => AdminScreen(placemark: _place)));
+          Navigator.push(
+            context,
+            MaterialPageRoute(builder: (context) => AdminScreen(placemark: _place)),
+          ).then((value) {
+            setState(() {});
+          });
           break;
 
         case 'Your Orders':
