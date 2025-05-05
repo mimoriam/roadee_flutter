@@ -54,7 +54,8 @@ class _LoginScreenState extends State<LoginScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFF128f8b),
+      // backgroundColor: const Color(0xFF128f8b),
+      backgroundColor: Colors.white,
       // resizeToAvoidBottomInset: false,
       body: SafeArea(
         child: Stack(
@@ -83,24 +84,29 @@ class _LoginScreenState extends State<LoginScreen> {
                             crossAxisAlignment: CrossAxisAlignment.stretch,
                             mainAxisSize: MainAxisSize.max,
                             children: [
-                              const SizedBox(height: 200),
-                              const Text(
-                                'Log In',
-                                style: TextStyle(
-                                  fontSize: 48,
-                                  fontWeight: FontWeight.bold,
-                                  color: Colors.white,
+                              SizedBox(height: 40),
+                              Center(
+                                child: Text(
+                                  "Welcome Back",
+                                  style: TextStyle(fontSize: 40, fontWeight: FontWeight.bold),
                                 ),
                               ),
-                              if (error.isNotEmpty)
-                                Text(
-                                  error,
-                                  style: const TextStyle(color: Colors.red),
+                              const SizedBox(height: 60),
+                              const Text(
+                                'Login',
+                                style: TextStyle(
+                                  fontSize: 32,
+                                  fontWeight: FontWeight.bold,
+                                  color: Colors.green,
                                 ),
+                              ),
+                              if (error.isNotEmpty) Text(error, style: const TextStyle(color: Colors.red)),
                               const SizedBox(height: 22),
                               _buildTextField(
                                 name: 'email',
                                 autovalidateMode: AutovalidateMode.onUnfocus,
+                                labelText: "Your Email/User Name",
+                                prefixIcon: Icon(Icons.person_outline),
                                 validator: FormBuilderValidators.compose([
                                   FormBuilderValidators.required(),
                                   FormBuilderValidators.email(),
@@ -111,6 +117,9 @@ class _LoginScreenState extends State<LoginScreen> {
                                 name: 'password',
                                 obscureText: true,
                                 autovalidateMode: AutovalidateMode.onUnfocus,
+                                labelText: "Password",
+                                suffixIcon: Icon(Icons.visibility_off),
+                                prefixIcon: Icon(Icons.lock_outline),
                                 validator: FormBuilderValidators.compose([
                                   FormBuilderValidators.required(),
                                   FormBuilderValidators.minLength(6),
@@ -123,18 +132,12 @@ class _LoginScreenState extends State<LoginScreen> {
                                     // Handle forgot password
                                     Navigator.push(
                                       context,
-                                      MaterialPageRoute(
-                                        builder:
-                                            (context) => ForgotPasswordScreen(),
-                                      ),
+                                      MaterialPageRoute(builder: (context) => ForgotPasswordScreen()),
                                     );
                                   },
                                   child: const Text(
                                     'Forgot password?',
-                                    style: TextStyle(
-                                      color: Colors.white,
-                                      fontSize: 16,
-                                    ),
+                                    style: TextStyle(color: Colors.white, fontSize: 16),
                                   ),
                                 ),
                               ),
@@ -179,12 +182,12 @@ class _LoginScreenState extends State<LoginScreen> {
     required AutovalidateMode autovalidateMode,
     required validator,
     bool obscureText = false,
+    required Widget prefixIcon,
+    required String labelText,
+    Widget? suffixIcon,
   }) {
     return Container(
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(16),
-      ),
+      decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(16)),
       child: FormBuilderTextField(
         name: name,
         autovalidateMode: autovalidateMode,
@@ -205,11 +208,11 @@ class _LoginScreenState extends State<LoginScreen> {
           //         : null,
           hintText: name.toCapitalize(),
           hintStyle: TextStyle(color: Color(0xFF799ac2), fontSize: 18),
-          contentPadding: const EdgeInsets.symmetric(
-            horizontal: 20,
-            vertical: 16,
-          ),
-          border: InputBorder.none,
+          contentPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+          border: OutlineInputBorder(borderRadius: BorderRadius.circular(16)),
+          prefixIcon: prefixIcon,
+          labelText: labelText,
+          suffix: suffixIcon,
         ),
       ),
     );
@@ -223,10 +226,7 @@ class _LoginScreenState extends State<LoginScreen> {
             text: 'Sign Up',
             onPressed: () {
               // Navigate to sign up screen
-              Navigator.push(
-                context,
-                MaterialPageRoute(builder: (context) => SignUpScreen()),
-              );
+              Navigator.push(context, MaterialPageRoute(builder: (context) => SignUpScreen()));
             },
           ),
         ),
@@ -239,10 +239,7 @@ class _LoginScreenState extends State<LoginScreen> {
                 // Process login logic
                 final user = await authenticate();
                 if (user != null) {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(builder: (context) => HomeScreen()),
-                  );
+                  Navigator.push(context, MaterialPageRoute(builder: (context) => HomeScreen()));
                 }
               }
             },
@@ -261,18 +258,10 @@ class _LoginScreenState extends State<LoginScreen> {
       ),
       child: TextButton(
         onPressed: onPressed,
-        style: TextButton.styleFrom(
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(10),
-          ),
-        ),
+        style: TextButton.styleFrom(shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10))),
         child: Text(
           text,
-          style: const TextStyle(
-            color: Colors.white,
-            fontSize: 20,
-            fontWeight: FontWeight.w500,
-          ),
+          style: const TextStyle(color: Colors.white, fontSize: 20, fontWeight: FontWeight.w500),
         ),
       ),
     );

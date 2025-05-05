@@ -31,6 +31,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
       );
 
       await FirebaseFirestore.instance.collection("users").doc(user.user!.uid).set({
+        "id": user.user!.uid,
         "username": _formKey.currentState?.fields['username']?.value,
         "is_admin": false,
         "email": user.user!.email,
