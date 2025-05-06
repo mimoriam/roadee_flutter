@@ -77,56 +77,57 @@ class _LoginScreenState extends State<LoginScreen> {
                         minWidth: constraints.maxWidth,
                         minHeight: constraints.maxHeight,
                       ),
-                      child: IntrinsicHeight(
-                        child: FormBuilder(
-                          key: _formKey,
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.stretch,
-                            mainAxisSize: MainAxisSize.max,
-                            children: [
-                              SizedBox(height: 40),
-                              Center(
-                                child: Text(
-                                  "Welcome Back",
-                                  style: TextStyle(fontSize: 40, fontWeight: FontWeight.bold),
-                                ),
+                      child: FormBuilder(
+                        key: _formKey,
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.stretch,
+                          mainAxisSize: MainAxisSize.max,
+                          children: [
+                            SizedBox(height: 70),
+                            Center(
+                              child: Text(
+                                "Welcome Back",
+                                style: TextStyle(fontSize: 40, fontWeight: FontWeight.bold),
                               ),
-                              const SizedBox(height: 60),
-                              const Text(
-                                'Login',
-                                style: TextStyle(
-                                  fontSize: 32,
-                                  fontWeight: FontWeight.bold,
-                                  color: Colors.green,
-                                ),
+                            ),
+                            const SizedBox(height: 60),
+                            const Text(
+                              'Login',
+                              style: TextStyle(
+                                fontSize: 32,
+                                fontWeight: FontWeight.bold,
+                                color: Colors.green,
                               ),
-                              if (error.isNotEmpty) Text(error, style: const TextStyle(color: Colors.red)),
-                              const SizedBox(height: 22),
-                              _buildTextField(
-                                name: 'email',
-                                autovalidateMode: AutovalidateMode.onUnfocus,
-                                labelText: "Your Email/User Name",
-                                prefixIcon: Icon(Icons.person_outline),
-                                validator: FormBuilderValidators.compose([
-                                  FormBuilderValidators.required(),
-                                  FormBuilderValidators.email(),
-                                ]),
-                              ),
-                              const SizedBox(height: 16),
-                              _buildTextField(
-                                name: 'password',
-                                obscureText: true,
-                                autovalidateMode: AutovalidateMode.onUnfocus,
-                                labelText: "Password",
-                                suffixIcon: Icon(Icons.visibility_off),
-                                prefixIcon: Icon(Icons.lock_outline),
-                                validator: FormBuilderValidators.compose([
-                                  FormBuilderValidators.required(),
-                                  FormBuilderValidators.minLength(6),
-                                ]),
-                              ),
-                              Align(
-                                alignment: Alignment.centerRight,
+                            ),
+                            if (error.isNotEmpty) Text(error, style: const TextStyle(color: Colors.red)),
+                            const SizedBox(height: 32),
+                            _buildTextField(
+                              name: 'email',
+                              autovalidateMode: AutovalidateMode.onUnfocus,
+                              labelText: "Your Email/User Name",
+                              prefixIcon: Icon(Icons.person_outline),
+                              validator: FormBuilderValidators.compose([
+                                FormBuilderValidators.required(),
+                                FormBuilderValidators.email(),
+                              ]),
+                            ),
+                            const SizedBox(height: 24),
+                            _buildTextField(
+                              name: 'password',
+                              obscureText: true,
+                              autovalidateMode: AutovalidateMode.onUnfocus,
+                              labelText: "Password",
+                              // suffixIcon: Icon(Icons.visibility_off),
+                              prefixIcon: Icon(Icons.lock_outline),
+                              validator: FormBuilderValidators.compose([
+                                FormBuilderValidators.required(),
+                                FormBuilderValidators.minLength(6),
+                              ]),
+                            ),
+                            Padding(
+                              padding: const EdgeInsets.only(top: 12, bottom: 12),
+                              child: Align(
+                                alignment: Alignment.center,
                                 child: TextButton(
                                   onPressed: () {
                                     // Handle forgot password
@@ -137,16 +138,42 @@ class _LoginScreenState extends State<LoginScreen> {
                                   },
                                   child: const Text(
                                     'Forgot password?',
-                                    style: TextStyle(color: Colors.white, fontSize: 16),
+                                    style: TextStyle(color: Colors.green, fontSize: 16),
                                   ),
                                 ),
                               ),
-                              const SizedBox(height: 8),
-                              _buildButtonRow(),
-                              // const Spacer(flex: 2),
-                              SizedBox(height: 80),
-                            ],
-                          ),
+                            ),
+                            const SizedBox(height: 16),
+                            _buildButtonRow(),
+                            // const Spacer(flex: 2),
+                            SizedBox(height: 70),
+                            // _buildButton(
+                            //   text: 'Sign Up',
+                            //   onPressed: () {
+                            //     // Navigate to sign up screen
+                            //     Navigator.push(context, MaterialPageRoute(builder: (context) => SignUpScreen()));
+                            //   },
+                            // ),
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                Text(
+                                  "Are you a new "
+                                  "User?",
+                                  style: TextStyle(color: Colors.black, fontSize: 16),
+                                ),
+                                GestureDetector(
+                                  onTap: () {
+                                    Navigator.push(
+                                      context,
+                                      MaterialPageRoute(builder: (context) => SignUpScreen()),
+                                    );
+                                  },
+                                  child: Text(" Sign Up", style: TextStyle(color: Colors.blue, fontSize: 16)),
+                                ),
+                              ],
+                            ),
+                          ],
                         ),
                       ),
                     ),
@@ -164,7 +191,8 @@ class _LoginScreenState extends State<LoginScreen> {
                       width: 135,
                       height: 5,
                       decoration: BoxDecoration(
-                        color: Colors.white.withValues(alpha: 0.5),
+                        // color: Colors.white.withValues(alpha: 0.5),
+                        color: Colors.grey,
                         borderRadius: BorderRadius.circular(2.5),
                       ),
                     ),
@@ -223,17 +251,7 @@ class _LoginScreenState extends State<LoginScreen> {
       children: [
         Expanded(
           child: _buildButton(
-            text: 'Sign Up',
-            onPressed: () {
-              // Navigate to sign up screen
-              Navigator.push(context, MaterialPageRoute(builder: (context) => SignUpScreen()));
-            },
-          ),
-        ),
-        const SizedBox(width: 16),
-        Expanded(
-          child: _buildButton(
-            text: 'Log In',
+            text: 'Login',
             onPressed: () async {
               if (_formKey.currentState!.validate()) {
                 // Process login logic
@@ -253,7 +271,8 @@ class _LoginScreenState extends State<LoginScreen> {
     return Container(
       height: 56,
       decoration: BoxDecoration(
-        color: const Color(0xFF0a6966), // Slightly darker green than background
+        // color: const Color(0xFF0a6966), // Slightly darker green than background
+        color: const Color(0xFF098232), // Slightly darker green than background,
         borderRadius: BorderRadius.circular(10),
       ),
       child: TextButton(

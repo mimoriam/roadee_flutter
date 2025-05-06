@@ -43,6 +43,13 @@ class _SignUpScreenState extends State<SignUpScreen> {
         "orders": FieldValue.arrayUnion([
           {"orderCreatedAt": DateTime.now(), "status": OrderStatus.Empty.name},
         ]),
+        "order_assigned_index": 0,
+        "orders_assigned": FieldValue.arrayUnion([
+          {
+            "orderAssignedAt": DateTime.now(),
+            "orderAssignedFrom": "",
+          },
+        ]),
       });
 
       // await FirebaseFirestore.instance
@@ -71,7 +78,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFF128f8b),
+      backgroundColor: Colors.white,
       body: SafeArea(
         child: Stack(
           children: [
@@ -87,92 +94,130 @@ class _SignUpScreenState extends State<SignUpScreen> {
                         minWidth: constraints.maxWidth,
                         minHeight: constraints.maxHeight,
                       ),
-                      child: IntrinsicHeight(
-                        child: FormBuilder(
-                          key: _formKey,
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.stretch,
-                            mainAxisSize: MainAxisSize.max,
-                            children: [
-                              const SizedBox(height: 100),
-                              const Text(
-                                'Sign Up',
+                      child: FormBuilder(
+                        key: _formKey,
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.stretch,
+                          mainAxisSize: MainAxisSize.max,
+                          // mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            // const SizedBox(height: 100),
+                            const SizedBox(height: 40),
+                            Center(
+                              child: const Text(
+                                'Create Account',
                                 style: TextStyle(
                                   fontSize: 40,
                                   fontWeight: FontWeight.bold,
-                                  color: Colors.white,
                                 ),
                               ),
-                              if (error.isNotEmpty) Text(error, style: const TextStyle(color: Colors.red)),
-                              const SizedBox(height: 30),
-                              _buildTextField(
-                                name: 'username',
-                                autovalidateMode: AutovalidateMode.onUnfocus,
-                                validator: FormBuilderValidators.compose([
-                                  FormBuilderValidators.required(),
-                                  FormBuilderValidators.minLength(
-                                    4,
-                                    errorText:
-                                        "Length should be greater "
-                                        "than 3",
-                                  ),
-                                ]),
+                            ),
+                            const Text(
+                              'Sign Up',
+                              style: TextStyle(
+                                fontSize: 32,
+                                fontWeight: FontWeight.bold,
+                                color: Colors.green,
                               ),
-                              const SizedBox(height: 16),
-                              _buildTextField(
-                                name: 'email',
-                                autovalidateMode: AutovalidateMode.onUnfocus,
-                                validator: FormBuilderValidators.compose([
-                                  FormBuilderValidators.required(),
-                                  FormBuilderValidators.email(),
-                                ]),
-                              ),
-                              const SizedBox(height: 16),
-                              _buildTextField(
-                                name: 'phone',
-                                autovalidateMode: AutovalidateMode.onUnfocus,
-                                keyboardType: TextInputType.phone,
-                                validator: FormBuilderValidators.compose([
-                                  FormBuilderValidators.required(),
-                                  FormBuilderValidators.minLength(
-                                    6,
-                                    errorText:
-                                        "Length should be greater "
-                                        "than 5",
-                                  ),
-                                  FormBuilderValidators.phoneNumber(),
-                                ]),
-                              ),
-                              const SizedBox(height: 16),
-                              _buildTextField(
-                                name: 'password',
-                                obscureText: true,
-                                autovalidateMode: AutovalidateMode.onUnfocus,
-                                validator: FormBuilderValidators.compose([
-                                  FormBuilderValidators.required(),
-                                  FormBuilderValidators.minLength(
-                                    6,
-                                    errorText:
-                                        "Length should be greater "
-                                        "than 5",
-                                  ),
-                                ]),
-                              ),
-                              const SizedBox(height: 16),
-                              _buildTextField(
-                                name: 'confirm_password',
-                                obscureText: true,
-                                autovalidateMode: AutovalidateMode.onUserInteraction,
-                                validator:
-                                    (value) =>
-                                        _formKey.currentState?.fields['password']?.value != value
-                                            ? 'Passwords do not match.'
-                                            : null,
-                              ),
-                              const SizedBox(height: 24),
-                              _buildSignUpButton(),
-                            ],
-                          ),
+                            ),
+                            if (error.isNotEmpty) Text(error, style: const TextStyle(color: Colors.red)),
+                            const SizedBox(height: 30),
+                            _buildTextField(
+                              name: 'username',
+                              labelText: "Your User Name",
+                              prefixIcon: Icon(Icons.account_box_rounded),
+                              autovalidateMode: AutovalidateMode.onUnfocus,
+                              validator: FormBuilderValidators.compose([
+                                FormBuilderValidators.required(),
+                                FormBuilderValidators.minLength(
+                                  4,
+                                  errorText:
+                                      "Length should be greater "
+                                      "than 3",
+                                ),
+                              ]),
+                            ),
+                            const SizedBox(height: 24),
+                            _buildTextField(
+                              name: 'email',
+                              labelText: "Your Email",
+                              prefixIcon: Icon(Icons.person_outline),
+                              autovalidateMode: AutovalidateMode.onUnfocus,
+                              validator: FormBuilderValidators.compose([
+                                FormBuilderValidators.required(),
+                                FormBuilderValidators.email(),
+                              ]),
+                            ),
+                            const SizedBox(height: 24),
+                            _buildTextField(
+                              name: 'phone',
+                              labelText: "Your Phone",
+                              prefixIcon: Icon(Icons.phone),
+                              autovalidateMode: AutovalidateMode.onUnfocus,
+                              keyboardType: TextInputType.phone,
+                              validator: FormBuilderValidators.compose([
+                                FormBuilderValidators.required(),
+                                FormBuilderValidators.minLength(
+                                  6,
+                                  errorText:
+                                      "Length should be greater "
+                                      "than 5",
+                                ),
+                                FormBuilderValidators.phoneNumber(),
+                              ]),
+                            ),
+                            const SizedBox(height: 24),
+                            _buildTextField(
+                              name: 'password',
+                              labelText: "Password",
+                              prefixIcon: Icon(Icons.lock_outline),
+                              obscureText: true,
+                              autovalidateMode: AutovalidateMode.onUnfocus,
+                              validator: FormBuilderValidators.compose([
+                                FormBuilderValidators.required(),
+                                FormBuilderValidators.minLength(
+                                  6,
+                                  errorText:
+                                      "Length should be greater "
+                                      "than 5",
+                                ),
+                              ]),
+                            ),
+                            const SizedBox(height: 24),
+                            _buildTextField(
+                              name: 'confirm_password',
+                              labelText: "Confirm Password",
+                              prefixIcon: Icon(Icons.lock_outline),
+                              obscureText: true,
+                              autovalidateMode: AutovalidateMode.onUserInteraction,
+                              validator:
+                                  (value) =>
+                                      _formKey.currentState?.fields['password']?.value != value
+                                          ? 'Passwords do not match.'
+                                          : null,
+                            ),
+                            const SizedBox(height: 24),
+                            _buildSignUpButton(),
+                            const SizedBox(height: 16),
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                Text(
+                                  "Already a User?",
+                                  style: TextStyle(color: Colors.black, fontSize: 16),
+                                ),
+                                GestureDetector(
+                                  onTap: () {
+                                    Navigator.push(
+                                      context,
+                                      MaterialPageRoute(builder: (context) => SignUpScreen()),
+                                    );
+                                  },
+                                  child: Text(" Login", style: TextStyle(color: Colors.blue, fontSize: 16)),
+                                ),
+                              ],
+                            ),
+                          ],
                         ),
                       ),
                     ),
@@ -190,7 +235,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
                       width: 135,
                       height: 5,
                       decoration: BoxDecoration(
-                        color: Colors.white.withValues(alpha: 0.5),
+                        color: Colors.grey,
                         borderRadius: BorderRadius.circular(2.5),
                       ),
                     ),
@@ -209,6 +254,9 @@ class _SignUpScreenState extends State<SignUpScreen> {
     TextInputType? keyboardType,
     required validator,
     bool obscureText = false,
+    required Widget prefixIcon,
+    required String labelText,
+    Widget? suffixIcon,
   }) {
     return Container(
       decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(16)),
@@ -221,7 +269,10 @@ class _SignUpScreenState extends State<SignUpScreen> {
           hintText: name == "confirm_password" ? "Confirm Password" : name.toCapitalize(),
           hintStyle: TextStyle(color: Color(0xFF799ac2), fontSize: 18),
           contentPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
-          border: InputBorder.none,
+          border: OutlineInputBorder(borderRadius: BorderRadius.circular(16)),
+          prefixIcon: prefixIcon,
+          labelText: labelText,
+          suffix: suffixIcon,
         ),
       ),
     );
@@ -231,7 +282,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
     return Container(
       height: 56,
       decoration: BoxDecoration(
-        color: const Color(0xFF0a6966), // Slightly darker green than background
+        color: const Color(0xFF098232), // Slightly darker green than background,
         borderRadius: BorderRadius.circular(10),
       ),
       child: TextButton(
