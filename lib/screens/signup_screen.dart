@@ -210,7 +210,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
                                   onTap: () {
                                     Navigator.push(
                                       context,
-                                      MaterialPageRoute(builder: (context) => SignUpScreen()),
+                                      MaterialPageRoute(builder: (context) => LoginScreen()),
                                     );
                                   },
                                   child: Text(" Login", style: TextStyle(color: Colors.blue, fontSize: 16)),
