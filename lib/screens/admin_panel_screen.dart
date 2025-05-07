@@ -10,9 +10,6 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:geocoding/geocoding.dart';
 import 'package:pluto_grid/pluto_grid.dart';
 
-
-
-
 class AdminScreen extends StatefulWidget {
   final Placemark placemark;
 

@@ -113,14 +113,10 @@ class _EnterInfoScreenState extends State<EnterInfoScreen> {
                       backgroundColor: WidgetStateProperty.all(Colors.white),
                     ),
                     menuChildren: [
-                      MenuItemButton(
-                        onPressed: () => onSelected('Your Profile'),
-                        child: Text('Your Profile'),
-                      ),
-                      MenuItemButton(
-                        onPressed: () => onSelected('Settings'),
-                        child: Text('Settings'),
-                      ),
+                      // MenuItemButton(
+                      //   onPressed: () => onSelected('Your Profile'),
+                      //   child: Text('Your Profile'),
+                      // ),
                       MenuItemButton(
                         onPressed: () => onSelected('Log out'),
                         child: Text('Log out'),
