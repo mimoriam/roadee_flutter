@@ -129,10 +129,10 @@ class _SignUpScreenState extends State<SignUpScreen> {
                               validator: FormBuilderValidators.compose([
                                 FormBuilderValidators.required(),
                                 FormBuilderValidators.minLength(
-                                  4,
+                                  5,
                                   errorText:
                                       "Length should be greater "
-                                      "than 3",
+                                      "than 4",
                                 ),
                               ]),
                             ),

@@ -972,6 +972,10 @@ class _HomeScreenState extends State<HomeScreen> {
                                             showDialog(
                                               context: context,
                                               builder: (BuildContext context) {
+
+                                                // TODO Fix a potential bug here on multiple user orders
+                                                // Add a field in DB for Red/Blue location and use that to
+                                                // draw markers
                                                 return AlertDialog(
                                                   title: Text(
                                                     "Would you like to use current location or marked location?",

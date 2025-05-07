@@ -75,7 +75,10 @@ class _ChatScreenState extends State<ChatScreen> {
               floatingActionButton: Padding(
                 padding: const EdgeInsets.only(bottom: 100),
                 child: FloatingActionButton.small(
-                  onPressed: _scrollDown, child: Icon(Icons.arrow_downward),),
+                  backgroundColor: Colors.green,
+                  onPressed: _scrollDown,
+                  child: Icon(Icons.arrow_downward, color: Colors.black),
+                ),
               ),
               body: FormBuilder(
                 key: _formKey,
@@ -94,25 +97,22 @@ class _ChatScreenState extends State<ChatScreen> {
                     //                 //   },
                     //                 //   child: Text("ENTER"),
                     //                 // ),
-                    MediaQuery
-                        .of(context)
-                        .viewInsets
-                        .bottom == 0.0
+                    MediaQuery.of(context).viewInsets.bottom == 0.0
                         ? Align(
-                      alignment: Alignment.bottomCenter,
-                      child: Padding(
-                        padding: const EdgeInsets.only(bottom: 16.0),
-                        child: Container(
-                          // margin: const EdgeInsets.only(bottom: 8.0),
-                          width: 135,
-                          height: 5,
-                          decoration: BoxDecoration(
-                            color: Colors.grey,
-                            borderRadius: BorderRadius.circular(2.5),
+                          alignment: Alignment.bottomCenter,
+                          child: Padding(
+                            padding: const EdgeInsets.only(bottom: 16.0),
+                            child: Container(
+                              // margin: const EdgeInsets.only(bottom: 8.0),
+                              width: 135,
+                              height: 5,
+                              decoration: BoxDecoration(
+                                color: Colors.grey,
+                                borderRadius: BorderRadius.circular(2.5),
+                              ),
+                            ),
                           ),
-                        ),
-                      ),
-                    )
+                        )
                         : Container(),
                   ],
                 ),

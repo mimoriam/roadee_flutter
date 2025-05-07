@@ -45,10 +45,7 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
                   },
                   child: Text("Open Settings"),
                 ),
-                TextButton(
-                  onPressed: () => Navigator.of(ctx).pop(),
-                  child: Text("Cancel"),
-                ),
+                TextButton(onPressed: () => Navigator.of(ctx).pop(), child: Text("Cancel")),
               ],
             ),
       );
@@ -61,9 +58,7 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
     if (permission == LocationPermission.denied) {
       permission = await Geolocator.requestPermission();
       if (permission == LocationPermission.denied) {
-        ScaffoldMessenger.of(
-          context,
-        ).showSnackBar(SnackBar(content: Text("Location permission denied")));
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("Location permission denied")));
         return null;
       }
     }
@@ -83,10 +78,7 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
                   },
                   child: Text("Open App Settings"),
                 ),
-                TextButton(
-                  onPressed: () => Navigator.of(ctx).pop(),
-                  child: Text("Cancel"),
-                ),
+                TextButton(onPressed: () => Navigator.of(ctx).pop(), child: Text("Cancel")),
               ],
             ),
       );
@@ -99,10 +91,7 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
       locationSettings: LocationSettings(accuracy: LocationAccuracy.high),
     );
 
-    List<Placemark> placemarks = await placemarkFromCoordinates(
-      position.latitude,
-      position.longitude,
-    );
+    List<Placemark> placemarks = await placemarkFromCoordinates(position.latitude, position.longitude);
     Placemark place = placemarks[0];
     return '${place.name}, ${place.locality}, ${place.administrativeArea}, ${place.country}';
   }
@@ -114,10 +103,7 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
         break;
       case 'Log out':
         await FirebaseAuth.instance.signOut();
-        Navigator.pushReplacement(
-          context,
-          MaterialPageRoute(builder: (context) => LoginScreen()),
-        );
+        Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => LoginScreen()));
         break;
     }
   }
@@ -126,8 +112,7 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
     final uid = FirebaseAuth.instance.currentUser?.uid;
     if (uid == null) return null;
 
-    final doc =
-        await FirebaseFirestore.instance.collection("users").doc(uid).get();
+    final doc = await FirebaseFirestore.instance.collection("users").doc(uid).get();
     return doc.exists ? doc.data() : null;
   }
 
@@ -136,9 +121,9 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
       final user = FirebaseAuth.instance.currentUser!;
 
       // Update Firestore email
-      await FirebaseFirestore.instance.collection('users').doc(user.uid).update(
-        {'username': _formKey.currentState?.fields['username']?.value},
-      );
+      await FirebaseFirestore.instance.collection('users').doc(user.uid).update({
+        'username': _formKey.currentState?.fields['username']?.value,
+      });
     } on FirebaseAuthException {}
     return null;
   }
@@ -148,9 +133,9 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
       final user = FirebaseAuth.instance.currentUser!;
 
       // Update Firestore email
-      await FirebaseFirestore.instance.collection('users').doc(user.uid).update(
-        {'phone': _formKey.currentState?.fields['phone']?.value},
-      );
+      await FirebaseFirestore.instance.collection('users').doc(user.uid).update({
+        'phone': _formKey.currentState?.fields['phone']?.value,
+      });
     } on FirebaseAuthException {}
     return null;
   }
@@ -160,9 +145,7 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
       final user = FirebaseAuth.instance.currentUser!;
 
       // Update Firestore email
-      await FirebaseFirestore.instance.collection('users').doc(user.uid).update(
-        {'address': userAddress},
-      );
+      await FirebaseFirestore.instance.collection('users').doc(user.uid).update({'address': userAddress});
     } on FirebaseAuthException {}
     return null;
   }
@@ -171,55 +154,45 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
     return Container(
       height: 40,
       decoration: BoxDecoration(
-        color: const Color(0xFF0a6966), // Slightly darker green than background
+        // color: const Color(0xFF0a6966), // Slightly darker green than background
+        color: const Color(0xFF098232),
         borderRadius: BorderRadius.circular(10),
       ),
       child: TextButton(
         onPressed: () async {
-          setState(() async {
-            if (func == "Username") {
-              updateUsername();
-            }
-            if (func == "Phone") {
-              updatePhone();
-            }
-
-            if (func == "Address") {
-              // Update Address
-              String? userAddresss = await getUserAddress(context);
-
-              if (userAddresss != null) {
-                setState(() {
-                  userAddress = userAddresss;
-                });
-
-                await updateAddress();
+          if (_formKey.currentState!.validate()) {
+            setState(() async {
+              if (func == "Username") {
+                updateUsername();
               }
-            }
+              if (func == "Phone") {
+                updatePhone();
+              }
 
-            Navigator.of(context).popUntil((route) => route.isFirst);
+              if (func == "Address") {
+                // Update Address
+                String? userAddresss = await getUserAddress(context);
 
-            Navigator.pushReplacement(
-              context,
-              MaterialPageRoute(
-                builder: (BuildContext context) => HomeScreen(),
-              ),
-            );
-          });
+                if (userAddresss != null) {
+                  setState(() {
+                    userAddress = userAddresss;
+                  });
+
+                  await updateAddress();
+                }
+              }
+
+              Navigator.of(context).popUntil((route) => route.isFirst);
+
+              Navigator.pushReplacement(
+                context,
+                MaterialPageRoute(builder: (BuildContext context) => HomeScreen()),
+              );
+            });
+          }
         },
-        style: TextButton.styleFrom(
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(10),
-          ),
-        ),
-        child: Text(
-          name,
-          style: TextStyle(
-            color: Colors.white,
-            fontSize: 14,
-            fontWeight: FontWeight.w500,
-          ),
-        ),
+        style: TextButton.styleFrom(shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20))),
+        child: Text(name, style: TextStyle(color: Colors.white, fontSize: 14, fontWeight: FontWeight.w500)),
       ),
     );
   }
@@ -241,10 +214,7 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
             child: AppBar(
               backgroundColor: Colors.white,
               elevation: 0,
-              leading: IconButton(
-                icon: const Icon(Icons.menu, color: Colors.black),
-                onPressed: () {},
-              ),
+              leading: IconButton(icon: const Icon(Icons.menu, color: Colors.black), onPressed: () {}),
               title: Row(
                 children: [
                   // const Text(
@@ -261,37 +231,19 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
                   Column(
                     crossAxisAlignment: CrossAxisAlignment.end,
                     children: [
-                      const Text(
-                        'You Are Logged In',
-                        style: TextStyle(fontSize: 12, color: Colors.black54),
-                      ),
-                      Text(
-                        "${user['username']}",
-                        style: TextStyle(fontSize: 12, color: Colors.black),
-                      ),
+                      const Text('You Are Logged In', style: TextStyle(fontSize: 12, color: Colors.black54)),
+                      Text("${user['username']}", style: TextStyle(fontSize: 12, color: Colors.black)),
                     ],
                   ),
                   const SizedBox(width: 8),
                   MenuAnchor(
                     controller: _menuController,
-                    style: MenuStyle(
-                      backgroundColor: WidgetStateProperty.all(Colors.white),
-                    ),
+                    style: MenuStyle(backgroundColor: WidgetStateProperty.all(Colors.white)),
                     menuChildren: [
-                      MenuItemButton(
-                        onPressed: () => _onSelected('Settings'),
-                        child: Text('Settings'),
-                      ),
-                      MenuItemButton(
-                        onPressed: () => _onSelected('Log out'),
-                        child: Text('Log out'),
-                      ),
+                      MenuItemButton(onPressed: () => _onSelected('Settings'), child: Text('Settings')),
+                      MenuItemButton(onPressed: () => _onSelected('Log out'), child: Text('Log out')),
                     ],
-                    builder: (
-                      BuildContext context,
-                      MenuController controller,
-                      Widget? child,
-                    ) {
+                    builder: (BuildContext context, MenuController controller, Widget? child) {
                       return GestureDetector(
                         onTap: () {
                           if (controller.isOpen) {
@@ -351,21 +303,19 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
                                           name: 'username',
                                           enabled: true,
                                           initialValue: "${user['username']}",
-                                          autovalidateMode:
-                                              AutovalidateMode.onUnfocus,
-                                          validator:
-                                              FormBuilderValidators.compose([
-                                                FormBuilderValidators.required(),
-                                                FormBuilderValidators.minLength(
-                                                  5,
-                                                ),
-                                              ]),
+                                          autovalidateMode: AutovalidateMode.onUnfocus,
+                                          validator: FormBuilderValidators.compose([
+                                            FormBuilderValidators.required(),
+                                            FormBuilderValidators.minLength(
+                                              5,
+                                              errorText:
+                                                  "Length should be greater "
+                                                  "than 4",
+                                            ),
+                                          ]),
                                         ),
                                       ),
-                                      _buildButtons(
-                                        name: "Update Username",
-                                        func: "Username",
-                                      ),
+                                      _buildButtons(name: "Update Username", func: "Username"),
                                     ],
                                   ),
                                   const SizedBox(height: 16),
@@ -376,13 +326,8 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
                                           name: 'email',
                                           enabled: false,
                                           initialValue: "${user['email']}",
-                                          autovalidateMode:
-                                              AutovalidateMode.onUnfocus,
-                                          validator:
-                                              FormBuilderValidators.compose([
-                                                FormBuilderValidators.required(),
-                                                FormBuilderValidators.email(),
-                                              ]),
+                                          autovalidateMode: AutovalidateMode.onUnfocus,
+                                          validator: null,
                                         ),
                                       ),
                                       // _buildButtons(name: "Update Email"),
@@ -396,20 +341,15 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
                                           name: 'phone',
                                           enabled: true,
                                           initialValue: "${user['phone']}",
-                                          autovalidateMode:
-                                              AutovalidateMode.onUnfocus,
-                                          validator:
-                                              FormBuilderValidators.compose([
-                                                FormBuilderValidators.required(),
-                                                FormBuilderValidators.email(),
-                                              ]),
+                                          autovalidateMode: AutovalidateMode.onUnfocus,
+                                          validator: FormBuilderValidators.compose([
+                                            FormBuilderValidators.required(),
+                                            FormBuilderValidators.numeric(),
+                                          ]),
                                         ),
                                       ),
 
-                                      _buildButtons(
-                                        name: "Update Phone",
-                                        func: "Phone",
-                                      ),
+                                      _buildButtons(name: "Update Phone", func: "Phone"),
                                     ],
                                   ),
 
@@ -420,20 +360,12 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
                                           name: 'address',
                                           enabled: false,
                                           initialValue: "${user['address']}",
-                                          autovalidateMode:
-                                              AutovalidateMode.onUnfocus,
-                                          validator:
-                                              FormBuilderValidators.compose([
-                                                FormBuilderValidators.required(),
-                                                FormBuilderValidators.email(),
-                                              ]),
+                                          autovalidateMode: AutovalidateMode.onUnfocus,
+                                          validator: null,
                                         ),
                                       ),
 
-                                      _buildButtons(
-                                        name: "Update Address",
-                                        func: "Address",
-                                      ),
+                                      _buildButtons(name: "Update Address", func: "Address"),
                                     ],
                                   ),
                                 ],
@@ -462,28 +394,25 @@ Widget _buildTextField({
   bool obscureText = false,
   required bool enabled,
 }) {
-  return Container(
-    decoration: BoxDecoration(
-      color: Colors.white,
-      borderRadius: BorderRadius.circular(16),
-    ),
-    child: FormBuilderTextField(
-      maxLines: null,
-      enabled: enabled,
-      name: name,
-      initialValue: initialValue,
-      autovalidateMode: autovalidateMode,
-      validator: validator,
-      obscureText: obscureText,
-      decoration: InputDecoration(
-        hintText: name.toCapitalize(),
-        labelText: name.toCapitalize(),
-        hintStyle: TextStyle(color: Color(0xFF799ac2), fontSize: 18),
-        contentPadding: const EdgeInsets.symmetric(
-          horizontal: 20,
-          vertical: 16,
+  return Padding(
+    padding: const EdgeInsets.all(12),
+    child: Container(
+      decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(16)),
+      child: FormBuilderTextField(
+        maxLines: null,
+        enabled: enabled,
+        name: name,
+        initialValue: initialValue,
+        autovalidateMode: autovalidateMode,
+        validator: validator,
+        obscureText: obscureText,
+        decoration: InputDecoration(
+          hintText: name.toCapitalize(),
+          labelText: name.toCapitalize(),
+          hintStyle: TextStyle(color: Color(0xFF799ac2), fontSize: 18),
+          // contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+          border: OutlineInputBorder(borderRadius: BorderRadius.circular(16)),
         ),
-        border: InputBorder.none,
       ),
     ),
   );
