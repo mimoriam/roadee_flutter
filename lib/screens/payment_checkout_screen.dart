@@ -46,6 +46,8 @@ class _PaymentCheckoutScreenState extends State<PaymentCheckoutScreen> {
               "assistant_address": "",
               "assistant_city": "",
               "assistant_country": "",
+              "assistant_email": "",
+              "assistant_id": "",
               "orderCreatedAt": DateTime.now(),
               "promo code": "",
               "service": serviceSelectedIndex[widget

@@ -43,7 +43,6 @@ class _SignUpScreenState extends State<SignUpScreen> {
         "orders": FieldValue.arrayUnion([
           {"orderCreatedAt": DateTime.now(), "status": OrderStatus.Empty.name},
         ]),
-        "order_assigned_index": 0,
         "orders_assigned": FieldValue.arrayUnion([
           {
             "orderAssignedAt": DateTime.now(),

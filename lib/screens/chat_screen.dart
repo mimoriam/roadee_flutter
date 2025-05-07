@@ -65,9 +65,13 @@ class _ChatScreenState extends State<ChatScreen> {
       },
     );
   }
-
+  
   Widget _buildMessageItemList(DocumentSnapshot doc) {
     Map<String, dynamic> data = doc.data() as Map<String, dynamic>;
-    return Text(data["message"]);
+
+    bool isCurrentUser = data?["senderId"] == widget.user["id"];
+    // Own messages at right:
+    var alignment = isCurrentUser ? Alignment.centerRight : Alignment.centerLeft;
+    return Container(alignment: alignment, child: Text(data["message"]));
   }
 }

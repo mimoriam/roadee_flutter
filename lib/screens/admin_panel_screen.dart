@@ -49,10 +49,13 @@ class _AdminScreenState extends State<AdminScreen> {
               .limit(1)
               .get();
 
+      final uid = FirebaseAuth.instance.currentUser?.uid;
       final docRef = query.docs.first.reference;
       final doc = await docRef.get();
 
       final orders = List<Map<String, dynamic>>.from(doc.data()?['orders'] ?? []);
+      final ordersAssigned = List<Map<String, dynamic>>.from(doc.data()?['orders_assigned'] ?? []);
+
       final order_idx = doc.data()?["order_index"];
 
       if (order_idx > 0) {
@@ -66,9 +69,19 @@ class _AdminScreenState extends State<AdminScreen> {
         orders[order_idx]["assistant_country"] = widget.placemark.country;
 
         orders[order_idx]["status"] = OrderStatus.OnRoute.name;
+
+        orders[order_idx]["assistant_email"] = "${user?["email"]}";
+        orders[order_idx]["assistant_id"] = "${user?["id"]}";
+        // Order assigned From USER
+        ordersAssigned[0]["orderAssignedFrom"] = username;
       }
 
       await docRef.update({'orders': orders});
+      await FirebaseFirestore.instance.collection("users").doc(uid).update({
+        "orders_assigned": ordersAssigned,
+      });
+      // await docRef.update({'order_assigned_idx': FieldValue.increment(1)});
+      // await docRef.update({'orders_assigned': ordersAssigned});
     } on FirebaseAuthException {}
   }
 
@@ -91,6 +104,7 @@ class _AdminScreenState extends State<AdminScreen> {
         orders[order_idx]["status"] = OrderStatus.Completed.name;
 
         await docRef.update({'order_index': FieldValue.increment(-1)});
+        // await docRef.update({"order_assigned_index": FieldValue.increment(-1)});
         await docRef.update({'orders': orders});
       }
     } catch (e) {}

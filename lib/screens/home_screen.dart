@@ -9,6 +9,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/services.dart';
 import 'package:roadee_flutter/screens/admin_panel_screen.dart';
 import 'package:roadee_flutter/screens/chat_home_screen.dart';
+import 'package:roadee_flutter/screens/chat_screen.dart';
 
 import 'package:roadee_flutter/screens/login_screen.dart';
 import 'package:roadee_flutter/screens/order_history_screen.dart';
@@ -640,10 +641,7 @@ class _HomeScreenState extends State<HomeScreen> {
                     Column(
                       crossAxisAlignment: CrossAxisAlignment.end,
                       children: [
-                        const Text(
-                          'You Are Logged In',
-                          style: TextStyle(fontSize: 12, color: Colors.black54),
-                        ),
+                        const Text('Logged In as', style: TextStyle(fontSize: 12, color: Colors.black54)),
                         Text("${user['username']}", style: TextStyle(fontSize: 12, color: Colors.black)),
                       ],
                     ),
@@ -695,7 +693,7 @@ class _HomeScreenState extends State<HomeScreen> {
                         _currentPosition == null
                             ? Center(child: CircularProgressIndicator())
                             : SizedBox(
-                              height: 480,
+                              height: 420,
                               width: double.infinity,
                               child: mp.MapWidget(
                                 key: ValueKey('mapWidget'),
@@ -815,123 +813,218 @@ class _HomeScreenState extends State<HomeScreen> {
                                 ],
                               ),
                               const SizedBox(height: 20),
-                              Row(
-                                children: [
-                                  ElevatedButton(
-                                    onPressed: () {
-                                      Navigator.push(
-                                        context,
-                                        MaterialPageRoute(builder: (context) => ChatHomeScreen(user: user)),
-                                      );
-                                    },
-                                    child: Text("Chat"),
-                                  ),
-                                  ElevatedButton(
-                                    onPressed: () async {
-                                      if (selectedIndex == -1) {
-                                        showDialog(
-                                          context: context,
-                                          builder: (BuildContext context) {
-                                            return AlertDialog(
-                                              title: Text(
-                                                "You did not select a "
-                                                "service!",
-                                              ),
-                                              actions: <Widget>[
-                                                TextButton(
-                                                  onPressed: () {
-                                                    Navigator.of(context).pop(); // Don't exit
-                                                  },
-                                                  child: Text("Okay"),
+                              Builder(
+                                builder: (context) {
+                                  if (user['orders'][user["order_index"]]["status"].toString() == "Pending") {
+                                    return Card(
+                                      elevation: 4,
+                                      shape: RoundedRectangleBorder(
+                                        borderRadius: BorderRadius.circular(16), // Rounded corners
+                                      ),
+                                      margin: EdgeInsets.all(16.0),
+                                      child: Column(
+                                        children: [
+                                          ListTile(
+                                            leading: Icon(Icons.schedule),
+                                            title: const Text('We are currently reviewing your order...'),
+                                            // subtitle: Text(
+                                            //   'Secondary Text',
+                                            //   style: TextStyle(color: Colors.black.withOpacity(0.6)),
+                                            // ),
+                                          ),
+                                        ],
+                                      ),
+                                    );
+                                  } else if (user['orders'][user["order_index"]]["status"].toString() ==
+                                      "OnRoute") {
+                                    return ElevatedButton(
+                                      style: ElevatedButton.styleFrom(backgroundColor: Color(0xFF098232)),
+                                      onPressed: () {
+                                        // Navigator.push(
+                                        //   context,
+                                        //   MaterialPageRoute(builder: (context) => ChatHomeScreen(user: user)),
+                                        // );
+                                        Navigator.push(
+                                          context,
+                                          MaterialPageRoute(
+                                            builder:
+                                                (context) => ChatScreen(
+                                                  receiverId:
+                                                      "${user['orders'][user["order_index"]]["assistant_id"]}",
+                                                  receiverEmail:
+                                                      "${user['orders'][user["order_index"]]["assistant_email"]}",
+                                                  user: user,
                                                 ),
-                                              ],
-                                            );
-                                          },
+                                          ),
                                         );
-                                      } else {
-                                        var address = await getUserAddress(context);
+                                      },
+                                      child: Text(
+                                        // "Chat with your assistant: ${user['orders'][user["order_index"]]["assistant_assigned"].toString().toCapitalize()}",
+                                        "Chat with your assistant",
+                                        style: TextStyle(color: Colors.white, fontSize: 16),
+                                      ),
+                                    );
+                                  } else {
+                                    if (user["is_admin"] == true &&
+                                        "${user['orders_assigned'][0]["orderAssignedFrom"]}".isNotEmpty) {
+                                      return ElevatedButton(
+                                        style: ElevatedButton.styleFrom(backgroundColor: Color(0xFF098232)),
+                                        onPressed: () async {
+                                          final query =
+                                              await FirebaseFirestore.instance
+                                                  .collection("users")
+                                                  .where(
+                                                    'username',
+                                                    isEqualTo:
+                                                        user["orders_assigned"][0]["orderAssignedFrom"],
+                                                  )
+                                                  .limit(1)
+                                                  .get();
 
-                                        if (address == null) {
-                                          // showDialog(
-                                          //   context: context,
-                                          //   builder: (BuildContext context) {
-                                          //     return AlertDialog(
-                                          //       title: Text(
-                                          //         "You did not select a "
-                                          //         "location!",
-                                          //       ),
-                                          //       actions: <Widget>[
-                                          //         TextButton(
-                                          //           onPressed: () {
-                                          //             Navigator.of(
-                                          //               context,
-                                          //             ).pop(); // Don't exit
-                                          //           },
-                                          //           child: Text("Okay"),
-                                          //         ),
-                                          //       ],
-                                          //     );
-                                          //   },
-                                          // );
-                                        } else {
+                                          var doc = await query.docs.first.reference.get();
+                                          var clientData = doc.data();
+
+                                          Navigator.push(
+                                            context,
+                                            MaterialPageRoute(
+                                              builder:
+                                                  (context) => ChatScreen(
+                                                    receiverId: clientData?["id"],
+                                                    receiverEmail: clientData?["email"],
+                                                    user: user,
+                                                  ),
+                                            ),
+                                          );
+                                        },
+                                        child: Text(
+                                          // "Chat with your assistant: ${user['orders'][user["order_index"]]["assistant_assigned"].toString().toCapitalize()}",
+                                          "Chat with the Client",
+                                          style: TextStyle(color: Colors.white, fontSize: 16),
+                                        ),
+                                      );
+                                    }
+                                    return ElevatedButton(
+                                      // style: ButtonStyle(
+                                      //   shape: MaterialStateProperty.all<RoundedRectangleBorder>(
+                                      //       RoundedRectangleBorder(
+                                      //           borderRadius: BorderRadius.circular(10.0),
+                                      //       )
+                                      //   ),
+                                      //   textStyle: MaterialStateProperty.all<Color>(
+                                      //     Colors.white,
+                                      //   ),
+                                      //   backgroundColor: MaterialStateProperty.all<Color>(Color(0xFF098232)),
+                                      // ),
+                                      style: ElevatedButton.styleFrom(backgroundColor: Color(0xFF098232)),
+                                      onPressed: () async {
+                                        if (selectedIndex == -1) {
                                           showDialog(
                                             context: context,
                                             builder: (BuildContext context) {
                                               return AlertDialog(
                                                 title: Text(
-                                                  "Would you like to use current location or marked location?",
+                                                  "You did not select a "
+                                                  "service!",
                                                 ),
                                                 actions: <Widget>[
                                                   TextButton(
                                                     onPressed: () {
-                                                      setState(() {
-                                                        locationChecked = "Blue";
-                                                      });
-                                                      Navigator.of(context).pop();
-                                                      Navigator.push(
-                                                        context,
-                                                        MaterialPageRoute(
-                                                          builder:
-                                                              (context) => EnterInfoScreen(
-                                                                serviceSelected: selectedIndex,
-                                                                addressSelected: address,
-                                                              ),
-                                                        ),
-                                                      );
+                                                      Navigator.of(context).pop(); // Don't exit
                                                     },
-                                                    child: Text("Current (Blue)"),
-                                                  ),
-                                                  TextButton(
-                                                    onPressed: () {
-                                                      setState(() {
-                                                        locationChecked = "Red";
-                                                      });
-                                                      Navigator.of(context).pop();
-                                                      Navigator.push(
-                                                        context,
-                                                        MaterialPageRoute(
-                                                          builder:
-                                                              (context) => EnterInfoScreen(
-                                                                serviceSelected: selectedIndex,
-                                                                addressSelected:
-                                                                    '${_place.name}, ${_place.locality}, '
-                                                                    '${_place.administrativeArea}, ${_place.country}, ${_place.thoroughfare}',
-                                                              ),
-                                                        ),
-                                                      );
-                                                    },
-                                                    child: Text("Marked (Red)"),
+                                                    child: Text("Okay"),
                                                   ),
                                                 ],
                                               );
                                             },
                                           );
+                                        } else {
+                                          var address = await getUserAddress(context);
+
+                                          if (address == null) {
+                                            // showDialog(
+                                            //   context: context,
+                                            //   builder: (BuildContext context) {
+                                            //     return AlertDialog(
+                                            //       title: Text(
+                                            //         "You did not select a "
+                                            //         "location!",
+                                            //       ),
+                                            //       actions: <Widget>[
+                                            //         TextButton(
+                                            //           onPressed: () {
+                                            //             Navigator.of(
+                                            //               context,
+                                            //             ).pop(); // Don't exit
+                                            //           },
+                                            //           child: Text("Okay"),
+                                            //         ),
+                                            //       ],
+                                            //     );
+                                            //   },
+                                            // );
+                                          } else {
+                                            showDialog(
+                                              context: context,
+                                              builder: (BuildContext context) {
+                                                return AlertDialog(
+                                                  title: Text(
+                                                    "Would you like to use current location or marked location?",
+                                                  ),
+                                                  actions: <Widget>[
+                                                    TextButton(
+                                                      onPressed: () {
+                                                        setState(() {
+                                                          locationChecked = "Blue";
+                                                        });
+                                                        Navigator.of(context).pop();
+                                                        Navigator.push(
+                                                          context,
+                                                          MaterialPageRoute(
+                                                            builder:
+                                                                (context) => EnterInfoScreen(
+                                                                  serviceSelected: selectedIndex,
+                                                                  addressSelected: address,
+                                                                ),
+                                                          ),
+                                                        );
+                                                      },
+                                                      child: Text("Current (Blue)"),
+                                                    ),
+                                                    TextButton(
+                                                      onPressed: () {
+                                                        setState(() {
+                                                          locationChecked = "Red";
+                                                        });
+                                                        Navigator.of(context).pop();
+                                                        Navigator.push(
+                                                          context,
+                                                          MaterialPageRoute(
+                                                            builder:
+                                                                (context) => EnterInfoScreen(
+                                                                  serviceSelected: selectedIndex,
+                                                                  addressSelected:
+                                                                      '${_place.name}, ${_place.locality}, '
+                                                                      '${_place.administrativeArea}, ${_place.country}, ${_place.thoroughfare}',
+                                                                ),
+                                                          ),
+                                                        );
+                                                      },
+                                                      child: Text("Marked (Red)"),
+                                                    ),
+                                                  ],
+                                                );
+                                              },
+                                            );
+                                          }
                                         }
-                                      }
-                                    },
-                                    child: const Text("Place Order"),
-                                  ),
-                                ],
+                                      },
+                                      child: const Text(
+                                        "Place an Order",
+                                        style: TextStyle(color: Colors.white, fontSize: 16),
+                                      ),
+                                    );
+                                  }
+                                },
                               ),
                               const SizedBox(height: 20),
                               Builder(
@@ -997,6 +1090,24 @@ class _HomeScreenState extends State<HomeScreen> {
                       ],
                     ),
                   ),
+                  MediaQuery.of(context).viewInsets.bottom == 0.0
+                      ? Align(
+                        alignment: Alignment.bottomCenter,
+                        child: Padding(
+                          padding: const EdgeInsets.only(bottom: 16.0),
+                          child: Container(
+                            // margin: const EdgeInsets.only(bottom: 8.0),
+                            width: 135,
+                            height: 5,
+                            decoration: BoxDecoration(
+                              // color: Colors.white.withValues(alpha: 0.5),
+                              color: Colors.grey,
+                              borderRadius: BorderRadius.circular(2.5),
+                            ),
+                          ),
+                        ),
+                      )
+                      : Container(),
                 ],
               ),
             ),
