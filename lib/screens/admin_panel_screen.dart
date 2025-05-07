@@ -56,7 +56,9 @@ class _AdminScreenState extends State<AdminScreen> {
       final orders = List<Map<String, dynamic>>.from(doc.data()?['orders'] ?? []);
       final ordersAssigned = List<Map<String, dynamic>>.from(doc.data()?['orders_assigned'] ?? []);
 
-      final order_idx = doc.data()?["order_index"];
+      // CHANGED HERE FROM ORDER INDEX TO ACTUAL ORDER IDX:
+      // final order_idx = doc.data()?["order_index"];
+      final order_idx = orders.length - 1;
 
       if (order_idx > 0) {
         orders[order_idx]["assistant_assigned"] = "${user?["username"]}";
@@ -94,18 +96,33 @@ class _AdminScreenState extends State<AdminScreen> {
               .limit(1)
               .get();
 
+      final uid = FirebaseAuth.instance.currentUser?.uid;
+
+      // final adminQuery =
+      //     await FirebaseFirestore.instance.collection("users").where("id", isEqualTo: uid).limit(1).get();
+
       final docRef = query.docs.first.reference;
       final doc = await docRef.get();
 
+      // final adminDocRef = query.docs.first.reference;
+      // final adminDoc = await adminDocRef.get();
+
       final orders = List<Map<String, dynamic>>.from(doc.data()?['orders'] ?? []);
-      final order_idx = doc.data()?["order_index"];
+      final ordersAssigned = List<Map<String, dynamic>>.from(doc.data()?['orders_assigned'] ?? []);
+      // final order_idx = doc.data()?["order_index"];
+      final order_idx = orders.length - 1;
 
       if (order_idx > 0) {
         orders[order_idx]["status"] = OrderStatus.Completed.name;
 
+        ordersAssigned[0]["orderAssignedFrom"] = "";
+
         await docRef.update({'order_index': FieldValue.increment(-1)});
-        // await docRef.update({"order_assigned_index": FieldValue.increment(-1)});
         await docRef.update({'orders': orders});
+        // await adminDocRef.update({'orders_assigned': adminOrdersAssigned});
+        await FirebaseFirestore.instance.collection("users").doc(uid).update({
+          "orders_assigned": ordersAssigned,
+        });
       }
     } catch (e) {}
   }
@@ -213,7 +230,8 @@ class _AdminScreenState extends State<AdminScreen> {
                 icon: const Icon(Icons.check_box),
                 onPressed: () async {
                   final row = rendererContext.row;
-                  final id = row.cells['order_index']?.value;
+                  // final id = row.cells['order_index']?.value;
+                  final id = row.cells['orders']?.value.length - 1;
 
                   if (id > 0) {
                     if (row.cells['orders']?.value[id]["assistant_assigned"].isNotEmpty) {

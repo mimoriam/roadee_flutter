@@ -28,7 +28,7 @@ class _ChatScreenState extends State<ChatScreen> {
   void _scrollDown() {
     _controller.animateTo(
       _controller.position.maxScrollExtent,
-      duration: Duration(seconds: 2),
+      duration: Duration(seconds: 1),
       curve: Curves.fastOutSlowIn,
     );
   }
@@ -71,8 +71,12 @@ class _ChatScreenState extends State<ChatScreen> {
           return SafeArea(
             child: Scaffold(
               appBar: AppBar(title: Text(widget.receiverEmail)),
-              // floatingActionButton: FloatingActionButton.small(
-              //   onPressed: _scrollDown, child: Icon(Icons.arrow_downward),),
+              floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
+              floatingActionButton: Padding(
+                padding: const EdgeInsets.only(bottom: 100),
+                child: FloatingActionButton.small(
+                  onPressed: _scrollDown, child: Icon(Icons.arrow_downward),),
+              ),
               body: FormBuilder(
                 key: _formKey,
                 child: Column(

@@ -372,21 +372,23 @@ class _HomeScreenState extends State<HomeScreen> {
     }
 
     // if (user?['orders'][user["order_index"]]["assistant_assigned"].isEmpty) {
-    if (user?['orders'][user["order_index"]]["status"] == OrderStatus.Empty.name ||
-        user?['orders'][user["order_index"]]["status"] == OrderStatus.Pending.name) {
+    // CHANGED HERE
+    if (user?['orders'][user["orders"].length - 1]["status"] == OrderStatus.Empty.name ||
+        user?['orders'][user["orders"].length - 1]["status"] == OrderStatus.Pending.name ||
+        user?['orders'][user["orders"].length - 1]["status"] == OrderStatus.Completed.name) {
       await createMarkerOnMap(
         currentLong: _currentPosition!.longitude,
         currentLat: _currentPosition!.latitude,
       );
     } else {
-      var splitRiderAddress = user?['orders'][user["order_index"]]["assistant_address"].split(" ~ ");
+      var splitRiderAddress = user?['orders'][user["orders"].length - 1]["assistant_address"].split(" ~ ");
       var splitUserAddress = user?['address'].split(",");
 
       var riderLatLng = await getCoordinatesFromPlacemark(
         thoroughfare: splitRiderAddress[0],
         subThoroughfare: splitRiderAddress[1],
-        city: user?['orders'][user["order_index"]]["assistant_city"],
-        country: user?['orders'][user["order_index"]]["assistant_country"],
+        city: user?['orders'][user["orders"].length - 1]["assistant_city"],
+        country: user?['orders'][user["orders"].length - 1]["assistant_country"],
       );
 
       // print(splitUserAddress);
@@ -484,7 +486,6 @@ class _HomeScreenState extends State<HomeScreen> {
       image: imageData,
       // textField: "${_place.thoroughfare} ${_place.subThoroughfare}",
       textField:
-          // TODO Fix a potential bug here that _place shows current location data:
           (text != null && text.trim().isNotEmpty)
               ? text
               : (_place.thoroughfare == ""
@@ -720,10 +721,12 @@ class _HomeScreenState extends State<HomeScreen> {
                                   if (context.gestureState == mp.GestureState.ended) {
                                     // Disable Marker creation if user has assistant assigned:
                                     // if (user['orders'][user["order_index"]]["assistant_assigned"].isEmpty) {
-                                    if (user['orders'][user["order_index"]]["status"] ==
+                                    if (user['orders'][user["orders"].length - 1]["status"] ==
                                             OrderStatus.Empty.name ||
-                                        user['orders'][user["order_index"]]["status"] ==
-                                            OrderStatus.Pending.name) {
+                                        user['orders'][user["orders"].length - 1]["status"] ==
+                                            OrderStatus.Pending.name ||
+                                        user['orders'][user["orders"].length - 1]["status"] ==
+                                            OrderStatus.Completed.name) {
                                       await _pointAnnotationManager?.deleteAll();
                                       await _polylineAnnotationManager?.deleteAll();
 
@@ -772,7 +775,8 @@ class _HomeScreenState extends State<HomeScreen> {
                                     child: Center(
                                       child: Builder(
                                         builder: (context) {
-                                          if (user['orders'][user["order_index"]]["status"].toString() ==
+                                          if (user['orders'][user["orders"].length - 1]["status"]
+                                                  .toString() ==
                                               "Pending") {
                                             return Text(
                                               "We are working on our end to "
@@ -780,13 +784,13 @@ class _HomeScreenState extends State<HomeScreen> {
                                               textAlign: TextAlign.center,
                                               style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
                                             );
-                                          } else if (user['orders'][user["order_index"]]["status"]
+                                          } else if (user['orders'][user["orders"].length - 1]["status"]
                                                   .toString() ==
                                               "OnRoute") {
                                             return Text(
                                               'Your Roadside '
                                               'Assistance Tech: '
-                                              '${user['orders'][user["order_index"]]["assistant_assigned"].toString().toCapitalize()}',
+                                              '${user['orders'][user["orders"].length - 1]["assistant_assigned"].toString().toCapitalize()}',
                                               textAlign: TextAlign.center,
                                               style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
                                             );
@@ -816,7 +820,8 @@ class _HomeScreenState extends State<HomeScreen> {
                               const SizedBox(height: 20),
                               Builder(
                                 builder: (context) {
-                                  if (user['orders'][user["order_index"]]["status"].toString() == "Pending") {
+                                  if (user['orders'][user["orders"].length - 1]["status"].toString() ==
+                                      "Pending") {
                                     return Card(
                                       elevation: 4,
                                       shape: RoundedRectangleBorder(
@@ -836,7 +841,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                         ],
                                       ),
                                     );
-                                  } else if (user['orders'][user["order_index"]]["status"].toString() ==
+                                  } else if (user['orders'][user["orders"].length - 1]["status"].toString() ==
                                       "OnRoute") {
                                     return ElevatedButton(
                                       style: ElevatedButton.styleFrom(backgroundColor: Color(0xFF098232)),
@@ -851,9 +856,9 @@ class _HomeScreenState extends State<HomeScreen> {
                                             builder:
                                                 (context) => ChatScreen(
                                                   receiverId:
-                                                      "${user['orders'][user["order_index"]]["assistant_id"]}",
+                                                      "${user['orders'][user["orders"].length - 1]["assistant_id"]}",
                                                   receiverEmail:
-                                                      "${user['orders'][user["order_index"]]["assistant_email"]}",
+                                                      "${user['orders'][user["orders"].length - 1]["assistant_email"]}",
                                                   user: user,
                                                 ),
                                           ),
