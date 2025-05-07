@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 
 import 'package:roadee_flutter/screens/chat_screen.dart';
-import 'package:roadee_flutter/services/chat_service.dart';
-
 import 'package:roadee_flutter/screens/login_screen.dart';
+
+import 'package:roadee_flutter/services/chat_service.dart';
 
 class ChatHomeScreen extends StatefulWidget {
   final user;

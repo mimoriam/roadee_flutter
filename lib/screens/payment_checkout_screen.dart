@@ -1,12 +1,15 @@
 import 'package:flutter/material.dart';
 
-import 'package:flutter_form_builder/flutter_form_builder.dart';
+import 'package:roadee_flutter/screens/home_screen.dart';
 
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:roadee_flutter/constants.dart';
-import 'package:roadee_flutter/screens/home_screen.dart';
+
+import 'package:flutter_form_builder/flutter_form_builder.dart';
+
 import 'package:roadee_flutter/services/stripe_service.dart';
+
+import 'package:roadee_flutter/constants.dart';
 
 enum OrderStatus { Pending, OnRoute, Completed, Empty }
 

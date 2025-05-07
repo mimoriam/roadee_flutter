@@ -4,10 +4,10 @@ import 'package:roadee_flutter/screens/signup_screen.dart';
 import 'package:roadee_flutter/screens/forgot_password_screen.dart';
 import 'package:roadee_flutter/screens/home_screen.dart';
 
+import 'package:firebase_auth/firebase_auth.dart';
+
 import 'package:flutter_form_builder/flutter_form_builder.dart';
 import 'package:form_builder_validators/form_builder_validators.dart';
-
-import 'package:firebase_auth/firebase_auth.dart';
 
 extension StringExtension on String {
   String toCapitalize() {

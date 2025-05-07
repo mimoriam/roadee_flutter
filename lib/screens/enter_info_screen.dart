@@ -4,11 +4,11 @@ import 'package:roadee_flutter/screens/payment_checkout_screen.dart';
 import 'package:roadee_flutter/screens/user_profile_screen.dart';
 import 'package:roadee_flutter/screens/login_screen.dart';
 
-import 'package:flutter_form_builder/flutter_form_builder.dart';
-import 'package:form_builder_validators/form_builder_validators.dart';
-
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+
+import 'package:flutter_form_builder/flutter_form_builder.dart';
+import 'package:form_builder_validators/form_builder_validators.dart';
 
 class EnterInfoScreen extends StatefulWidget {
   final int serviceSelected;

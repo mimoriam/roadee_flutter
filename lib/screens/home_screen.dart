@@ -1,28 +1,26 @@
 import 'dart:async';
-
+import 'package:flutter/material.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/gestures.dart';
-import 'package:flutter/material.dart';
-
-import 'package:firebase_auth/firebase_auth.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/services.dart';
-import 'package:roadee_flutter/screens/admin_panel_screen.dart';
-import 'package:roadee_flutter/screens/chat_home_screen.dart';
-import 'package:roadee_flutter/screens/chat_screen.dart';
 
+import 'package:roadee_flutter/screens/admin_panel_screen.dart';
+import 'package:roadee_flutter/screens/chat_screen.dart';
 import 'package:roadee_flutter/screens/login_screen.dart';
 import 'package:roadee_flutter/screens/order_history_screen.dart';
 import 'package:roadee_flutter/screens/user_profile_screen.dart';
 import 'package:roadee_flutter/screens/enter_info_screen.dart';
 import 'package:roadee_flutter/screens/payment_checkout_screen.dart';
 
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+
 import 'package:geolocator/geolocator.dart';
 import 'package:geocoding/geocoding.dart';
 import 'package:mapbox_maps_flutter/mapbox_maps_flutter.dart' as mp;
+import 'package:dio/dio.dart';
 
 import '../constants.dart';
-import 'package:dio/dio.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
