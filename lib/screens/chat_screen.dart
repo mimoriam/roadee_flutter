@@ -43,6 +43,9 @@ class _ChatScreenState extends State<ChatScreen> {
 
         if (snapshot.hasData) {
           return Scaffold(
+            appBar: AppBar(
+              title: Text(widget.receiverEmail),
+            ),
             body: Column(
               children: [
                 Expanded(
@@ -50,12 +53,12 @@ class _ChatScreenState extends State<ChatScreen> {
                     children: snapshot.data!.docs.map((doc) => _buildMessageItemList(doc)).toList(),
                   ),
                 ),
-                ElevatedButton(
-                  onPressed: () async {
-                    sendMessageToDB();
-                  },
-                  child: Text("ENTER"),
-                ),
+                // ElevatedButton(
+                //                 //   onPressed: () async {
+                //                 //     sendMessageToDB();
+                //                 //   },
+                //                 //   child: Text("ENTER"),
+                //                 // ),
               ],
             ),
           ); // User is signed in
@@ -65,13 +68,38 @@ class _ChatScreenState extends State<ChatScreen> {
       },
     );
   }
-  
+
   Widget _buildMessageItemList(DocumentSnapshot doc) {
     Map<String, dynamic> data = doc.data() as Map<String, dynamic>;
 
-    bool isCurrentUser = data?["senderId"] == widget.user["id"];
+    bool isCurrentUser = data["senderId"] == widget.user["id"];
     // Own messages at right:
     var alignment = isCurrentUser ? Alignment.centerRight : Alignment.centerLeft;
     return Container(alignment: alignment, child: Text(data["message"]));
+  }
+
+  Widget _buildUserInput() {
+    return Padding(
+      padding: EdgeInsets.only(bottom: 50),
+      child: Row(
+        children: [
+          Expanded(
+            child: Container(),
+          ),
+
+          Container(
+            decoration: BoxDecoration(
+              color: Colors.green,
+              shape: BoxShape.circle,
+            ),
+            margin: EdgeInsets.only(right: 25,),
+            child: IconButton(
+                onPressed: () {},
+                icon: Icon(Icons.arrow_upward, color: Colors.white)
+            ),
+          ),
+        ],
+      ),
+    );
   }
 }
