@@ -82,15 +82,16 @@ class _EnterInfoScreenState extends State<EnterInfoScreen> {
               ),
               title: Row(
                 children: [
-                  const Text(
-                    'Roadie',
-                    style: TextStyle(
-                      fontFamily: 'Cursive',
-                      fontWeight: FontWeight.bold,
-                      color: Colors.red,
-                      fontSize: 24,
-                    ),
-                  ),
+                  // const Text(
+                  //   'Roadie',
+                  //   style: TextStyle(
+                  //     fontFamily: 'Cursive',
+                  //     fontWeight: FontWeight.bold,
+                  //     color: Colors.red,
+                  //     fontSize: 24,
+                  //   ),
+                  // ),
+                  Image(image: AssetImage("images/Logo_White.jpg"), height: 24),
                   const Spacer(),
                   Column(
                     crossAxisAlignment: CrossAxisAlignment.end,
