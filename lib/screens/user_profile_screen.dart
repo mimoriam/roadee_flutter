@@ -307,7 +307,7 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
                                           validator: FormBuilderValidators.compose([
                                             FormBuilderValidators.required(),
                                             FormBuilderValidators.minLength(
-                                              5,
+                                              4,
                                               errorText:
                                                   "Length should be greater "
                                                   "than 4",

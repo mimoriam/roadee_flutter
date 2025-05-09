@@ -36,10 +36,21 @@ dependencies:
   cupertino_icons: ^1.0.8
   flutter_form_builder: ^10.0.1
   form_builder_validators: ^11.1.2
+  geolocator: ^14.0.0
+  geocoding: ^3.0.0
+  dio: ^5.8.0+1
+  flutter_stripe: ^11.5.0
+  pluto_grid: ^8.0.0
+  mapbox_maps_flutter: ^2.7.0
 
   # Firebase
   firebase_core: ^3.13.0
-  firebase_auth: ^5.5.2
+  firebase_auth: ^5.5.3
+  cloud_firestore: ^5.6.7
+
+#dependency_overrides:
+#  rxdart: ^0.28.0
+#  freezed_annotation: ^2.4.4
 
 dev_dependencies:
   flutter_test:
@@ -64,8 +75,12 @@ flutter:
   uses-material-design: true
 
   # To add assets to your application, add an assets section, like this:
-  # assets:
-  #   - images/a_dot_burr.jpeg
+  assets:
+    - images/Logo_Black.jpg
+    - images/Logo_White.jpg
+    - images/ss.png
+    - images/default_pfp.jpg
+    - images/red_marker.png
   #   - images/a_dot_ham.jpeg
 
   # An image asset can refer to one or more resolution-specific "variants", see

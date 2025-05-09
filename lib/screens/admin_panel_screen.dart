@@ -123,6 +123,7 @@ class _AdminScreenState extends State<AdminScreen> {
         await docRef.update({'orders': orders});
         // await adminDocRef.update({'orders_assigned': adminOrdersAssigned});
         await FirebaseFirestore.instance.collection("users").doc(uid).update({
+          // "orders": [{}],
           "orders_assigned": ordersAssigned,
         });
       }

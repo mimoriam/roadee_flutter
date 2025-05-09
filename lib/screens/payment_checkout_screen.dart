@@ -11,7 +11,7 @@ import 'package:roadee_flutter/services/stripe_service.dart';
 
 import 'package:roadee_flutter/constants.dart';
 
-enum OrderStatus { Pending, OnRoute, Completed, Empty }
+enum OrderStatus { Pending, OnRoute, Completed, Empty, Assigned }
 
 class PaymentCheckoutScreen extends StatefulWidget {
   final String name;
@@ -51,6 +51,8 @@ class _PaymentCheckoutScreenState extends State<PaymentCheckoutScreen> {
               "assistant_country": "",
               "assistant_email": "",
               "assistant_id": "",
+              // TODO Add User Address so Rider can get to User location:
+              "user_marked_address": widget.addressSelected,
               "orderCreatedAt": DateTime.now(),
               "promo code": "",
               "service": serviceSelectedIndex[widget

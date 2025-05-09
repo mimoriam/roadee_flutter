@@ -371,14 +371,70 @@ class _HomeScreenState extends State<HomeScreen> {
 
     // if (user?['orders'][user["order_index"]]["assistant_assigned"].isEmpty) {
     // CHANGED HERE
-    if (user?['orders'][user["orders"].length - 1]["status"] == OrderStatus.Empty.name ||
+    // if (user?['orders_assigned'][0]['orderAssignedFrom'].isNotEmpty) {
+      // Draw polylines if user is assigned to admin:
+      // final query =
+      // await FirebaseFirestore.instance
+      //     .collection("users")
+      //     .where('username', isEqualTo: user?['orders_assigned'][0]['orderAssignedFrom'])
+      //     .limit(1)
+      //     .get();
+      //
+      // final docRef = query.docs.first.reference;
+      // final doc = await docRef.get();
+      //
+      // final orders = List<Map<String, dynamic>>.from(doc.data()?['orders'] ?? []);
+      //
+      // var splitRiderAddress = user?["address"].split(" ~ ");
+      // var splitUserAddress = orders[orders.length - 1]["user_marked_address"].split(" ~ ");
+
+      // var userLatLng = await getCoordinatesFromPlacemark(
+      //   thoroughfare: splitUserAddress[0],
+      //   subThoroughfare: splitUserAddress[1],
+      //   city: orders[orders.length - 1]["assistant_city"],
+      //   country: orders[orders.length - 1]["assistant_country"],
+      // );
+
+      // TODO Draw polylines for Admin:
+      // var riderLatLng = await getCoordinatesFromPlacemark(
+      //   thoroughfare: splitRiderAddress[3],
+      //   subThoroughfare: splitRiderAddress[0],
+      //   city: splitUserAddress[1],
+      //   country: splitUserAddress[2],
+      // );
+
+      // Draw marker for Assistant/Rider:
+      // await createMarkerOnMap(
+      //   currentLong: riderLatLng?.longitude as num,
+      //   currentLat: riderLatLng?.latitude as num,
+      //   text: "Rider",
+      // );
+      //
+      // // Draw marker for User:
+      // await createMarkerOnMap(
+      //   currentLong: userLatLng?.longitude as num,
+      //   currentLat: userLatLng?.latitude as num,
+      //   text: "User",
+      // );
+      //
+      // drawPolyline(
+      //   userLatLng?.longitude,
+      //   userLatLng?.latitude,
+      //   riderLatLng?.longitude,
+      //   riderLatLng?.latitude,
+      // );
+
+    // } else
+      if (user?['orders'][user["orders"].length - 1]["status"] == OrderStatus.Empty.name ||
         user?['orders'][user["orders"].length - 1]["status"] == OrderStatus.Pending.name ||
         user?['orders'][user["orders"].length - 1]["status"] == OrderStatus.Completed.name) {
+      // If user isn't assigned to admin, enable drawing free markers
       await createMarkerOnMap(
         currentLong: _currentPosition!.longitude,
         currentLat: _currentPosition!.latitude,
       );
     } else {
+      // Otherwise draw polylines for user-facing side:
       var splitRiderAddress = user?['orders'][user["orders"].length - 1]["assistant_address"].split(" ~ ");
       var splitUserAddress = user?['address'].split(",");
 
@@ -970,7 +1026,6 @@ class _HomeScreenState extends State<HomeScreen> {
                                             showDialog(
                                               context: context,
                                               builder: (BuildContext context) {
-
                                                 // TODO Fix a potential bug here on multiple user orders
                                                 // Add a field in DB for Red/Blue location and use that to
                                                 // draw markers
