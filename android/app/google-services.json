@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "449881708620",
+    "project_id": "roadee-flutter",
+    "storage_bucket": "roadee-flutter.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:449881708620:android:d26d1252d431c344dd7ce9",
+        "android_client_info": {
+          "package_name": "com.example.roadee.roadee_flutter"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDQ3wDE47GuVW0nNcmhKWCZFZCN9ZgoL78"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
