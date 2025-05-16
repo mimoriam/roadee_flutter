@@ -6,6 +6,8 @@
 	<string>$(DEVELOPMENT_LANGUAGE)</string>
 	<key>NSLocationWhenInUseUsageDescription</key>
     <string>This app needs access to location when open.</string>
+    <key>NSLocationAlwaysAndWhenInUseUsageDescription</key>
+    <string>This app needs access to your location to show maps.</string>
     <key>MBXAccessToken</key>
     <string>pk.eyJ1IjoibWltb3JpYSIsImEiOiJjbWE2b2Z4MjMwbm04MmxzZmlyaGtmOXduIn0.TraFSTz7MLoFqXtMiXPVLA</string>
     <key>NSLocationTemporaryUsageDescriptionDictionary</key>
