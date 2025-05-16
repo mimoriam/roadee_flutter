@@ -1,0 +1,6 @@
+Remove Firebase files
+Remove Google maps API Key from Android folder
+Remove Stripe Developer API key
+Remove any payment method except card in Stripe dashboard
+Remove MapBox Key
+Remove Mapbox card payment method of mine
