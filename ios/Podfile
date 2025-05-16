@@ -33,13 +33,14 @@ target 'Runner' do
   use_frameworks!
   use_modular_headers!
 
-  pod 'FirebaseCore'
   pod 'FirebaseAuth'
 #   pod 'FirebaseFirestore'
 
   pod 'FirebaseFirestore',
       :git => 'https://github.com/invertase/firestore-ios-sdk-frameworks.git',
       :tag => '11.10.0'
+
+  pod 'MapboxMaps', '11.12.0'
 
   flutter_install_all_ios_pods File.dirname(File.realpath(__FILE__))
 end
