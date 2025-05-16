@@ -197,7 +197,7 @@ class _HomeScreenState extends State<HomeScreen> {
     Position position = await Geolocator.getCurrentPosition(
       forceAndroidLocationManager: true,
       // desiredAccuracy: LocationAccuracy.high,
-      locationSettings: LocationSettings(accuracy: LocationAccuracy.high),
+      locationSettings: LocationSettings(accuracy: LocationAccuracy.low),
     );
     List<Placemark> placemarks = await placemarkFromCoordinates(position.latitude, position.longitude);
     Placemark place = placemarks[0];
@@ -310,7 +310,7 @@ class _HomeScreenState extends State<HomeScreen> {
     // Get position and address
     Position position = await Geolocator.getCurrentPosition(
       forceAndroidLocationManager: true,
-      locationSettings: LocationSettings(accuracy: LocationAccuracy.high),
+      locationSettings: LocationSettings(accuracy: LocationAccuracy.low),
     );
 
     List<Placemark> placemarks = await placemarkFromCoordinates(position.latitude, position.longitude);
@@ -334,7 +334,7 @@ class _HomeScreenState extends State<HomeScreen> {
     userPositionStream?.cancel();
 
     LocationSettings locationSettings = LocationSettings(
-      accuracy: LocationAccuracy.high,
+      accuracy: LocationAccuracy.low,
       distanceFilter: 100,
     );
 

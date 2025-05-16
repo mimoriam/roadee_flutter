@@ -89,7 +89,8 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
     Position position = await Geolocator.getCurrentPosition(
       forceAndroidLocationManager: true,
       // desiredAccuracy: LocationAccuracy.high,
-      locationSettings: LocationSettings(accuracy: LocationAccuracy.high),
+      // locationSettings: LocationSettings(accuracy: LocationAccuracy.high),
+      locationSettings: LocationSettings(accuracy: LocationAccuracy.low),
     );
 
     List<Placemark> placemarks = await placemarkFromCoordinates(position.latitude, position.longitude);
