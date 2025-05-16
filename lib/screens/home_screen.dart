@@ -195,6 +195,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
     // Get position and address
     Position position = await Geolocator.getCurrentPosition(
+      forceAndroidLocationManager: true,
       // desiredAccuracy: LocationAccuracy.high,
       locationSettings: LocationSettings(accuracy: LocationAccuracy.high),
     );
@@ -308,6 +309,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
     // Get position and address
     Position position = await Geolocator.getCurrentPosition(
+      forceAndroidLocationManager: true,
       locationSettings: LocationSettings(accuracy: LocationAccuracy.high),
     );
 
