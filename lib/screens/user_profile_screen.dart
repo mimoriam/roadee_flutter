@@ -90,6 +90,7 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
       forceAndroidLocationManager: true,
       // desiredAccuracy: LocationAccuracy.high,
       // locationSettings: LocationSettings(accuracy: LocationAccuracy.high),
+      timeLimit: Duration(seconds: 10),
       locationSettings: LocationSettings(accuracy: LocationAccuracy.low),
     );
 
