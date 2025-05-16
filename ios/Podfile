@@ -40,8 +40,6 @@ target 'Runner' do
       :git => 'https://github.com/invertase/firestore-ios-sdk-frameworks.git',
       :tag => '11.10.0'
 
-  pod 'MapboxMaps', '11.12.0'
-
   flutter_install_all_ios_pods File.dirname(File.realpath(__FILE__))
 end
 
