@@ -63,11 +63,15 @@ class _SignUpScreenState extends State<SignUpScreen> {
       //     });
 
       return user;
-    } on FirebaseAuthException {
+    } on FirebaseAuthException catch (e) {
+      print("MESSAGE FROM SIGNUP");
+      print(e.message);
       setState(() {
         error = "Authentication error";
       });
     } catch (e) {
+      print("MESSAGE FROM SIGNUP!!");
+      print(e);
       setState(() {
         error = 'Unexpected error occurred';
       });
@@ -290,6 +294,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
           if (_formKey.currentState!.validate()) {
             // Process sign up logic
             final user = await authenticate();
+            print({user});
 
             if (user != null) {
               Navigator.push(context, MaterialPageRoute(builder: (context) => LoginScreen()));

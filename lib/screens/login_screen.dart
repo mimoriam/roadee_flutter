@@ -37,13 +37,19 @@ class _LoginScreenState extends State<LoginScreen> {
         password: _formKey.currentState?.fields['password']?.value,
       );
 
+      print(user);
+
       return user;
-    } on FirebaseAuthException {
+    } on FirebaseAuthException catch (e) {
+      print("MESSAGE FROM LOGIN");
+      print(e.message);
       setState(() {
         // error = e.message ?? 'Authentication error';
         error = "Authentication error";
       });
     } catch (e) {
+      print("MESSAGE FROM LOGIN!!");
+      print(e);
       setState(() {
         error = 'Unexpected error occurred';
       });

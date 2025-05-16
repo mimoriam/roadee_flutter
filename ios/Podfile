@@ -3,7 +3,7 @@
 
 ENV['COCOAPODS_DISABLE_STATS'] = 'true'
 
-$FirebaseSDKVersion = '11.10.0'
+# $FirebaseSDKVersion = '11.10.0'
 
 project 'Runner', {
   'Debug' => :debug,
@@ -32,6 +32,7 @@ target 'Runner' do
   use_frameworks!
   use_modular_headers!
 
+  pod 'FirebaseCore'
   pod 'FirebaseAuth'
   pod 'FirebaseFirestore'
 
