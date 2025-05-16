@@ -65,12 +65,17 @@ class _SignUpScreenState extends State<SignUpScreen> {
       return user;
     } on FirebaseAuthException catch (e) {
       print("MESSAGE FROM SIGNUP");
+      debugPrint("MESSAGE FROM SIGNUP");
+      debugPrint(e.message);
       print(e.message);
       setState(() {
-        error = "Authentication error";
+        // error = "Authentication error";
+        error = e.message.toString();
       });
     } catch (e) {
       print("MESSAGE FROM SIGNUP!!");
+      debugPrint("MESSAGE FROM SIGNUP");
+      debugPrint(e.toString());
       print(e);
       setState(() {
         error = 'Unexpected error occurred';

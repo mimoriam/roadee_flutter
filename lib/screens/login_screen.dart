@@ -42,13 +42,18 @@ class _LoginScreenState extends State<LoginScreen> {
       return user;
     } on FirebaseAuthException catch (e) {
       print("MESSAGE FROM LOGIN");
+      debugPrint("MESSAGE FROM LOGIN");
+      debugPrint(e.message);
       print(e.message);
       setState(() {
         // error = e.message ?? 'Authentication error';
-        error = "Authentication error";
+        // error = "Authentication error";
+        error = e.message.toString();
       });
     } catch (e) {
       print("MESSAGE FROM LOGIN!!");
+      debugPrint("MESSAGE FROM LOGIN");
+      debugPrint(e.toString());
       print(e);
       setState(() {
         error = 'Unexpected error occurred';
