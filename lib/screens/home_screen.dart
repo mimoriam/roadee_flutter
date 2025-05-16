@@ -73,7 +73,8 @@ class _HomeScreenState extends State<HomeScreen> {
     final uid = FirebaseAuth.instance.currentUser?.uid;
     if (uid == null) return null;
 
-    final doc = await FirebaseFirestore.instance.collection("users").doc(uid).get();
+    final doc =
+        await FirebaseFirestore.instance.collection("users").doc(uid).get();
     return doc.exists ? doc.data() : null;
   }
 
@@ -81,7 +82,9 @@ class _HomeScreenState extends State<HomeScreen> {
     final user = FirebaseAuth.instance.currentUser!;
 
     // Update Firestore address
-    await FirebaseFirestore.instance.collection('users').doc(user.uid).update({'address': addr});
+    await FirebaseFirestore.instance.collection('users').doc(user.uid).update({
+      'address': addr,
+    });
   }
 
   Future<Location?> getCoordinatesFromPlacemark({
@@ -112,7 +115,8 @@ class _HomeScreenState extends State<HomeScreen> {
   Future<Map<String, dynamic>?> getUserData() async {
     final uid = FirebaseAuth.instance.currentUser?.uid;
 
-    final doc = await FirebaseFirestore.instance.collection("users").doc(uid).get();
+    final doc =
+        await FirebaseFirestore.instance.collection("users").doc(uid).get();
 
     return doc.data();
   }
@@ -158,7 +162,9 @@ class _HomeScreenState extends State<HomeScreen> {
     if (permission == LocationPermission.denied) {
       permission = await Geolocator.requestPermission();
       if (permission == LocationPermission.denied) {
-        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("Location permission denied")));
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text("Location permission denied")));
         return null;
       }
     }
@@ -199,7 +205,12 @@ class _HomeScreenState extends State<HomeScreen> {
       // desiredAccuracy: LocationAccuracy.high,
       locationSettings: LocationSettings(accuracy: LocationAccuracy.low),
     );
-    List<Placemark> placemarks = await placemarkFromCoordinates(position.latitude, position.longitude);
+
+    debugPrint(position.toString());
+    List<Placemark> placemarks = await placemarkFromCoordinates(
+      position.latitude,
+      position.longitude,
+    );
     Placemark place = placemarks[0];
 
     // Why is this here? Sheesh. Took me a long while to find this out
@@ -211,7 +222,10 @@ class _HomeScreenState extends State<HomeScreen> {
     return '${place.name}, ${place.locality}, ${place.administrativeArea}, ${place.country} ${_place.thoroughfare}';
   }
 
-  Future<void> calculatePlacemarks({required var long, required var lat}) async {
+  Future<void> calculatePlacemarks({
+    required var long,
+    required var lat,
+  }) async {
     List<Placemark> placemarks = await placemarkFromCoordinates(lat, long);
 
     setState(() {
@@ -239,7 +253,9 @@ class _HomeScreenState extends State<HomeScreen> {
                         Geolocator.openLocationSettings();
                         Navigator.pushReplacement(
                           ctx,
-                          MaterialPageRoute(builder: (BuildContext context) => super.widget),
+                          MaterialPageRoute(
+                            builder: (BuildContext context) => super.widget,
+                          ),
                         );
                       },
                       child: Text("Open Settings"),
@@ -249,7 +265,9 @@ class _HomeScreenState extends State<HomeScreen> {
                         Navigator.of(ctx).pop();
                         Navigator.pushReplacement(
                           ctx,
-                          MaterialPageRoute(builder: (BuildContext context) => super.widget),
+                          MaterialPageRoute(
+                            builder: (BuildContext context) => super.widget,
+                          ),
                         );
                       },
                       child: Text("Cancel"),
@@ -266,7 +284,9 @@ class _HomeScreenState extends State<HomeScreen> {
     if (permission == LocationPermission.denied) {
       permission = await Geolocator.requestPermission();
       if (permission == LocationPermission.denied) {
-        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("Location permission denied!")));
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text("Location permission denied!")));
         return null;
       }
     }
@@ -296,7 +316,9 @@ class _HomeScreenState extends State<HomeScreen> {
                     Navigator.of(ctx).pop();
                     Navigator.pushReplacement(
                       ctx,
-                      MaterialPageRoute(builder: (BuildContext context) => super.widget),
+                      MaterialPageRoute(
+                        builder: (BuildContext context) => super.widget,
+                      ),
                     );
                   },
                   child: Text("Cancel"),
@@ -313,7 +335,10 @@ class _HomeScreenState extends State<HomeScreen> {
       locationSettings: LocationSettings(accuracy: LocationAccuracy.low),
     );
 
-    List<Placemark> placemarks = await placemarkFromCoordinates(position.latitude, position.longitude);
+    List<Placemark> placemarks = await placemarkFromCoordinates(
+      position.latitude,
+      position.longitude,
+    );
 
     setState(() {
       _place = placemarks[0];
@@ -326,7 +351,9 @@ class _HomeScreenState extends State<HomeScreen> {
       final user = FirebaseAuth.instance.currentUser!;
 
       // Update Firestore email
-      await FirebaseFirestore.instance.collection('users').doc(user.uid).update({'address': addr});
+      await FirebaseFirestore.instance.collection('users').doc(user.uid).update(
+        {'address': addr},
+      );
     } on FirebaseAuthException {}
   }
 
@@ -338,14 +365,16 @@ class _HomeScreenState extends State<HomeScreen> {
       distanceFilter: 100,
     );
 
-    userPositionStream = Geolocator.getPositionStream(locationSettings: locationSettings).listen((
-      Position position,
-    ) {
+    userPositionStream = Geolocator.getPositionStream(
+      locationSettings: locationSettings,
+    ).listen((Position position) {
       if (mapboxMapController != null) {
         mapboxMapController?.setCamera(
           mp.CameraOptions(
             zoom: 14,
-            center: mp.Point(coordinates: mp.Position(position.longitude, position.latitude)),
+            center: mp.Point(
+              coordinates: mp.Position(position.longitude, position.latitude),
+            ),
           ),
         );
       }
@@ -358,8 +387,10 @@ class _HomeScreenState extends State<HomeScreen> {
 
     mapboxMapController = mapboxMap;
 
-    _polylineAnnotationManager = await mapboxMap.annotations.createPolylineAnnotationManager();
-    _pointAnnotationManager = await mapboxMapController?.annotations.createPointAnnotationManager();
+    _polylineAnnotationManager =
+        await mapboxMap.annotations.createPolylineAnnotationManager();
+    _pointAnnotationManager =
+        await mapboxMapController?.annotations.createPointAnnotationManager();
 
     mapboxMapController?.location.updateSettings(
       mp.LocationComponentSettings(enabled: true, pulsingEnabled: true),
@@ -374,62 +405,65 @@ class _HomeScreenState extends State<HomeScreen> {
     // if (user?['orders'][user["order_index"]]["assistant_assigned"].isEmpty) {
     // CHANGED HERE
     // if (user?['orders_assigned'][0]['orderAssignedFrom'].isNotEmpty) {
-      // Draw polylines if user is assigned to admin:
-      // final query =
-      // await FirebaseFirestore.instance
-      //     .collection("users")
-      //     .where('username', isEqualTo: user?['orders_assigned'][0]['orderAssignedFrom'])
-      //     .limit(1)
-      //     .get();
-      //
-      // final docRef = query.docs.first.reference;
-      // final doc = await docRef.get();
-      //
-      // final orders = List<Map<String, dynamic>>.from(doc.data()?['orders'] ?? []);
-      //
-      // var splitRiderAddress = user?["address"].split(" ~ ");
-      // var splitUserAddress = orders[orders.length - 1]["user_marked_address"].split(" ~ ");
+    // Draw polylines if user is assigned to admin:
+    // final query =
+    // await FirebaseFirestore.instance
+    //     .collection("users")
+    //     .where('username', isEqualTo: user?['orders_assigned'][0]['orderAssignedFrom'])
+    //     .limit(1)
+    //     .get();
+    //
+    // final docRef = query.docs.first.reference;
+    // final doc = await docRef.get();
+    //
+    // final orders = List<Map<String, dynamic>>.from(doc.data()?['orders'] ?? []);
+    //
+    // var splitRiderAddress = user?["address"].split(" ~ ");
+    // var splitUserAddress = orders[orders.length - 1]["user_marked_address"].split(" ~ ");
 
-      // var userLatLng = await getCoordinatesFromPlacemark(
-      //   thoroughfare: splitUserAddress[0],
-      //   subThoroughfare: splitUserAddress[1],
-      //   city: orders[orders.length - 1]["assistant_city"],
-      //   country: orders[orders.length - 1]["assistant_country"],
-      // );
+    // var userLatLng = await getCoordinatesFromPlacemark(
+    //   thoroughfare: splitUserAddress[0],
+    //   subThoroughfare: splitUserAddress[1],
+    //   city: orders[orders.length - 1]["assistant_city"],
+    //   country: orders[orders.length - 1]["assistant_country"],
+    // );
 
-      // TODO Draw polylines for Admin:
-      // var riderLatLng = await getCoordinatesFromPlacemark(
-      //   thoroughfare: splitRiderAddress[3],
-      //   subThoroughfare: splitRiderAddress[0],
-      //   city: splitUserAddress[1],
-      //   country: splitUserAddress[2],
-      // );
+    // TODO Draw polylines for Admin:
+    // var riderLatLng = await getCoordinatesFromPlacemark(
+    //   thoroughfare: splitRiderAddress[3],
+    //   subThoroughfare: splitRiderAddress[0],
+    //   city: splitUserAddress[1],
+    //   country: splitUserAddress[2],
+    // );
 
-      // Draw marker for Assistant/Rider:
-      // await createMarkerOnMap(
-      //   currentLong: riderLatLng?.longitude as num,
-      //   currentLat: riderLatLng?.latitude as num,
-      //   text: "Rider",
-      // );
-      //
-      // // Draw marker for User:
-      // await createMarkerOnMap(
-      //   currentLong: userLatLng?.longitude as num,
-      //   currentLat: userLatLng?.latitude as num,
-      //   text: "User",
-      // );
-      //
-      // drawPolyline(
-      //   userLatLng?.longitude,
-      //   userLatLng?.latitude,
-      //   riderLatLng?.longitude,
-      //   riderLatLng?.latitude,
-      // );
+    // Draw marker for Assistant/Rider:
+    // await createMarkerOnMap(
+    //   currentLong: riderLatLng?.longitude as num,
+    //   currentLat: riderLatLng?.latitude as num,
+    //   text: "Rider",
+    // );
+    //
+    // // Draw marker for User:
+    // await createMarkerOnMap(
+    //   currentLong: userLatLng?.longitude as num,
+    //   currentLat: userLatLng?.latitude as num,
+    //   text: "User",
+    // );
+    //
+    // drawPolyline(
+    //   userLatLng?.longitude,
+    //   userLatLng?.latitude,
+    //   riderLatLng?.longitude,
+    //   riderLatLng?.latitude,
+    // );
 
     // } else
-      if (user?['orders'][user["orders"].length - 1]["status"] == OrderStatus.Empty.name ||
-        user?['orders'][user["orders"].length - 1]["status"] == OrderStatus.Pending.name ||
-        user?['orders'][user["orders"].length - 1]["status"] == OrderStatus.Completed.name) {
+    if (user?['orders'][user["orders"].length - 1]["status"] ==
+            OrderStatus.Empty.name ||
+        user?['orders'][user["orders"].length - 1]["status"] ==
+            OrderStatus.Pending.name ||
+        user?['orders'][user["orders"].length - 1]["status"] ==
+            OrderStatus.Completed.name) {
       // If user isn't assigned to admin, enable drawing free markers
       await createMarkerOnMap(
         currentLong: _currentPosition!.longitude,
@@ -437,14 +471,17 @@ class _HomeScreenState extends State<HomeScreen> {
       );
     } else {
       // Otherwise draw polylines for user-facing side:
-      var splitRiderAddress = user?['orders'][user["orders"].length - 1]["assistant_address"].split(" ~ ");
+      var splitRiderAddress = user?['orders'][user["orders"].length -
+              1]["assistant_address"]
+          .split(" ~ ");
       var splitUserAddress = user?['address'].split(",");
 
       var riderLatLng = await getCoordinatesFromPlacemark(
         thoroughfare: splitRiderAddress[0],
         subThoroughfare: splitRiderAddress[1],
         city: user?['orders'][user["orders"].length - 1]["assistant_city"],
-        country: user?['orders'][user["orders"].length - 1]["assistant_country"],
+        country:
+            user?['orders'][user["orders"].length - 1]["assistant_country"],
       );
 
       // print(splitUserAddress);
@@ -494,11 +531,13 @@ class _HomeScreenState extends State<HomeScreen> {
         final data = response.data;
         coords =
             coords =
-                (data['routes'][0]['geometry']['coordinates'] as List).map<mp.Position>((coord) {
-                  final lon = coord[0].toDouble();
-                  final lat = coord[1].toDouble();
-                  return mp.Position(lon, lat);
-                }).toList();
+                (data['routes'][0]['geometry']['coordinates'] as List)
+                    .map<mp.Position>((coord) {
+                      final lon = coord[0].toDouble();
+                      final lat = coord[1].toDouble();
+                      return mp.Position(lon, lat);
+                    })
+                    .toList();
 
         await _polylineAnnotationManager!.create(
           mp.PolylineAnnotationOptions(
@@ -529,30 +568,35 @@ class _HomeScreenState extends State<HomeScreen> {
     }
   }
 
-  Future<void> createMarkerOnMap({required num currentLong, required num currentLat, String? text}) async {
+  Future<void> createMarkerOnMap({
+    required num currentLong,
+    required num currentLat,
+    String? text,
+  }) async {
     // // Load the image from assets
     final ByteData bytes = await rootBundle.load("images/red_marker.png");
     final Uint8List imageData = bytes.buffer.asUint8List();
 
     // Create a PointAnnotationOptions
-    final mp.PointAnnotationOptions pointAnnotationOptions = mp.PointAnnotationOptions(
-      geometry: mp.Point(coordinates: mp.Position(currentLong, currentLat)),
-      // Example
-      // coordinates
-      image: imageData,
-      // textField: "${_place.thoroughfare} ${_place.subThoroughfare}",
-      textField:
-          (text != null && text.trim().isNotEmpty)
-              ? text
-              : (_place.thoroughfare == ""
-                  ? "${_place.name} ${_place.street}"
-                  : "${_place.thoroughfare} "
-                      "${_place.subThoroughfare}"),
-      textOffset: [0.0, -3],
-      // textAnchor: mp.TextAnchor.TOP_LEFT,
-      iconSize: 1.0,
-      iconOffset: [0.0, -18.0],
-    );
+    final mp.PointAnnotationOptions pointAnnotationOptions =
+        mp.PointAnnotationOptions(
+          geometry: mp.Point(coordinates: mp.Position(currentLong, currentLat)),
+          // Example
+          // coordinates
+          image: imageData,
+          // textField: "${_place.thoroughfare} ${_place.subThoroughfare}",
+          textField:
+              (text != null && text.trim().isNotEmpty)
+                  ? text
+                  : (_place.thoroughfare == ""
+                      ? "${_place.name} ${_place.street}"
+                      : "${_place.thoroughfare} "
+                          "${_place.subThoroughfare}"),
+          textOffset: [0.0, -3],
+          // textAnchor: mp.TextAnchor.TOP_LEFT,
+          iconSize: 1.0,
+          iconOffset: [0.0, -18.0],
+        );
 
     // Add the annotation to the map
     _pointAnnotationManager?.create(pointAnnotationOptions);
@@ -584,7 +628,10 @@ class _HomeScreenState extends State<HomeScreen> {
             const SizedBox(width: 8),
             Text(
               label,
-              style: TextStyle(color: isSelected ? Colors.white : Colors.black, fontWeight: FontWeight.w600),
+              style: TextStyle(
+                color: isSelected ? Colors.white : Colors.black,
+                fontWeight: FontWeight.w600,
+              ),
             ),
             if (isSelected)
               const Padding(
@@ -601,18 +648,26 @@ class _HomeScreenState extends State<HomeScreen> {
   Widget build(BuildContext context) {
     setState(() {});
 
-    SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp, DeviceOrientation.portraitDown]);
+    SystemChrome.setPreferredOrientations([
+      DeviceOrientation.portraitUp,
+      DeviceOrientation.portraitDown,
+    ]);
 
     Future<void> onSelected(String value) async {
       switch (value) {
         case 'Your Profile':
-          Navigator.push(context, MaterialPageRoute(builder: (context) => UserProfileScreen()));
+          Navigator.push(
+            context,
+            MaterialPageRoute(builder: (context) => UserProfileScreen()),
+          );
           break;
         case 'Admin':
           // Go to Admin area:
           Navigator.push(
             context,
-            MaterialPageRoute(builder: (context) => AdminScreen(placemark: _place)),
+            MaterialPageRoute(
+              builder: (context) => AdminScreen(placemark: _place),
+            ),
           ).then((value) {
             setState(() {});
           });
@@ -623,12 +678,17 @@ class _HomeScreenState extends State<HomeScreen> {
           var user = await getUserProfile();
           Navigator.push(
             context,
-            MaterialPageRoute(builder: (context) => OrderHistoryScreen(userData: user!)),
+            MaterialPageRoute(
+              builder: (context) => OrderHistoryScreen(userData: user!),
+            ),
           );
           break;
         case 'Log out':
           await FirebaseAuth.instance.signOut();
-          Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => LoginScreen()));
+          Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(builder: (context) => LoginScreen()),
+          );
           break;
       }
     }
@@ -682,7 +742,10 @@ class _HomeScreenState extends State<HomeScreen> {
               child: AppBar(
                 backgroundColor: Colors.white,
                 elevation: 0,
-                leading: IconButton(icon: const Icon(Icons.menu, color: Colors.black), onPressed: () {}),
+                leading: IconButton(
+                  icon: const Icon(Icons.menu, color: Colors.black),
+                  onPressed: () {},
+                ),
                 title: Row(
                   children: [
                     // const Text(
@@ -694,33 +757,54 @@ class _HomeScreenState extends State<HomeScreen> {
                     //     fontSize: 24,
                     //   ),
                     // ),
-                    Image(image: AssetImage("images/Logo_White.jpg"), height: 24),
+                    Image(
+                      image: AssetImage("images/Logo_White.jpg"),
+                      height: 24,
+                    ),
                     const Spacer(),
                     Column(
                       crossAxisAlignment: CrossAxisAlignment.end,
                       children: [
-                        const Text('Logged In as', style: TextStyle(fontSize: 12, color: Colors.black54)),
-                        Text("${user['username']}", style: TextStyle(fontSize: 12, color: Colors.black)),
+                        const Text(
+                          'Logged In as',
+                          style: TextStyle(fontSize: 12, color: Colors.black54),
+                        ),
+                        Text(
+                          "${user['username']}",
+                          style: TextStyle(fontSize: 12, color: Colors.black),
+                        ),
                       ],
                     ),
                     const SizedBox(width: 8),
                     MenuAnchor(
                       controller: _menuController,
-                      style: MenuStyle(backgroundColor: WidgetStateProperty.all(Colors.white)),
+                      style: MenuStyle(
+                        backgroundColor: WidgetStateProperty.all(Colors.white),
+                      ),
                       menuChildren: [
                         MenuItemButton(
                           onPressed: () => onSelected('Your Profile'),
                           child: Text('Your Profile'),
                         ),
                         user["is_admin"]
-                            ? MenuItemButton(onPressed: () => onSelected('Admin'), child: Text('Admin Panel'))
+                            ? MenuItemButton(
+                              onPressed: () => onSelected('Admin'),
+                              child: Text('Admin Panel'),
+                            )
                             : MenuItemButton(
                               onPressed: () => onSelected('Your Orders'),
                               child: Text("Your Orders"),
                             ),
-                        MenuItemButton(onPressed: () => onSelected('Log out'), child: Text('Log out')),
+                        MenuItemButton(
+                          onPressed: () => onSelected('Log out'),
+                          child: Text('Log out'),
+                        ),
                       ],
-                      builder: (BuildContext context, MenuController controller, Widget? child) {
+                      builder: (
+                        BuildContext context,
+                        MenuController controller,
+                        Widget? child,
+                      ) {
                         return GestureDetector(
                           onTap: () {
                             if (controller.isOpen) {
@@ -732,7 +816,9 @@ class _HomeScreenState extends State<HomeScreen> {
 
                           child: CircleAvatar(
                             radius: 18,
-                            backgroundImage: AssetImage("images/default_pfp.jpg"),
+                            backgroundImage: AssetImage(
+                              "images/default_pfp.jpg",
+                            ),
                           ),
                         );
                       },
@@ -756,7 +842,9 @@ class _HomeScreenState extends State<HomeScreen> {
                               child: mp.MapWidget(
                                 key: ValueKey('mapWidget'),
                                 gestureRecognizers: {
-                                  Factory<EagerGestureRecognizer>(() => EagerGestureRecognizer()),
+                                  Factory<EagerGestureRecognizer>(
+                                    () => EagerGestureRecognizer(),
+                                  ),
                                 },
                                 cameraOptions: mp.CameraOptions(
                                   center: mp.Point(
@@ -769,22 +857,30 @@ class _HomeScreenState extends State<HomeScreen> {
                                 ),
                                 onMapCreated: _onMapCreated,
                                 onCameraChangeListener: _onCameraChangeListener,
-                                onTapListener: (mp.MapContentGestureContext context) async {
+                                onTapListener: (
+                                  mp.MapContentGestureContext context,
+                                ) async {
                                   // print("OnTap coordinate: {${context.point.coordinates.lng}, ${context.point.coordinates.lat}}" +
                                   //     " point: {x: ${context.touchPosition.x}, y: ${context.touchPosition.y}}" +
                                   //     " state: ${context.gestureState}");
 
-                                  if (context.gestureState == mp.GestureState.ended) {
+                                  if (context.gestureState ==
+                                      mp.GestureState.ended) {
                                     // Disable Marker creation if user has assistant assigned:
                                     // if (user['orders'][user["order_index"]]["assistant_assigned"].isEmpty) {
-                                    if (user['orders'][user["orders"].length - 1]["status"] ==
+                                    if (user['orders'][user["orders"].length -
+                                                1]["status"] ==
                                             OrderStatus.Empty.name ||
-                                        user['orders'][user["orders"].length - 1]["status"] ==
+                                        user['orders'][user["orders"].length -
+                                                1]["status"] ==
                                             OrderStatus.Pending.name ||
-                                        user['orders'][user["orders"].length - 1]["status"] ==
+                                        user['orders'][user["orders"].length -
+                                                1]["status"] ==
                                             OrderStatus.Completed.name) {
-                                      await _pointAnnotationManager?.deleteAll();
-                                      await _polylineAnnotationManager?.deleteAll();
+                                      await _pointAnnotationManager
+                                          ?.deleteAll();
+                                      await _polylineAnnotationManager
+                                          ?.deleteAll();
 
                                       await calculatePlacemarks(
                                         long: context.point.coordinates.lng,
@@ -792,8 +888,10 @@ class _HomeScreenState extends State<HomeScreen> {
                                       );
 
                                       await createMarkerOnMap(
-                                        currentLong: context.point.coordinates.lng,
-                                        currentLat: context.point.coordinates.lat,
+                                        currentLong:
+                                            context.point.coordinates.lng,
+                                        currentLat:
+                                            context.point.coordinates.lat,
                                       );
                                     } else {}
 
@@ -831,16 +929,23 @@ class _HomeScreenState extends State<HomeScreen> {
                                     child: Center(
                                       child: Builder(
                                         builder: (context) {
-                                          if (user['orders'][user["orders"].length - 1]["status"]
+                                          if (user['orders'][user["orders"]
+                                                          .length -
+                                                      1]["status"]
                                                   .toString() ==
                                               "Pending") {
                                             return Text(
                                               "We are working on our end to "
                                               "send someone to your assistance!",
                                               textAlign: TextAlign.center,
-                                              style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
+                                              style: TextStyle(
+                                                fontSize: 16,
+                                                fontWeight: FontWeight.w600,
+                                              ),
                                             );
-                                          } else if (user['orders'][user["orders"].length - 1]["status"]
+                                          } else if (user['orders'][user["orders"]
+                                                          .length -
+                                                      1]["status"]
                                                   .toString() ==
                                               "OnRoute") {
                                             return Text(
@@ -848,12 +953,18 @@ class _HomeScreenState extends State<HomeScreen> {
                                               'Assistance Tech: '
                                               '${user['orders'][user["orders"].length - 1]["assistant_assigned"].toString().toCapitalize()}',
                                               textAlign: TextAlign.center,
-                                              style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
+                                              style: TextStyle(
+                                                fontSize: 16,
+                                                fontWeight: FontWeight.w600,
+                                              ),
                                             );
                                           } else {
                                             return Text(
                                               'We are here to help!',
-                                              style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
+                                              style: TextStyle(
+                                                fontSize: 16,
+                                                fontWeight: FontWeight.w600,
+                                              ),
                                             );
                                           }
                                         },
@@ -867,28 +978,46 @@ class _HomeScreenState extends State<HomeScreen> {
                                 spacing: 12,
                                 runSpacing: 12,
                                 children: [
-                                  buildButton(0, 'Towing', Icons.local_shipping),
-                                  buildButton(1, 'Flat Tire', Icons.tire_repair),
+                                  buildButton(
+                                    0,
+                                    'Towing',
+                                    Icons.local_shipping,
+                                  ),
+                                  buildButton(
+                                    1,
+                                    'Flat Tire',
+                                    Icons.tire_repair,
+                                  ),
                                   buildButton(2, 'Battery', Icons.battery_full),
-                                  buildButton(3, 'Fuel', Icons.local_gas_station),
+                                  buildButton(
+                                    3,
+                                    'Fuel',
+                                    Icons.local_gas_station,
+                                  ),
                                 ],
                               ),
                               const SizedBox(height: 20),
                               Builder(
                                 builder: (context) {
-                                  if (user['orders'][user["orders"].length - 1]["status"].toString() ==
+                                  if (user['orders'][user["orders"].length -
+                                              1]["status"]
+                                          .toString() ==
                                       "Pending") {
                                     return Card(
                                       elevation: 4,
                                       shape: RoundedRectangleBorder(
-                                        borderRadius: BorderRadius.circular(16), // Rounded corners
+                                        borderRadius: BorderRadius.circular(
+                                          16,
+                                        ), // Rounded corners
                                       ),
                                       margin: EdgeInsets.all(16.0),
                                       child: Column(
                                         children: [
                                           ListTile(
                                             leading: Icon(Icons.schedule),
-                                            title: const Text('We are currently reviewing your order...'),
+                                            title: const Text(
+                                              'We are currently reviewing your order...',
+                                            ),
                                             // subtitle: Text(
                                             //   'Secondary Text',
                                             //   style: TextStyle(color: Colors.black.withOpacity(0.6)),
@@ -897,10 +1026,15 @@ class _HomeScreenState extends State<HomeScreen> {
                                         ],
                                       ),
                                     );
-                                  } else if (user['orders'][user["orders"].length - 1]["status"].toString() ==
+                                  } else if (user['orders'][user["orders"]
+                                                  .length -
+                                              1]["status"]
+                                          .toString() ==
                                       "OnRoute") {
                                     return ElevatedButton(
-                                      style: ElevatedButton.styleFrom(backgroundColor: Color(0xFF098232)),
+                                      style: ElevatedButton.styleFrom(
+                                        backgroundColor: Color(0xFF098232),
+                                      ),
                                       onPressed: () {
                                         // Navigator.push(
                                         //   context,
@@ -923,14 +1057,20 @@ class _HomeScreenState extends State<HomeScreen> {
                                       child: Text(
                                         // "Chat with your assistant: ${user['orders'][user["order_index"]]["assistant_assigned"].toString().toCapitalize()}",
                                         "Chat with your assistant",
-                                        style: TextStyle(color: Colors.white, fontSize: 16),
+                                        style: TextStyle(
+                                          color: Colors.white,
+                                          fontSize: 16,
+                                        ),
                                       ),
                                     );
                                   } else {
                                     if (user["is_admin"] == true &&
-                                        "${user['orders_assigned'][0]["orderAssignedFrom"]}".isNotEmpty) {
+                                        "${user['orders_assigned'][0]["orderAssignedFrom"]}"
+                                            .isNotEmpty) {
                                       return ElevatedButton(
-                                        style: ElevatedButton.styleFrom(backgroundColor: Color(0xFF098232)),
+                                        style: ElevatedButton.styleFrom(
+                                          backgroundColor: Color(0xFF098232),
+                                        ),
                                         onPressed: () async {
                                           final query =
                                               await FirebaseFirestore.instance
@@ -943,7 +1083,9 @@ class _HomeScreenState extends State<HomeScreen> {
                                                   .limit(1)
                                                   .get();
 
-                                          var doc = await query.docs.first.reference.get();
+                                          var doc =
+                                              await query.docs.first.reference
+                                                  .get();
                                           var clientData = doc.data();
 
                                           Navigator.push(
@@ -951,8 +1093,10 @@ class _HomeScreenState extends State<HomeScreen> {
                                             MaterialPageRoute(
                                               builder:
                                                   (context) => ChatScreen(
-                                                    receiverId: clientData?["id"],
-                                                    receiverEmail: clientData?["email"],
+                                                    receiverId:
+                                                        clientData?["id"],
+                                                    receiverEmail:
+                                                        clientData?["email"],
                                                     user: user,
                                                   ),
                                             ),
@@ -961,7 +1105,10 @@ class _HomeScreenState extends State<HomeScreen> {
                                         child: Text(
                                           // "Chat with your assistant: ${user['orders'][user["order_index"]]["assistant_assigned"].toString().toCapitalize()}",
                                           "Chat with the Client",
-                                          style: TextStyle(color: Colors.white, fontSize: 16),
+                                          style: TextStyle(
+                                            color: Colors.white,
+                                            fontSize: 16,
+                                          ),
                                         ),
                                       );
                                     }
@@ -977,7 +1124,9 @@ class _HomeScreenState extends State<HomeScreen> {
                                       //   ),
                                       //   backgroundColor: MaterialStateProperty.all<Color>(Color(0xFF098232)),
                                       // ),
-                                      style: ElevatedButton.styleFrom(backgroundColor: Color(0xFF098232)),
+                                      style: ElevatedButton.styleFrom(
+                                        backgroundColor: Color(0xFF098232),
+                                      ),
                                       onPressed: () async {
                                         if (selectedIndex == -1) {
                                           showDialog(
@@ -991,7 +1140,9 @@ class _HomeScreenState extends State<HomeScreen> {
                                                 actions: <Widget>[
                                                   TextButton(
                                                     onPressed: () {
-                                                      Navigator.of(context).pop(); // Don't exit
+                                                      Navigator.of(
+                                                        context,
+                                                      ).pop(); // Don't exit
                                                     },
                                                     child: Text("Okay"),
                                                   ),
@@ -1000,7 +1151,9 @@ class _HomeScreenState extends State<HomeScreen> {
                                             },
                                           );
                                         } else {
-                                          var address = await getUserAddress(context);
+                                          var address = await getUserAddress(
+                                            context,
+                                          );
 
                                           if (address == null) {
                                             // showDialog(
@@ -1039,34 +1192,49 @@ class _HomeScreenState extends State<HomeScreen> {
                                                     TextButton(
                                                       onPressed: () {
                                                         setState(() {
-                                                          locationChecked = "Blue";
+                                                          locationChecked =
+                                                              "Blue";
                                                         });
-                                                        Navigator.of(context).pop();
+                                                        Navigator.of(
+                                                          context,
+                                                        ).pop();
                                                         Navigator.push(
                                                           context,
                                                           MaterialPageRoute(
                                                             builder:
-                                                                (context) => EnterInfoScreen(
-                                                                  serviceSelected: selectedIndex,
-                                                                  addressSelected: address,
+                                                                (
+                                                                  context,
+                                                                ) => EnterInfoScreen(
+                                                                  serviceSelected:
+                                                                      selectedIndex,
+                                                                  addressSelected:
+                                                                      address,
                                                                 ),
                                                           ),
                                                         );
                                                       },
-                                                      child: Text("Current (Blue)"),
+                                                      child: Text(
+                                                        "Current (Blue)",
+                                                      ),
                                                     ),
                                                     TextButton(
                                                       onPressed: () {
                                                         setState(() {
-                                                          locationChecked = "Red";
+                                                          locationChecked =
+                                                              "Red";
                                                         });
-                                                        Navigator.of(context).pop();
+                                                        Navigator.of(
+                                                          context,
+                                                        ).pop();
                                                         Navigator.push(
                                                           context,
                                                           MaterialPageRoute(
                                                             builder:
-                                                                (context) => EnterInfoScreen(
-                                                                  serviceSelected: selectedIndex,
+                                                                (
+                                                                  context,
+                                                                ) => EnterInfoScreen(
+                                                                  serviceSelected:
+                                                                      selectedIndex,
                                                                   addressSelected:
                                                                       '${_place.name}, ${_place.locality}, '
                                                                       '${_place.administrativeArea}, ${_place.country}, ${_place.thoroughfare}',
@@ -1074,7 +1242,9 @@ class _HomeScreenState extends State<HomeScreen> {
                                                           ),
                                                         );
                                                       },
-                                                      child: Text("Marked (Red)"),
+                                                      child: Text(
+                                                        "Marked (Red)",
+                                                      ),
                                                     ),
                                                   ],
                                                 );
@@ -1085,7 +1255,10 @@ class _HomeScreenState extends State<HomeScreen> {
                                       },
                                       child: const Text(
                                         "Place an Order",
-                                        style: TextStyle(color: Colors.white, fontSize: 16),
+                                        style: TextStyle(
+                                          color: Colors.white,
+                                          fontSize: 16,
+                                        ),
                                       ),
                                     );
                                   }
@@ -1094,17 +1267,25 @@ class _HomeScreenState extends State<HomeScreen> {
                               const SizedBox(height: 20),
                               Builder(
                                 builder: (context) {
-                                  if (user['orders'][0]["status"].toString() == "Pending") {
+                                  if (user['orders'][0]["status"].toString() ==
+                                      "Pending") {
                                     return Column(
                                       children: [
                                         Row(
-                                          mainAxisAlignment: MainAxisAlignment.center,
+                                          mainAxisAlignment:
+                                              MainAxisAlignment.center,
                                           children: [
-                                            Icon(Icons.warning, color: Colors.yellow),
+                                            Icon(
+                                              Icons.warning,
+                                              color: Colors.yellow,
+                                            ),
                                             SizedBox(width: 8),
                                             Text(
                                               'Your current order is in review: ',
-                                              style: TextStyle(fontSize: 16, fontWeight: FontWeight.w500),
+                                              style: TextStyle(
+                                                fontSize: 16,
+                                                fontWeight: FontWeight.w500,
+                                              ),
                                             ),
                                           ],
                                         ),
@@ -1112,24 +1293,37 @@ class _HomeScreenState extends State<HomeScreen> {
                                           child: Padding(
                                             padding: EdgeInsets.only(top: 4),
                                             child: Text(
-                                              user['orders'][0]["service"].toString().toCapitalize(),
-                                              style: TextStyle(color: Colors.black54),
+                                              user['orders'][0]["service"]
+                                                  .toString()
+                                                  .toCapitalize(),
+                                              style: TextStyle(
+                                                color: Colors.black54,
+                                              ),
                                             ),
                                           ),
                                         ),
                                       ],
                                     );
-                                  } else if (user['orders'][0]["status"].toString() == "OnRoute") {
+                                  } else if (user['orders'][0]["status"]
+                                          .toString() ==
+                                      "OnRoute") {
                                     return Column(
                                       children: [
                                         Row(
-                                          mainAxisAlignment: MainAxisAlignment.center,
+                                          mainAxisAlignment:
+                                              MainAxisAlignment.center,
                                           children: [
-                                            Icon(Icons.check_circle, color: Colors.green),
+                                            Icon(
+                                              Icons.check_circle,
+                                              color: Colors.green,
+                                            ),
                                             SizedBox(width: 8),
                                             Text(
                                               'Assistance is on the way',
-                                              style: TextStyle(fontSize: 16, fontWeight: FontWeight.w500),
+                                              style: TextStyle(
+                                                fontSize: 16,
+                                                fontWeight: FontWeight.w500,
+                                              ),
                                             ),
                                           ],
                                         ),
@@ -1138,7 +1332,9 @@ class _HomeScreenState extends State<HomeScreen> {
                                             padding: EdgeInsets.only(top: 4),
                                             child: Text(
                                               'Arriving in 15 min',
-                                              style: TextStyle(color: Colors.black54),
+                                              style: TextStyle(
+                                                color: Colors.black54,
+                                              ),
                                             ),
                                           ),
                                         ),
