@@ -204,11 +204,7 @@ class _HomeScreenState extends State<HomeScreen> {
     late LocationSettings locationSettings;
 
     if (defaultTargetPlatform == TargetPlatform.android) {
-      locationSettings = AndroidSettings(
-        accuracy: LocationAccuracy.high,
-        forceLocationManager: true,
-
-      );
+      locationSettings = AndroidSettings(accuracy: LocationAccuracy.high, forceLocationManager: true);
     } else if (defaultTargetPlatform == TargetPlatform.iOS) {
       locationSettings = AppleSettings(
         accuracy: LocationAccuracy.high,
@@ -219,10 +215,7 @@ class _HomeScreenState extends State<HomeScreen> {
         showBackgroundLocationIndicator: false,
       );
     } else {
-      locationSettings = LocationSettings(
-        accuracy: LocationAccuracy.high,
-        distanceFilter: 100,
-      );
+      locationSettings = LocationSettings(accuracy: LocationAccuracy.high, distanceFilter: 100);
     }
 
     // Get position and address
@@ -232,9 +225,7 @@ class _HomeScreenState extends State<HomeScreen> {
     //   locationSettings: LocationSettings(accuracy: LocationAccuracy.low),
     // );
 
-    Position position = await Geolocator.getCurrentPosition(
-      locationSettings: locationSettings
-    );
+    Position position = await Geolocator.getCurrentPosition(locationSettings: locationSettings);
 
     debugPrint(position.toString());
     List<Placemark> placemarks = await placemarkFromCoordinates(position.latitude, position.longitude);
@@ -261,46 +252,50 @@ class _HomeScreenState extends State<HomeScreen> {
     if (_isRequestingLocation) return;
     _isRequestingLocation = true;
 
+    try {} catch (e) {}
+
     bool serviceEnabled;
     LocationPermission permission;
 
     serviceEnabled = await Geolocator.isLocationServiceEnabled();
     if (!serviceEnabled) {
       _isRequestingLocation = false;
-      await showDialog(
-            context: context,
-            barrierDismissible: false,
-            builder:
-                (ctx) => AlertDialog(
-                  title: Text("Location Services Disabled"),
-                  content: Text("Please enable location services in settings."),
-                  actions: [
-                    TextButton(
-                      onPressed: () {
-                        Navigator.of(ctx).pop();
-                        Geolocator.openLocationSettings();
-                        Navigator.pushReplacement(
-                          ctx,
-                          MaterialPageRoute(builder: (BuildContext context) => super.widget),
-                        );
-                      },
-                      child: Text("Open Settings"),
-                    ),
-                    TextButton(
-                      onPressed: () {
-                        Navigator.of(ctx).pop();
-                        Navigator.pushReplacement(
-                          ctx,
-                          MaterialPageRoute(builder: (BuildContext context) => super.widget),
-                        );
-                      },
-                      child: Text("Cancel"),
-                    ),
-                  ],
-                ),
-          ) ??
-          false;
-      return null;
+      if (context.mounted) {
+        await showDialog(
+              context: context,
+              barrierDismissible: false,
+              builder:
+                  (ctx) => AlertDialog(
+                    title: Text("Location Services Disabled"),
+                    content: Text("Please enable location services in settings."),
+                    actions: [
+                      TextButton(
+                        onPressed: () {
+                          Navigator.of(ctx).pop();
+                          Geolocator.openLocationSettings();
+                          Navigator.pushReplacement(
+                            ctx,
+                            MaterialPageRoute(builder: (BuildContext context) => super.widget),
+                          );
+                        },
+                        child: Text("Open Settings"),
+                      ),
+                      TextButton(
+                        onPressed: () {
+                          Navigator.of(ctx).pop();
+                          Navigator.pushReplacement(
+                            ctx,
+                            MaterialPageRoute(builder: (BuildContext context) => super.widget),
+                          );
+                        },
+                        child: Text("Cancel"),
+                      ),
+                    ],
+                  ),
+            ) ??
+            false;
+      }
+      return;
     }
 
     // Handle permission
@@ -308,71 +303,68 @@ class _HomeScreenState extends State<HomeScreen> {
     if (permission == LocationPermission.denied) {
       permission = await Geolocator.requestPermission();
       if (permission == LocationPermission.denied) {
-        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("Location permission denied!")));
         _isRequestingLocation = false;
-        return null;
+        if (context.mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("Location permission denied!")));
+        }
+        return;
       }
     }
 
     if (permission == LocationPermission.deniedForever) {
-      await showDialog(
-        context: context,
-        builder:
-            (ctx) => AlertDialog(
-              title: Text("Permission Denied"),
-              content: Text("Enable location permissions from app settings."),
-              actions: [
-                TextButton(
-                  onPressed: () {
-                    Navigator.of(ctx).pop();
-                    Geolocator.openAppSettings();
-                    // Geolocator.openLocationSettings();
-                    // Navigator.pushReplacement(
-                    //   ctx,
-                    //   MaterialPageRoute(builder: (BuildContext context) => super.widget),
-                    // );
-                  },
-                  child: Text("Open App Settings"),
-                ),
-                TextButton(
-                  onPressed: () {
-                    Navigator.of(ctx).pop();
-                    Navigator.pushReplacement(
-                      ctx,
-                      MaterialPageRoute(builder: (BuildContext context) => super.widget),
-                    );
-                  },
-                  child: Text("Cancel"),
-                ),
-              ],
-            ),
-      );
       _isRequestingLocation = false;
-      return null;
+      if (context.mounted) {
+        await showDialog(
+          context: context,
+          builder:
+              (ctx) => AlertDialog(
+                title: Text("Permission Denied"),
+                content: Text("Enable location permissions from app settings."),
+                actions: [
+                  TextButton(
+                    onPressed: () {
+                      Navigator.of(ctx).pop();
+                      Geolocator.openAppSettings();
+                      // Geolocator.openLocationSettings();
+                      // Navigator.pushReplacement(
+                      //   ctx,
+                      //   MaterialPageRoute(builder: (BuildContext context) => super.widget),
+                      // );
+                    },
+                    child: Text("Open App Settings"),
+                  ),
+                  TextButton(
+                    onPressed: () {
+                      Navigator.of(ctx).pop();
+                      Navigator.pushReplacement(
+                        ctx,
+                        MaterialPageRoute(builder: (BuildContext context) => super.widget),
+                      );
+                    },
+                    child: Text("Cancel"),
+                  ),
+                ],
+              ),
+        );
+      }
+      return;
     }
 
     late LocationSettings locationSettings;
 
     if (defaultTargetPlatform == TargetPlatform.android) {
-      locationSettings = AndroidSettings(
-        accuracy: LocationAccuracy.high,
-        forceLocationManager: true,
-
-      );
+      locationSettings = AndroidSettings(accuracy: LocationAccuracy.high, forceLocationManager: true);
     } else if (defaultTargetPlatform == TargetPlatform.iOS) {
       locationSettings = AppleSettings(
         accuracy: LocationAccuracy.high,
         activityType: ActivityType.fitness,
-        distanceFilter: 100,
+        distanceFilter: 10,
         pauseLocationUpdatesAutomatically: true,
         // Only set to true if our app will be started up in the background.
         showBackgroundLocationIndicator: false,
       );
     } else {
-      locationSettings = LocationSettings(
-        accuracy: LocationAccuracy.high,
-        distanceFilter: 100,
-      );
+      locationSettings = LocationSettings(accuracy: LocationAccuracy.high, distanceFilter: 10);
     }
 
     // Get position and address
@@ -381,18 +373,20 @@ class _HomeScreenState extends State<HomeScreen> {
     //   locationSettings: LocationSettings(accuracy: LocationAccuracy.low),
     // );
 
-    Position position = await Geolocator.getCurrentPosition(
-        locationSettings: locationSettings
-    );
+    try {
+      Position position = await Geolocator.getCurrentPosition(locationSettings: locationSettings);
 
-    List<Placemark> placemarks = await placemarkFromCoordinates(position.latitude, position.longitude);
+      List<Placemark> placemarks = await placemarkFromCoordinates(position.latitude, position.longitude);
 
-    if (context.mounted) {
-      setState(() {
-        _place = placemarks[0];
-        _currentPosition = position;
-        _isRequestingLocation = false;
-      });
+      if (context.mounted && placemarks.isNotEmpty) {
+        setState(() {
+          _place = placemarks[0];
+          _currentPosition = position;
+          _isRequestingLocation = false;
+        });
+      }
+    } catch (e) {
+      debugPrint("Error getting position: $e");
     }
   }
 
@@ -414,44 +408,45 @@ class _HomeScreenState extends State<HomeScreen> {
     //   timeLimit: const Duration(seconds: 15),
     // );
 
-    late LocationSettings locationSettings;
+    try {
+      late LocationSettings locationSettings;
 
-    if (defaultTargetPlatform == TargetPlatform.android) {
-      locationSettings = AndroidSettings(
-        accuracy: LocationAccuracy.high,
-        forceLocationManager: true,
-
-      );
-    } else if (defaultTargetPlatform == TargetPlatform.iOS) {
-      locationSettings = AppleSettings(
-        accuracy: LocationAccuracy.high,
-        activityType: ActivityType.fitness,
-        distanceFilter: 100,
-        pauseLocationUpdatesAutomatically: true,
-        // Only set to true if our app will be started up in the background.
-        showBackgroundLocationIndicator: false,
-      );
-    } else {
-      locationSettings = LocationSettings(
-        accuracy: LocationAccuracy.high,
-        distanceFilter: 100,
-      );
-    }
-
-    userPositionStream = Geolocator.getPositionStream(locationSettings: locationSettings).listen((
-      Position position,
-    ) {
-      if (mapboxMapController != null) {
-        if (context.mounted) {
-          mapboxMapController?.setCamera(
-            mp.CameraOptions(
-              zoom: 14,
-              center: mp.Point(coordinates: mp.Position(position.longitude, position.latitude)),
-            ),
-          );
-        }
+      if (defaultTargetPlatform == TargetPlatform.android) {
+        locationSettings = AndroidSettings(accuracy: LocationAccuracy.high, forceLocationManager: true);
+      } else if (defaultTargetPlatform == TargetPlatform.iOS) {
+        locationSettings = AppleSettings(
+          accuracy: LocationAccuracy.high,
+          activityType: ActivityType.fitness,
+          distanceFilter: 100,
+          pauseLocationUpdatesAutomatically: true,
+          // Only set to true if our app will be started up in the background.
+          showBackgroundLocationIndicator: false,
+        );
+      } else {
+        locationSettings = LocationSettings(accuracy: LocationAccuracy.high, distanceFilter: 100);
       }
-    });
+
+      userPositionStream = Geolocator.getPositionStream(locationSettings: locationSettings).listen(
+        (Position position) {
+          if (mapboxMapController != null) {
+            if (context.mounted) {
+              mapboxMapController?.setCamera(
+                mp.CameraOptions(
+                  zoom: 14,
+                  center: mp.Point(coordinates: mp.Position(position.longitude, position.latitude)),
+                ),
+              );
+            }
+          }
+        },
+        onError: (e) {
+          debugPrint("Position stream error: $e");
+        },
+        cancelOnError: false,
+      );
+    } catch (e) {
+      debugPrint("Error setting up position tracking: $e");
+    }
   }
 
   void _onMapCreated(mp.MapboxMap mapboxMap) async {
