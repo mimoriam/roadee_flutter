@@ -417,17 +417,19 @@ class _HomeScreenState extends State<HomeScreen> {
         locationSettings = AppleSettings(
           accuracy: LocationAccuracy.high,
           activityType: ActivityType.fitness,
-          distanceFilter: 100,
+          distanceFilter: 10,
           pauseLocationUpdatesAutomatically: true,
           // Only set to true if our app will be started up in the background.
           showBackgroundLocationIndicator: false,
         );
       } else {
-        locationSettings = LocationSettings(accuracy: LocationAccuracy.high, distanceFilter: 100);
+        locationSettings = LocationSettings(accuracy: LocationAccuracy.high, distanceFilter: 10);
       }
 
       userPositionStream = Geolocator.getPositionStream(locationSettings: locationSettings).listen(
         (Position position) {
+          debugPrint(position.longitude.toString());
+          debugPrint(position.latitude.toString());
           if (mapboxMapController != null) {
             if (context.mounted) {
               mapboxMapController?.setCamera(
@@ -698,9 +700,9 @@ class _HomeScreenState extends State<HomeScreen> {
 
   @override
   Widget build(BuildContext context) {
-    if (context.mounted) {
-      setState(() {});
-    }
+    // if (context.mounted) {
+    //   setState(() {});
+    // }
 
     SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp, DeviceOrientation.portraitDown]);
 
