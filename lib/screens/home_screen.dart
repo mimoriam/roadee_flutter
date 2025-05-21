@@ -20,6 +20,9 @@ import 'package:geocoding/geocoding.dart';
 import 'package:mapbox_maps_flutter/mapbox_maps_flutter.dart' as mp;
 import 'package:dio/dio.dart';
 
+import 'package:geolocator_android/geolocator_android.dart';
+import 'package:geolocator_apple/geolocator_apple.dart';
+
 import '../constants.dart';
 
 class HomeScreen extends StatefulWidget {
@@ -198,11 +201,39 @@ class _HomeScreenState extends State<HomeScreen> {
       return null;
     }
 
+    late LocationSettings locationSettings;
+
+    if (defaultTargetPlatform == TargetPlatform.android) {
+      locationSettings = AndroidSettings(
+        accuracy: LocationAccuracy.high,
+        forceLocationManager: true,
+
+      );
+    } else if (defaultTargetPlatform == TargetPlatform.iOS) {
+      locationSettings = AppleSettings(
+        accuracy: LocationAccuracy.high,
+        activityType: ActivityType.fitness,
+        distanceFilter: 100,
+        pauseLocationUpdatesAutomatically: true,
+        // Only set to true if our app will be started up in the background.
+        showBackgroundLocationIndicator: false,
+      );
+    } else {
+      locationSettings = LocationSettings(
+        accuracy: LocationAccuracy.high,
+        distanceFilter: 100,
+      );
+    }
+
     // Get position and address
+    // Position position = await Geolocator.getCurrentPosition(
+    //   timeLimit: Duration(seconds: 10),
+    //   // desiredAccuracy: LocationAccuracy.high,
+    //   locationSettings: LocationSettings(accuracy: LocationAccuracy.low),
+    // );
+
     Position position = await Geolocator.getCurrentPosition(
-      timeLimit: Duration(seconds: 10),
-      // desiredAccuracy: LocationAccuracy.high,
-      locationSettings: LocationSettings(accuracy: LocationAccuracy.low),
+      locationSettings: locationSettings
     );
 
     debugPrint(position.toString());
@@ -320,10 +351,38 @@ class _HomeScreenState extends State<HomeScreen> {
       return null;
     }
 
+    late LocationSettings locationSettings;
+
+    if (defaultTargetPlatform == TargetPlatform.android) {
+      locationSettings = AndroidSettings(
+        accuracy: LocationAccuracy.high,
+        forceLocationManager: true,
+
+      );
+    } else if (defaultTargetPlatform == TargetPlatform.iOS) {
+      locationSettings = AppleSettings(
+        accuracy: LocationAccuracy.high,
+        activityType: ActivityType.fitness,
+        distanceFilter: 100,
+        pauseLocationUpdatesAutomatically: true,
+        // Only set to true if our app will be started up in the background.
+        showBackgroundLocationIndicator: false,
+      );
+    } else {
+      locationSettings = LocationSettings(
+        accuracy: LocationAccuracy.high,
+        distanceFilter: 100,
+      );
+    }
+
     // Get position and address
+    // Position position = await Geolocator.getCurrentPosition(
+    //   timeLimit: Duration(seconds: 10),
+    //   locationSettings: LocationSettings(accuracy: LocationAccuracy.low),
+    // );
+
     Position position = await Geolocator.getCurrentPosition(
-      timeLimit: Duration(seconds: 10),
-      locationSettings: LocationSettings(accuracy: LocationAccuracy.low),
+        locationSettings: locationSettings
     );
 
     List<Placemark> placemarks = await placemarkFromCoordinates(position.latitude, position.longitude);
@@ -347,11 +406,35 @@ class _HomeScreenState extends State<HomeScreen> {
   Future<void> setupPositionTracking() async {
     userPositionStream?.cancel();
 
-    LocationSettings locationSettings = LocationSettings(
-      accuracy: LocationAccuracy.low,
-      distanceFilter: 100,
-      timeLimit: const Duration(seconds: 15),
-    );
+    // LocationSettings locationSettings = LocationSettings(
+    //   accuracy: LocationAccuracy.low,
+    //   distanceFilter: 100,
+    //   timeLimit: const Duration(seconds: 15),
+    // );
+
+    late LocationSettings locationSettings;
+
+    if (defaultTargetPlatform == TargetPlatform.android) {
+      locationSettings = AndroidSettings(
+        accuracy: LocationAccuracy.high,
+        forceLocationManager: true,
+
+      );
+    } else if (defaultTargetPlatform == TargetPlatform.iOS) {
+      locationSettings = AppleSettings(
+        accuracy: LocationAccuracy.high,
+        activityType: ActivityType.fitness,
+        distanceFilter: 100,
+        pauseLocationUpdatesAutomatically: true,
+        // Only set to true if our app will be started up in the background.
+        showBackgroundLocationIndicator: false,
+      );
+    } else {
+      locationSettings = LocationSettings(
+        accuracy: LocationAccuracy.high,
+        distanceFilter: 100,
+      );
+    }
 
     userPositionStream = Geolocator.getPositionStream(locationSettings: locationSettings).listen((
       Position position,

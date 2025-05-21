@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/foundation.dart';
 
 import 'package:roadee_flutter/screens/home_screen.dart';
 import 'package:roadee_flutter/screens/login_screen.dart';
@@ -11,6 +12,9 @@ import 'package:form_builder_validators/form_builder_validators.dart';
 
 import 'package:geolocator/geolocator.dart';
 import 'package:geocoding/geocoding.dart';
+
+import 'package:geolocator_android/geolocator_android.dart';
+import 'package:geolocator_apple/geolocator_apple.dart';
 
 class UserProfileScreen extends StatefulWidget {
   const UserProfileScreen({super.key});
@@ -85,12 +89,41 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
       return null;
     }
 
+    late LocationSettings locationSettings;
+
+    if (defaultTargetPlatform == TargetPlatform.android) {
+      locationSettings = AndroidSettings(
+        accuracy: LocationAccuracy.high,
+        forceLocationManager: true,
+
+      );
+    } else if (defaultTargetPlatform == TargetPlatform.iOS) {
+      locationSettings = AppleSettings(
+        accuracy: LocationAccuracy.high,
+        activityType: ActivityType.fitness,
+        distanceFilter: 100,
+        pauseLocationUpdatesAutomatically: true,
+        // Only set to true if our app will be started up in the background.
+        showBackgroundLocationIndicator: false,
+      );
+    } else {
+      locationSettings = LocationSettings(
+        accuracy: LocationAccuracy.high,
+        distanceFilter: 100,
+      );
+    }
+
+
     // Get position and address
+    // Position position = await Geolocator.getCurrentPosition(
+    //   // desiredAccuracy: LocationAccuracy.high,
+    //   // locationSettings: LocationSettings(accuracy: LocationAccuracy.high),
+    //   timeLimit: Duration(seconds: 10),
+    //   locationSettings: LocationSettings(accuracy: LocationAccuracy.low),
+    // );
+
     Position position = await Geolocator.getCurrentPosition(
-      // desiredAccuracy: LocationAccuracy.high,
-      // locationSettings: LocationSettings(accuracy: LocationAccuracy.high),
-      timeLimit: Duration(seconds: 10),
-      locationSettings: LocationSettings(accuracy: LocationAccuracy.low),
+        locationSettings: locationSettings
     );
 
     List<Placemark> placemarks = await placemarkFromCoordinates(position.latitude, position.longitude);
