@@ -40,29 +40,26 @@ class _PaymentCheckoutScreenState extends State<PaymentCheckoutScreen> {
     try {
       final user = FirebaseAuth.instance.currentUser!;
 
-      await FirebaseFirestore.instance.collection('users').doc(user.uid).update(
-        {
-          "order_index": FieldValue.increment(1),
-          "orders": FieldValue.arrayUnion([
-            {
-              "assistant_assigned": "",
-              "assistant_address": "",
-              "assistant_city": "",
-              "assistant_country": "",
-              "assistant_email": "",
-              "assistant_id": "",
-              // TODO Add User Address so Rider can get to User location:
-              "user_marked_address": widget.addressSelected,
-              "orderCreatedAt": DateTime.now(),
-              "promo code": "",
-              "service": serviceSelectedIndex[widget
-                  .serviceSelected],
-              "status": OrderStatus.Pending.name,
-              "payment": "Successful",
-            },
-          ]),
-        },
-      );
+      await FirebaseFirestore.instance.collection('users').doc(user.uid).update({
+        "order_index": FieldValue.increment(1),
+        "orders": FieldValue.arrayUnion([
+          {
+            "assistant_assigned": "",
+            "assistant_address": "",
+            "assistant_city": "",
+            "assistant_country": "",
+            "assistant_email": "",
+            "assistant_id": "",
+            // TODO Add User Address so Rider can get to User location:
+            "user_marked_address": widget.addressSelected,
+            "orderCreatedAt": DateTime.now(),
+            "promo code": "",
+            "service": serviceSelectedIndex[widget.serviceSelected],
+            "status": OrderStatus.Pending.name,
+            "payment": "Successful",
+          },
+        ]),
+      });
     } on FirebaseAuthException {}
   }
 
@@ -77,8 +74,7 @@ class _PaymentCheckoutScreenState extends State<PaymentCheckoutScreen> {
               onTap: () => FocusScope.of(context).unfocus(),
               child: LayoutBuilder(
                 builder: (context, constraints) {
-                  double cardWidth =
-                      constraints.maxWidth > 600 ? 500 : double.infinity;
+                  double cardWidth = constraints.maxWidth > 600 ? 500 : double.infinity;
 
                   return Center(
                     child: SingleChildScrollView(
@@ -90,50 +86,31 @@ class _PaymentCheckoutScreenState extends State<PaymentCheckoutScreen> {
                             child: FormBuilder(
                               key: _formKey,
                               child: Card(
-                                shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(12),
-                                ),
+                                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                                 elevation: 4,
                                 child: Padding(
                                   padding: const EdgeInsets.all(20),
                                   child: Column(
                                     mainAxisSize: MainAxisSize.min,
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
+                                    crossAxisAlignment: CrossAxisAlignment.start,
                                     children: [
                                       Row(
                                         children: [
-                                          const Icon(
-                                            Icons.local_shipping,
-                                            size: 32,
-                                            color: Colors.amber,
-                                          ),
+                                          const Icon(Icons.local_shipping, size: 32, color: Colors.amber),
                                           const SizedBox(width: 10),
                                           const Text(
                                             "Payment Checkout",
-                                            style: TextStyle(
-                                              fontSize: 22,
-                                              fontWeight: FontWeight.bold,
-                                            ),
+                                            style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
                                           ),
                                         ],
                                       ),
                                       const Divider(height: 30),
-                                      const Text(
-                                        "Service",
-                                        style: TextStyle(
-                                          fontWeight: FontWeight.bold,
-                                        ),
-                                      ),
+                                      const Text("Service", style: TextStyle(fontWeight: FontWeight.bold)),
                                       const SizedBox(height: 8),
                                       Row(
-                                        mainAxisAlignment:
-                                            MainAxisAlignment.spaceBetween,
+                                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                         children: [
-                                          Text(
-                                            serviceSelectedIndex[widget
-                                                .serviceSelected]!,
-                                          ),
+                                          Text(serviceSelectedIndex[widget.serviceSelected]!),
                                           Text(
                                             "\$${serviceSelectedIndexPayment[widget.serviceSelected]![0][serviceSelectedIndex[widget.serviceSelected]]}.00",
                                           ),
@@ -141,20 +118,12 @@ class _PaymentCheckoutScreenState extends State<PaymentCheckoutScreen> {
                                       ),
                                       const Divider(height: 30),
                                       Row(
-                                        mainAxisAlignment:
-                                            MainAxisAlignment.spaceBetween,
+                                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                         children: [
-                                          Text(
-                                            "Total",
-                                            style: TextStyle(
-                                              fontWeight: FontWeight.bold,
-                                            ),
-                                          ),
+                                          Text("Total", style: TextStyle(fontWeight: FontWeight.bold)),
                                           Text(
                                             "\$${serviceSelectedIndexPayment[widget.serviceSelected]![0][serviceSelectedIndex[widget.serviceSelected]]}.00",
-                                            style: TextStyle(
-                                              fontWeight: FontWeight.bold,
-                                            ),
+                                            style: TextStyle(fontWeight: FontWeight.bold),
                                           ),
                                         ],
                                       ),
@@ -163,36 +132,30 @@ class _PaymentCheckoutScreenState extends State<PaymentCheckoutScreen> {
                                         width: double.infinity,
                                         child: ElevatedButton(
                                           style: ElevatedButton.styleFrom(
-                                            padding: const EdgeInsets.symmetric(
-                                              vertical: 16,
-                                            ),
+                                            padding: const EdgeInsets.symmetric(vertical: 16),
                                             shape: RoundedRectangleBorder(
-                                              borderRadius:
-                                                  BorderRadius.circular(8),
+                                              borderRadius: BorderRadius.circular(8),
                                             ),
                                             backgroundColor: Colors.blue,
                                           ),
                                           onPressed: () async {
-                                            var result = await StripeService
-                                                .instance
-                                                .makePayment(
-                                                  serviceSelectedIndexPayment[widget
-                                                      .serviceSelected]![0][serviceSelectedIndex[widget
-                                                      .serviceSelected]]!,
-                                                );
+                                            var result = await StripeService.instance.makePayment(
+                                              serviceSelectedIndexPayment[widget
+                                                  .serviceSelected]![0][serviceSelectedIndex[widget
+                                                  .serviceSelected]]!,
+                                            );
 
                                             if (result == "Error") {
                                             } else {
                                               await addOrderToDB();
                                             }
 
-                                            Navigator.pushReplacement(
-                                              context,
-                                              MaterialPageRoute(
-                                                builder:
-                                                    (context) => HomeScreen(),
-                                              ),
-                                            );
+                                            if (context.mounted) {
+                                              Navigator.pushReplacement(
+                                                context,
+                                                MaterialPageRoute(builder: (context) => HomeScreen()),
+                                              );
+                                            }
                                           },
                                           child: const Text(
                                             "Confirm Payment",

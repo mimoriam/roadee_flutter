@@ -132,32 +132,34 @@ class _HomeScreenState extends State<HomeScreen> {
     // Check if location services are enabled
     serviceEnabled = await Geolocator.isLocationServiceEnabled();
     if (!serviceEnabled) {
-      await showDialog(
-            context: context,
-            barrierDismissible: false,
-            builder:
-                (ctx) => AlertDialog(
-                  title: Text("Location Services Disabled"),
-                  content: Text("Please enable location services in settings."),
-                  actions: [
-                    TextButton(
-                      onPressed: () {
-                        Navigator.of(ctx).pop();
-                        Geolocator.openLocationSettings();
-                        // setState(() {});
-                      },
-                      child: Text("Open Settings"),
-                    ),
-                    TextButton(
-                      onPressed: () {
-                        Navigator.of(ctx).pop();
-                      },
-                      child: Text("Cancel"),
-                    ),
-                  ],
-                ),
-          ) ??
-          false;
+      if (context.mounted) {
+        await showDialog(
+              context: context,
+              barrierDismissible: false,
+              builder:
+                  (ctx) => AlertDialog(
+                    title: Text("Location Services Disabled"),
+                    content: Text("Please enable location services in settings."),
+                    actions: [
+                      TextButton(
+                        onPressed: () {
+                          Navigator.of(ctx).pop();
+                          Geolocator.openLocationSettings();
+                          // setState(() {});
+                        },
+                        child: Text("Open Settings"),
+                      ),
+                      TextButton(
+                        onPressed: () {
+                          Navigator.of(ctx).pop();
+                        },
+                        child: Text("Cancel"),
+                      ),
+                    ],
+                  ),
+            ) ??
+            false;
+      }
       return null;
     }
 
@@ -166,38 +168,42 @@ class _HomeScreenState extends State<HomeScreen> {
     if (permission == LocationPermission.denied) {
       permission = await Geolocator.requestPermission();
       if (permission == LocationPermission.denied) {
-        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("Location permission denied")));
+        if (context.mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("Location permission denied")));
+        }
         return null;
       }
     }
 
     if (permission == LocationPermission.deniedForever) {
-      await showDialog(
-        context: context,
-        builder:
-            (ctx) => AlertDialog(
-              title: Text("Permission Denied"),
-              content: Text("Enable location permissions from app settings."),
-              actions: [
-                TextButton(
-                  onPressed: () {
-                    Navigator.of(ctx).pop();
-                    // Geolocator.openAppSettings();
-                    Geolocator.openLocationSettings();
-                    // setState(() {});
-                  },
-                  child: Text("Open App Settings"),
-                ),
-                TextButton(
-                  onPressed: () {
-                    Navigator.of(ctx).pop();
-                    // Navigator.of(ctx).pop();
-                  },
-                  child: Text("Cancel"),
-                ),
-              ],
-            ),
-      );
+      if (context.mounted) {
+        await showDialog(
+          context: context,
+          builder:
+              (ctx) => AlertDialog(
+                title: Text("Permission Denied"),
+                content: Text("Enable location permissions from app settings."),
+                actions: [
+                  TextButton(
+                    onPressed: () {
+                      Navigator.of(ctx).pop();
+                      // Geolocator.openAppSettings();
+                      Geolocator.openLocationSettings();
+                      // setState(() {});
+                    },
+                    child: Text("Open App Settings"),
+                  ),
+                  TextButton(
+                    onPressed: () {
+                      Navigator.of(ctx).pop();
+                      // Navigator.of(ctx).pop();
+                    },
+                    child: Text("Cancel"),
+                  ),
+                ],
+              ),
+        );
+      }
       return null;
     }
 
@@ -260,7 +266,7 @@ class _HomeScreenState extends State<HomeScreen> {
     serviceEnabled = await Geolocator.isLocationServiceEnabled();
     if (!serviceEnabled) {
       _isRequestingLocation = false;
-      if (context.mounted) {
+      if (mounted) {
         await showDialog(
               context: context,
               barrierDismissible: false,
@@ -304,7 +310,7 @@ class _HomeScreenState extends State<HomeScreen> {
       permission = await Geolocator.requestPermission();
       if (permission == LocationPermission.denied) {
         _isRequestingLocation = false;
-        if (context.mounted) {
+        if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("Location permission denied!")));
         }
         return;
@@ -313,7 +319,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
     if (permission == LocationPermission.deniedForever) {
       _isRequestingLocation = false;
-      if (context.mounted) {
+      if (mounted) {
         await showDialog(
           context: context,
           builder:
@@ -611,22 +617,24 @@ class _HomeScreenState extends State<HomeScreen> {
         );
       }
     } catch (e) {
-      showDialog(
-        context: context,
-        builder: (BuildContext context) {
-          return AlertDialog(
-            title: Text("MapBox API Error"),
-            actions: <Widget>[
-              TextButton(
-                onPressed: () {
-                  Navigator.of(context).pop(); // Don't exit
-                },
-                child: Text("Ok"),
-              ),
-            ],
-          );
-        },
-      );
+      if (mounted) {
+        showDialog(
+          context: context,
+          builder: (BuildContext context) {
+            return AlertDialog(
+              title: Text("MapBox API Error"),
+              actions: <Widget>[
+                TextButton(
+                  onPressed: () {
+                    Navigator.of(context).pop(); // Don't exit
+                  },
+                  child: Text("Ok"),
+                ),
+              ],
+            );
+          },
+        );
+      }
     }
   }
 
@@ -726,14 +734,19 @@ class _HomeScreenState extends State<HomeScreen> {
         case 'Your Orders':
           // Go to orders:
           var user = await getUserProfile();
-          Navigator.push(
-            context,
-            MaterialPageRoute(builder: (context) => OrderHistoryScreen(userData: user!)),
-          );
+
+          if (context.mounted) {
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (context) => OrderHistoryScreen(userData: user!)),
+            );
+          }
           break;
         case 'Log out':
           await FirebaseAuth.instance.signOut();
-          Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => LoginScreen()));
+          if (context.mounted) {
+            Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => LoginScreen()));
+          }
           break;
       }
     }
@@ -1051,17 +1064,19 @@ class _HomeScreenState extends State<HomeScreen> {
                                           var doc = await query.docs.first.reference.get();
                                           var clientData = doc.data();
 
-                                          Navigator.push(
-                                            context,
-                                            MaterialPageRoute(
-                                              builder:
-                                                  (context) => ChatScreen(
-                                                    receiverId: clientData?["id"],
-                                                    receiverEmail: clientData?["email"],
-                                                    user: user,
-                                                  ),
-                                            ),
-                                          );
+                                          if (context.mounted) {
+                                            Navigator.push(
+                                              context,
+                                              MaterialPageRoute(
+                                                builder:
+                                                    (context) => ChatScreen(
+                                                      receiverId: clientData?["id"],
+                                                      receiverEmail: clientData?["email"],
+                                                      user: user,
+                                                    ),
+                                              ),
+                                            );
+                                          }
                                         },
                                         child: Text(
                                           // "Chat with your assistant: ${user['orders'][user["order_index"]]["assistant_assigned"].toString().toCapitalize()}",
@@ -1085,27 +1100,31 @@ class _HomeScreenState extends State<HomeScreen> {
                                       style: ElevatedButton.styleFrom(backgroundColor: Color(0xFF098232)),
                                       onPressed: () async {
                                         if (selectedIndex == -1) {
-                                          showDialog(
-                                            context: context,
-                                            builder: (BuildContext context) {
-                                              return AlertDialog(
-                                                title: Text(
-                                                  "You did not select a "
-                                                  "service!",
-                                                ),
-                                                actions: <Widget>[
-                                                  TextButton(
-                                                    onPressed: () {
-                                                      Navigator.of(context).pop(); // Don't exit
-                                                    },
-                                                    child: Text("Okay"),
+                                          if (context.mounted) {
+                                            showDialog(
+                                              context: context,
+                                              builder: (BuildContext context) {
+                                                return AlertDialog(
+                                                  title: Text(
+                                                    "You did not select a "
+                                                    "service!",
                                                   ),
-                                                ],
-                                              );
-                                            },
-                                          );
+                                                  actions: <Widget>[
+                                                    TextButton(
+                                                      onPressed: () {
+                                                        Navigator.of(context).pop(); // Don't exit
+                                                      },
+                                                      child: Text("Okay"),
+                                                    ),
+                                                  ],
+                                                );
+                                              },
+                                            );
+                                          }
                                         } else {
                                           var address = await getUserAddress(context);
+
+                                          if (!mounted) return;
 
                                           if (address == null) {
                                             // showDialog(
@@ -1130,61 +1149,63 @@ class _HomeScreenState extends State<HomeScreen> {
                                             //   },
                                             // );
                                           } else {
-                                            showDialog(
-                                              context: context,
-                                              builder: (BuildContext context) {
-                                                // TODO Fix a potential bug here on multiple user orders
-                                                // Add a field in DB for Red/Blue location and use that to
-                                                // draw markers
-                                                return AlertDialog(
-                                                  title: Text(
-                                                    "Would you like to use current location or marked location?",
-                                                  ),
-                                                  actions: <Widget>[
-                                                    TextButton(
-                                                      onPressed: () {
-                                                        setState(() {
-                                                          locationChecked = "Blue";
-                                                        });
-                                                        Navigator.of(context).pop();
-                                                        Navigator.push(
-                                                          context,
-                                                          MaterialPageRoute(
-                                                            builder:
-                                                                (context) => EnterInfoScreen(
-                                                                  serviceSelected: selectedIndex,
-                                                                  addressSelected: address,
-                                                                ),
-                                                          ),
-                                                        );
-                                                      },
-                                                      child: Text("Current (Blue)"),
+                                            if (context.mounted) {
+                                              showDialog(
+                                                context: context,
+                                                builder: (BuildContext context) {
+                                                  // TODO Fix a potential bug here on multiple user orders
+                                                  // Add a field in DB for Red/Blue location and use that to
+                                                  // draw markers
+                                                  return AlertDialog(
+                                                    title: Text(
+                                                      "Would you like to use current location or marked location?",
                                                     ),
-                                                    TextButton(
-                                                      onPressed: () {
-                                                        setState(() {
-                                                          locationChecked = "Red";
-                                                        });
-                                                        Navigator.of(context).pop();
-                                                        Navigator.push(
-                                                          context,
-                                                          MaterialPageRoute(
-                                                            builder:
-                                                                (context) => EnterInfoScreen(
-                                                                  serviceSelected: selectedIndex,
-                                                                  addressSelected:
-                                                                      '${_place.name}, ${_place.locality}, '
-                                                                      '${_place.administrativeArea}, ${_place.country}, ${_place.thoroughfare}',
-                                                                ),
-                                                          ),
-                                                        );
-                                                      },
-                                                      child: Text("Marked (Red)"),
-                                                    ),
-                                                  ],
-                                                );
-                                              },
-                                            );
+                                                    actions: <Widget>[
+                                                      TextButton(
+                                                        onPressed: () {
+                                                          setState(() {
+                                                            locationChecked = "Blue";
+                                                          });
+                                                          Navigator.of(context).pop();
+                                                          Navigator.push(
+                                                            context,
+                                                            MaterialPageRoute(
+                                                              builder:
+                                                                  (context) => EnterInfoScreen(
+                                                                    serviceSelected: selectedIndex,
+                                                                    addressSelected: address,
+                                                                  ),
+                                                            ),
+                                                          );
+                                                        },
+                                                        child: Text("Current (Blue)"),
+                                                      ),
+                                                      TextButton(
+                                                        onPressed: () {
+                                                          setState(() {
+                                                            locationChecked = "Red";
+                                                          });
+                                                          Navigator.of(context).pop();
+                                                          Navigator.push(
+                                                            context,
+                                                            MaterialPageRoute(
+                                                              builder:
+                                                                  (context) => EnterInfoScreen(
+                                                                    serviceSelected: selectedIndex,
+                                                                    addressSelected:
+                                                                        '${_place.name}, ${_place.locality}, '
+                                                                        '${_place.administrativeArea}, ${_place.country}, ${_place.thoroughfare}',
+                                                                  ),
+                                                            ),
+                                                          );
+                                                        },
+                                                        child: Text("Marked (Red)"),
+                                                      ),
+                                                    ],
+                                                  );
+                                                },
+                                              );
+                                            }
                                           }
                                         }
                                       },

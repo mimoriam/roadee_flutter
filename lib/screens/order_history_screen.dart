@@ -34,7 +34,9 @@ class _OrderHistoryScreenState extends State<OrderHistoryScreen> {
       switch (value) {
         case 'Log out':
           await FirebaseAuth.instance.signOut();
-          Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => LoginScreen()));
+          if (context.mounted) {
+            Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => LoginScreen()));
+          }
           break;
       }
     }

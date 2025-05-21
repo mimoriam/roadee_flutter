@@ -302,7 +302,9 @@ class _SignUpScreenState extends State<SignUpScreen> {
             print({user});
 
             if (user != null) {
-              Navigator.push(context, MaterialPageRoute(builder: (context) => LoginScreen()));
+              if (mounted) {
+                Navigator.push(context, MaterialPageRoute(builder: (context) => LoginScreen()));
+              }
             }
           }
         },

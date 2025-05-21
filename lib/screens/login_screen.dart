@@ -269,8 +269,12 @@ class _LoginScreenState extends State<LoginScreen> {
               if (_formKey.currentState!.validate()) {
                 // Process login logic
                 final user = await authenticate();
+
+                if (!mounted) return; // Add mounted check after await
                 if (user != null) {
-                  Navigator.push(context, MaterialPageRoute(builder: (context) => HomeScreen()));
+                  if (context.mounted) {
+                    Navigator.push(context, MaterialPageRoute(builder: (context) => HomeScreen()));
+                  }
                 }
               }
             },

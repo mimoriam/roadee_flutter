@@ -35,24 +35,26 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
     // Check if location services are enabled
     serviceEnabled = await Geolocator.isLocationServiceEnabled();
     if (!serviceEnabled) {
-      await showDialog(
-        context: context,
-        builder:
-            (ctx) => AlertDialog(
-              title: Text("Location Services Disabled"),
-              content: Text("Please enable location services in settings."),
-              actions: [
-                TextButton(
-                  onPressed: () {
-                    Navigator.of(ctx).pop();
-                    Geolocator.openLocationSettings();
-                  },
-                  child: Text("Open Settings"),
-                ),
-                TextButton(onPressed: () => Navigator.of(ctx).pop(), child: Text("Cancel")),
-              ],
-            ),
-      );
+      if (context.mounted) {
+        await showDialog(
+          context: context,
+          builder:
+              (ctx) => AlertDialog(
+            title: Text("Location Services Disabled"),
+            content: Text("Please enable location services in settings."),
+            actions: [
+              TextButton(
+                onPressed: () {
+                  Navigator.of(ctx).pop();
+                  Geolocator.openLocationSettings();
+                },
+                child: Text("Open Settings"),
+              ),
+              TextButton(onPressed: () => Navigator.of(ctx).pop(), child: Text("Cancel")),
+            ],
+          ),
+        );
+      }
 
       return null;
     }
@@ -62,30 +64,34 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
     if (permission == LocationPermission.denied) {
       permission = await Geolocator.requestPermission();
       if (permission == LocationPermission.denied) {
-        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("Location permission denied")));
+        if (context.mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("Location permission denied")));
+        }
         return null;
       }
     }
 
     if (permission == LocationPermission.deniedForever) {
-      await showDialog(
-        context: context,
-        builder:
-            (ctx) => AlertDialog(
-              title: Text("Permission Denied"),
-              content: Text("Enable location permissions from app settings."),
-              actions: [
-                TextButton(
-                  onPressed: () {
-                    Navigator.of(ctx).pop();
-                    Geolocator.openAppSettings();
-                  },
-                  child: Text("Open App Settings"),
-                ),
-                TextButton(onPressed: () => Navigator.of(ctx).pop(), child: Text("Cancel")),
-              ],
-            ),
-      );
+      if (context.mounted) {
+        await showDialog(
+          context: context,
+          builder:
+              (ctx) => AlertDialog(
+            title: Text("Permission Denied"),
+            content: Text("Enable location permissions from app settings."),
+            actions: [
+              TextButton(
+                onPressed: () {
+                  Navigator.of(ctx).pop();
+                  Geolocator.openAppSettings();
+                },
+                child: Text("Open App Settings"),
+              ),
+              TextButton(onPressed: () => Navigator.of(ctx).pop(), child: Text("Cancel")),
+            ],
+          ),
+        );
+      }
       return null;
     }
 
@@ -101,7 +107,7 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
       locationSettings = AppleSettings(
         accuracy: LocationAccuracy.high,
         activityType: ActivityType.fitness,
-        distanceFilter: 100,
+        distanceFilter: 10,
         pauseLocationUpdatesAutomatically: true,
         // Only set to true if our app will be started up in the background.
         showBackgroundLocationIndicator: false,
@@ -109,7 +115,7 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
     } else {
       locationSettings = LocationSettings(
         accuracy: LocationAccuracy.high,
-        distanceFilter: 100,
+        distanceFilter: 10,
       );
     }
 
@@ -138,7 +144,9 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
         break;
       case 'Log out':
         await FirebaseAuth.instance.signOut();
-        Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => LoginScreen()));
+        if (mounted) {
+          Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => LoginScreen()));
+        }
         break;
     }
   }
@@ -208,7 +216,7 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
                 // Update Address
                 String? userAddresss = await getUserAddress(context);
 
-                if (userAddresss != null) {
+                if (context.mounted && userAddresss != null) {
                   setState(() {
                     userAddress = userAddresss;
                   });
@@ -217,12 +225,18 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
                 }
               }
 
-              Navigator.of(context).popUntil((route) => route.isFirst);
+              if (mounted) {
+                Navigator.of(context).popUntil((route) => route.isFirst);
+              }
 
-              Navigator.pushReplacement(
-                context,
-                MaterialPageRoute(builder: (BuildContext context) => HomeScreen()),
-              );
+              if (!mounted) return;
+
+              if (context.mounted) {
+                Navigator.pushReplacement(
+                  context,
+                  MaterialPageRoute(builder: (BuildContext context) => HomeScreen()),
+                );
+              }
             });
           }
         },

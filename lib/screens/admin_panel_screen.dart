@@ -251,7 +251,9 @@ class _AdminScreenState extends State<AdminScreen> {
 
                   final queryUser = query.docs.first.data();
 
-                  openGridPopup(context, 'orders', queryUser, id);
+                  if (mounted) {
+                    openGridPopup(context, 'orders', queryUser, id);
+                  }
                 },
                 iconSize: 18,
                 color: Colors.green,

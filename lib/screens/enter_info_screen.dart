@@ -14,11 +14,7 @@ class EnterInfoScreen extends StatefulWidget {
   final int serviceSelected;
   final String addressSelected;
 
-  const EnterInfoScreen({
-    super.key,
-    required this.serviceSelected,
-    required this.addressSelected,
-  });
+  const EnterInfoScreen({super.key, required this.serviceSelected, required this.addressSelected});
 
   @override
   State<EnterInfoScreen> createState() => _EnterInfoScreenState();
@@ -32,8 +28,7 @@ class _EnterInfoScreenState extends State<EnterInfoScreen> {
     final uid = FirebaseAuth.instance.currentUser?.uid;
     if (uid == null) return null;
 
-    final doc =
-        await FirebaseFirestore.instance.collection("users").doc(uid).get();
+    final doc = await FirebaseFirestore.instance.collection("users").doc(uid).get();
     return doc.exists ? doc.data() : null;
   }
 
@@ -44,19 +39,16 @@ class _EnterInfoScreenState extends State<EnterInfoScreen> {
     Future<void> onSelected(String value) async {
       switch (value) {
         case 'Your Profile':
-          Navigator.push(
-            context,
-            MaterialPageRoute(builder: (context) => UserProfileScreen()),
-          );
+          Navigator.push(context, MaterialPageRoute(builder: (context) => UserProfileScreen()));
           break;
         case 'Settings':
           break;
         case 'Log out':
           await FirebaseAuth.instance.signOut();
-          Navigator.pushReplacement(
-            context,
-            MaterialPageRoute(builder: (context) => LoginScreen()),
-          );
+
+          if (context.mounted) {
+            Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => LoginScreen()));
+          }
           break;
       }
     }
@@ -76,10 +68,7 @@ class _EnterInfoScreenState extends State<EnterInfoScreen> {
             child: AppBar(
               backgroundColor: Colors.white,
               elevation: 0,
-              leading: IconButton(
-                icon: const Icon(Icons.menu, color: Colors.black),
-                onPressed: () {},
-              ),
+              leading: IconButton(icon: const Icon(Icons.menu, color: Colors.black), onPressed: () {}),
               title: Row(
                 children: [
                   // const Text(
@@ -96,37 +85,22 @@ class _EnterInfoScreenState extends State<EnterInfoScreen> {
                   Column(
                     crossAxisAlignment: CrossAxisAlignment.end,
                     children: [
-                      const Text(
-                        'You Are Logged In',
-                        style: TextStyle(fontSize: 12, color: Colors.black54),
-                      ),
-                      Text(
-                        "${user['username']}",
-                        style: TextStyle(fontSize: 12, color: Colors.black),
-                      ),
+                      const Text('You Are Logged In', style: TextStyle(fontSize: 12, color: Colors.black54)),
+                      Text("${user['username']}", style: TextStyle(fontSize: 12, color: Colors.black)),
                     ],
                   ),
                   const SizedBox(width: 8),
                   MenuAnchor(
                     controller: _menuController,
-                    style: MenuStyle(
-                      backgroundColor: WidgetStateProperty.all(Colors.white),
-                    ),
+                    style: MenuStyle(backgroundColor: WidgetStateProperty.all(Colors.white)),
                     menuChildren: [
                       // MenuItemButton(
                       //   onPressed: () => onSelected('Your Profile'),
                       //   child: Text('Your Profile'),
                       // ),
-                      MenuItemButton(
-                        onPressed: () => onSelected('Log out'),
-                        child: Text('Log out'),
-                      ),
+                      MenuItemButton(onPressed: () => onSelected('Log out'), child: Text('Log out')),
                     ],
-                    builder: (
-                      BuildContext context,
-                      MenuController controller,
-                      Widget? child,
-                    ) {
+                    builder: (BuildContext context, MenuController controller, Widget? child) {
                       return GestureDetector(
                         onTap: () {
                           if (controller.isOpen) {
@@ -178,18 +152,14 @@ class _EnterInfoScreenState extends State<EnterInfoScreen> {
                                   const Text(
                                     "Enter Your Info.\nAnd We’ll Be On The Way!",
                                     textAlign: TextAlign.center,
-                                    style: TextStyle(
-                                      fontSize: 20,
-                                      fontWeight: FontWeight.bold,
-                                    ),
+                                    style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
                                   ),
                                   const SizedBox(height: 16),
                                   _buildTextField(
                                     name: 'username',
                                     enabled: true,
                                     initialValue: "${user['username']}",
-                                    autovalidateMode:
-                                        AutovalidateMode.onUnfocus,
+                                    autovalidateMode: AutovalidateMode.onUnfocus,
                                     validator: FormBuilderValidators.compose([
                                       FormBuilderValidators.required(),
                                       FormBuilderValidators.minLength(5),
@@ -200,8 +170,7 @@ class _EnterInfoScreenState extends State<EnterInfoScreen> {
                                     name: 'email',
                                     enabled: false,
                                     initialValue: "${user['email']}",
-                                    autovalidateMode:
-                                        AutovalidateMode.onUnfocus,
+                                    autovalidateMode: AutovalidateMode.onUnfocus,
                                     validator: FormBuilderValidators.compose([
                                       FormBuilderValidators.required(),
                                       FormBuilderValidators.email(),
@@ -213,8 +182,7 @@ class _EnterInfoScreenState extends State<EnterInfoScreen> {
                                     enabled: true,
                                     keyboardType: TextInputType.phone,
                                     initialValue: "${user['phone']}",
-                                    autovalidateMode:
-                                        AutovalidateMode.onUnfocus,
+                                    autovalidateMode: AutovalidateMode.onUnfocus,
                                     validator: FormBuilderValidators.compose([
                                       FormBuilderValidators.required(),
                                       FormBuilderValidators.minLength(
@@ -234,16 +202,12 @@ class _EnterInfoScreenState extends State<EnterInfoScreen> {
                                           context,
                                           MaterialPageRoute(
                                             builder:
-                                                (
-                                                  context,
-                                                ) => PaymentCheckoutScreen(
+                                                (context) => PaymentCheckoutScreen(
                                                   name: "${user['username']}",
                                                   email: "${user['email']}",
                                                   phone: "${user['phone']}",
-                                                  serviceSelected:
-                                                      widget.serviceSelected,
-                                                  addressSelected:
-                                                      widget.addressSelected,
+                                                  serviceSelected: widget.serviceSelected,
+                                                  addressSelected: widget.addressSelected,
                                                 ),
                                           ),
                                         );
@@ -251,20 +215,13 @@ class _EnterInfoScreenState extends State<EnterInfoScreen> {
                                       style: ElevatedButton.styleFrom(
                                         backgroundColor: Colors.black,
                                         shape: RoundedRectangleBorder(
-                                          borderRadius: BorderRadius.circular(
-                                            30,
-                                          ),
+                                          borderRadius: BorderRadius.circular(30),
                                         ),
-                                        padding: const EdgeInsets.symmetric(
-                                          vertical: 18,
-                                        ),
+                                        padding: const EdgeInsets.symmetric(vertical: 18),
                                       ),
                                       child: const Text(
                                         'Request Roadside Assistance',
-                                        style: TextStyle(
-                                          fontSize: 16,
-                                          color: Colors.white,
-                                        ),
+                                        style: TextStyle(fontSize: 16, color: Colors.white),
                                       ),
                                     ),
                                   ),
@@ -298,10 +255,7 @@ Widget _buildTextField({
   TextInputType? keyboardType,
 }) {
   return Container(
-    decoration: BoxDecoration(
-      color: Colors.white,
-      borderRadius: BorderRadius.circular(16),
-    ),
+    decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(16)),
     child: FormBuilderTextField(
       keyboardType: keyboardType,
       textAlign: TextAlign.center,
@@ -316,10 +270,7 @@ Widget _buildTextField({
         hintText: name.toCapitalize(),
         labelText: name.toCapitalize(),
         hintStyle: TextStyle(color: Color(0xFF799ac2), fontSize: 18),
-        contentPadding: const EdgeInsets.symmetric(
-          horizontal: 20,
-          vertical: 16,
-        ),
+        contentPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
         border: OutlineInputBorder(borderRadius: BorderRadius.circular(30)),
         enabledBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(30),
