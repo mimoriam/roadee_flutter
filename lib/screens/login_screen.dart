@@ -27,9 +27,11 @@ class _LoginScreenState extends State<LoginScreen> {
   String error = '';
 
   Future<UserCredential?> authenticate() async {
-    setState(() {
-      error = '';
-    });
+    if (context.mounted) {
+      setState(() {
+        error = '';
+      });
+    }
 
     try {
       final user = await FirebaseAuth.instance.signInWithEmailAndPassword(

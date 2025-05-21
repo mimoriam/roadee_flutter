@@ -387,11 +387,13 @@ class _HomeScreenState extends State<HomeScreen> {
 
     List<Placemark> placemarks = await placemarkFromCoordinates(position.latitude, position.longitude);
 
-    setState(() {
-      _place = placemarks[0];
-      _currentPosition = position;
-      _isRequestingLocation = false;
-    });
+    if (context.mounted) {
+      setState(() {
+        _place = placemarks[0];
+        _currentPosition = position;
+        _isRequestingLocation = false;
+      });
+    }
   }
 
   Future<void> updateAddressFromMarker(String addr) async {
@@ -440,12 +442,14 @@ class _HomeScreenState extends State<HomeScreen> {
       Position position,
     ) {
       if (mapboxMapController != null) {
-        mapboxMapController?.setCamera(
-          mp.CameraOptions(
-            zoom: 14,
-            center: mp.Point(coordinates: mp.Position(position.longitude, position.latitude)),
-          ),
-        );
+        if (context.mounted) {
+          mapboxMapController?.setCamera(
+            mp.CameraOptions(
+              zoom: 14,
+              center: mp.Point(coordinates: mp.Position(position.longitude, position.latitude)),
+            ),
+          );
+        }
       }
     });
   }
@@ -466,7 +470,9 @@ class _HomeScreenState extends State<HomeScreen> {
     Map<String, dynamic>? user = await getUserData();
 
     if (user == null) {
-      setState(() {});
+      if (context.mounted) {
+        setState(() {});
+      }
     }
 
     // if (user?['orders'][user["order_index"]]["assistant_assigned"].isEmpty) {
@@ -697,7 +703,9 @@ class _HomeScreenState extends State<HomeScreen> {
 
   @override
   Widget build(BuildContext context) {
-    setState(() {});
+    if (context.mounted) {
+      setState(() {});
+    }
 
     SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp, DeviceOrientation.portraitDown]);
 
@@ -712,7 +720,9 @@ class _HomeScreenState extends State<HomeScreen> {
             context,
             MaterialPageRoute(builder: (context) => AdminScreen(placemark: _place)),
           ).then((value) {
-            setState(() {});
+            if (context.mounted) {
+              setState(() {});
+            }
           });
           break;
 
