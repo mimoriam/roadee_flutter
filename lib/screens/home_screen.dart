@@ -736,10 +736,12 @@ class _HomeScreenState extends State<HomeScreen> {
           var user = await getUserProfile();
 
           if (context.mounted) {
-            Navigator.push(
-              context,
-              MaterialPageRoute(builder: (context) => OrderHistoryScreen(userData: user!)),
-            );
+            if (user != null) {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => OrderHistoryScreen(userData: user)),
+              );
+            }
           }
           break;
         case 'Log out':
