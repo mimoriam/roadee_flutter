@@ -215,13 +215,13 @@ class _HomeScreenState extends State<HomeScreen> {
       locationSettings = AppleSettings(
         accuracy: LocationAccuracy.high,
         activityType: ActivityType.fitness,
-        distanceFilter: 100,
+        distanceFilter: 10,
         pauseLocationUpdatesAutomatically: true,
         // Only set to true if our app will be started up in the background.
         showBackgroundLocationIndicator: false,
       );
     } else {
-      locationSettings = LocationSettings(accuracy: LocationAccuracy.high, distanceFilter: 100);
+      locationSettings = LocationSettings(accuracy: LocationAccuracy.high, distanceFilter: 10);
     }
 
     // Get position and address
