@@ -347,7 +347,11 @@ class _HomeScreenState extends State<HomeScreen> {
   Future<void> setupPositionTracking() async {
     userPositionStream?.cancel();
 
-    LocationSettings locationSettings = LocationSettings(accuracy: LocationAccuracy.low, distanceFilter: 100);
+    LocationSettings locationSettings = LocationSettings(
+      accuracy: LocationAccuracy.low,
+      distanceFilter: 100,
+      timeLimit: const Duration(seconds: 15),
+    );
 
     userPositionStream = Geolocator.getPositionStream(locationSettings: locationSettings).listen((
       Position position,
