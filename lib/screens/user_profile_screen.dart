@@ -87,7 +87,6 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
 
     // Get position and address
     Position position = await Geolocator.getCurrentPosition(
-      forceAndroidLocationManager: true,
       // desiredAccuracy: LocationAccuracy.high,
       // locationSettings: LocationSettings(accuracy: LocationAccuracy.high),
       timeLimit: Duration(seconds: 10),
