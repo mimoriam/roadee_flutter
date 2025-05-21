@@ -618,7 +618,7 @@ class _HomeScreenState extends State<HomeScreen> {
       }
     } catch (e) {
       if (mounted) {
-        showDialog(
+        await showDialog(
           context: context,
           builder: (BuildContext context) {
             return AlertDialog(
@@ -767,7 +767,7 @@ class _HomeScreenState extends State<HomeScreen> {
               // If the route is popped, exit the app
             } else {
               // Show a confirmation dialog before allowing the pop
-              showDialog(
+              await showDialog(
                 context: context,
                 builder: (BuildContext context) {
                   return AlertDialog(
@@ -1103,7 +1103,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                       onPressed: () async {
                                         if (selectedIndex == -1) {
                                           if (context.mounted) {
-                                            showDialog(
+                                            await showDialog(
                                               context: context,
                                               builder: (BuildContext context) {
                                                 return AlertDialog(
@@ -1152,7 +1152,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                             // );
                                           } else {
                                             if (context.mounted) {
-                                              showDialog(
+                                              await showDialog(
                                                 context: context,
                                                 builder: (BuildContext context) {
                                                   // TODO Fix a potential bug here on multiple user orders
