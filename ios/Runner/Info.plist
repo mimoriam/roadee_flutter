@@ -37,8 +37,6 @@
 	<string>$(FLUTTER_BUILD_NUMBER)</string>
 	<key>LSRequiresIPhoneOS</key>
 	<true/>
-	<key>MBXAccessToken</key>
-	<string>pk.eyJ1IjoibWltb3JpYSIsImEiOiJjbWE2b2Z4MjMwbm04MmxzZmlyaGtmOXduIn0.TraFSTz7MLoFqXtMiXPVLA</string>
 	<key>NSAppTransportSecurity</key>
 	<dict>
 		<key>NSAllowsArbitraryLoads</key>
