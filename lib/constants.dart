@@ -4,7 +4,7 @@ const secretKey =
     "sk_test_51RI9CyRpgPtVkfaJINJnPNrGvshbAGW8QZknU1zdPFqThsXm9xXiYfKEnGIIvnKRCHNr8nYFcrDaofJOa3BVaPdh00ECBaeiiS";
 
 const mapBoxToken =
-    "pk.eyJ1IjoibWltb3JpYSIsImEiOiJjbWE2b2Z4MjMwbm04MmxzZmlyaGtmOXduIn0.TraFSTz7MLoFqXtMiXPVLA";
+    "sk.eyJ1IjoibWltb3JpYSIsImEiOiJjbWF5Ynh4dTYwN2d1MmlzY3p2d2ozb3owIn0.fJMtSFTqWQWLA4ljvoaL_w";
 
 const Map<int, String> serviceSelectedIndex = {0: "Towing", 1: "Flat Tire", 2: "Battery", 3: "Fuel"};
 
