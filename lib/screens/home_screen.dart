@@ -160,6 +160,7 @@ class _HomeScreenState extends State<HomeScreen> {
             ) ??
             false;
       }
+      debugPrint("Location Service returned null~");
       return null;
     }
 
@@ -231,19 +232,25 @@ class _HomeScreenState extends State<HomeScreen> {
     //   locationSettings: LocationSettings(accuracy: LocationAccuracy.low),
     // );
 
-    Position position = await Geolocator.getCurrentPosition(locationSettings: locationSettings);
+    try {
+      Position position = await Geolocator.getCurrentPosition(locationSettings: locationSettings);
 
-    debugPrint(position.toString());
-    List<Placemark> placemarks = await placemarkFromCoordinates(position.latitude, position.longitude);
-    Placemark place = placemarks[0];
+      debugPrint(position.toString());
+      List<Placemark> placemarks = await placemarkFromCoordinates(position.latitude, position.longitude);
+      Placemark place = placemarks[0];
 
-    // Why is this here? Sheesh. Took me a long while to find this out
-    // Load bearing code, I guess
-    await updateUserAddressOnPlaceOrder(
-      '${place.name}, ${place.locality}, ${place.administrativeArea}, ${place.country} ${_place.thoroughfare}',
-    );
+      if (context.mounted && placemarks.isNotEmpty) {
+        // Why is this here? Sheesh. Took me a long while to find this out
+        // Load bearing code, I guess
+        await updateUserAddressOnPlaceOrder(
+          '${place.name}, ${place.locality}, ${place.administrativeArea}, ${place.country} ${_place.thoroughfare}',
+        );
 
-    return '${place.name}, ${place.locality}, ${place.administrativeArea}, ${place.country} ${_place.thoroughfare}';
+        return '${place.name}, ${place.locality}, ${place.administrativeArea}, ${place.country} ${_place.thoroughfare}';
+      }
+    } catch (e) {
+      debugPrint("Error getting position: $e");
+    }
   }
 
   Future<void> calculatePlacemarks({required var long, required var lat}) async {
@@ -257,8 +264,6 @@ class _HomeScreenState extends State<HomeScreen> {
   getCurrentLocationOnLaunch() async {
     if (_isRequestingLocation) return;
     _isRequestingLocation = true;
-
-    try {} catch (e) {}
 
     bool serviceEnabled;
     LocationPermission permission;
@@ -1126,9 +1131,12 @@ class _HomeScreenState extends State<HomeScreen> {
                                         } else {
                                           var address = await getUserAddress(context);
 
+                                          debugPrint(address);
+
                                           if (!mounted) return;
 
                                           if (address == null) {
+                                            debugPrint("Address is null");
                                             // showDialog(
                                             //   context: context,
                                             //   builder: (BuildContext context) {
