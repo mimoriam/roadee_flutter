@@ -251,6 +251,7 @@ class _HomeScreenState extends State<HomeScreen> {
     } catch (e) {
       debugPrint("Error getting position: $e");
     }
+    return null;
   }
 
   Future<void> calculatePlacemarks({required var long, required var lat}) async {
